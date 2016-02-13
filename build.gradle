@@ -1,0 +1,36 @@
+group = "at.dotpoint";
+version = "1.0-SNAPSHOT";
+
+// /////////////////////////////////////////////// //
+// /////////////////////////////////////////////// //
+
+apply plugin: 'groovy'
+apply plugin: 'maven-publish'
+apply plugin: 'idea'
+
+dependencies
+{
+    compile gradleApi()
+    compile localGroovy()
+    compile "commons-lang:commons-lang:2.6"
+}
+
+repositories
+{
+    mavenLocal()
+    mavenCentral()
+}
+
+// /////////////////////////////////////////////// //
+// /////////////////////////////////////////////// //
+
+publishing
+{
+    publications
+	{
+        plugin( MavenPublication )
+		{
+            artifact jar;
+        }
+    }
+}

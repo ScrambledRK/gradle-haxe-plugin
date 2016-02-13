@@ -1,0 +1,5 @@
+/.gradle
+/build
+/gradle-haxe-plugin.ipr
+/gradle-haxe-plugin.iws
+/gradle-haxe-plugin.iml
