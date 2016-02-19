@@ -1,0 +1,76 @@
+package at.dotpoint.gradle.model
+
+import at.dotpoint.gradle.platform.HaxePlatform
+import org.gradle.internal.HasInternalProtocol
+import org.gradle.model.Managed
+import org.gradle.platform.base.ApplicationBinarySpec
+import org.gradle.platform.base.Variant
+import org.gradle.platform.base.binary.BaseBinarySpec
+import org.gradle.platform.base.component.BaseComponentSpec
+import org.gradle.platform.base.internal.BinarySpecInternal
+
+/**
+ * Created by RK on 19.02.16.
+ */
+@HasInternalProtocol
+//
+public interface HaxeApplicationBinarySpec extends ApplicationBinarySpec
+{
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    HaxeApplicationSpec getApplication();
+
+    /**
+    * The Haxe-Target-Platform this binary is built for. (java, python, neko, etc)
+    */
+    @Variant
+    HaxePlatform getTargetPlatform();
+}
+
+/**
+ *
+ */
+@Managed
+//
+public interface HaxeApplicationBinarySpecInternal extends HaxeApplicationBinarySpec, BinarySpecInternal
+{
+    void setTargetPlatform( HaxePlatform platform );
+}
+
+/**
+ *
+ */
+public class DefaultHaxeApplicationBinarySpec extends BaseBinarySpec implements HaxeApplicationBinarySpecInternal, ApplicationBinarySpec
+{
+
+    private HaxePlatform platform;
+
+    // --------------------------------------------------- //
+    // --------------------------------------------------- //
+
+    /**
+     *
+     */
+    void setTargetPlatform( HaxePlatform platform )
+    {
+        this.platform = platform;
+    }
+
+    HaxePlatform getTargetPlatform()
+    {
+        return this.platform;
+    }
+
+    /**
+     *
+     */
+    @Override
+    HaxeApplicationSpec getApplication()
+    {
+        return getComponentAs(HaxeApplicationSpec.class);
+    }
+
+}

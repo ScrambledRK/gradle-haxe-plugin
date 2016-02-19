@@ -1,12 +1,16 @@
 package at.dotpoint.gradle
 
-import at.dotpoint.gradle.model.DefaultHaxeTargetPlatformSpec
+import at.dotpoint.gradle.model.DefaultHaxeApplicationBinarySpec
+import at.dotpoint.gradle.model.DefaultHaxeApplicationSpec
+import at.dotpoint.gradle.model.DefaultHaxePlatformAwareSpec
+import at.dotpoint.gradle.model.HaxeApplicationBinarySpec
+import at.dotpoint.gradle.model.HaxeApplicationBinarySpecInternal
 import at.dotpoint.gradle.model.HaxeApplicationSpecInternal
 import at.dotpoint.gradle.model.HaxeSourceSet
 import at.dotpoint.gradle.model.HaxeApplicationSpec
-import at.dotpoint.gradle.model.HaxeTargetPlatformSpec
-import at.dotpoint.gradle.model.HaxeTargetPlatformSpecInternal
-import org.gradle.api.Action
+import at.dotpoint.gradle.model.HaxePlatformAwareSpec
+import at.dotpoint.gradle.model.HaxePlatformAwareSpecInternal
+import at.dotpoint.gradle.platform.HaxePlatformResolver
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.internal.file.FileResolver
@@ -16,8 +20,10 @@ import org.gradle.model.Each
 import org.gradle.model.ModelMap
 import org.gradle.model.Mutate
 import org.gradle.model.RuleSource
+import org.gradle.platform.base.BinaryType
 import org.gradle.platform.base.ComponentType
 import org.gradle.platform.base.TypeBuilder
+import org.gradle.platform.base.internal.PlatformResolvers
 
 import javax.inject.Inject
 
@@ -51,9 +57,6 @@ class HaxePlugin implements Plugin<Project>
     public void apply( final Project project )
     {
         this.extension = this.createExtension( project );
-
-        project.extensions.extraProperties.set( "HaxeTargetPlatformSpec", HaxeTargetPlatformSpec );
-        project.extensions.extraProperties.set( "HaxeSourceSet", HaxeSourceSet );
     }
 
     // ---------------------------------------------------------- //
@@ -70,24 +73,59 @@ class HaxePlugin implements Plugin<Project>
     /**
      *
      */
-    static class TargetPlatformRule extends RuleSource
+    @SuppressWarnings("UnusedDeclaration")
+    //
+    static class HaxePluginRules extends RuleSource
     {
 
-        @ComponentType
-        void registerHaxeTargetPlatform( TypeBuilder<HaxeTargetPlatformSpec> builder )
+        /**
+         * BinarySpec
+         */
+        @BinaryType
+        void registerApplicationBinarySpec( TypeBuilder<HaxeApplicationBinarySpec> builder )
         {
-            builder.defaultImplementation(DefaultHaxeTargetPlatformSpec.class);
-            builder.internalView(HaxeTargetPlatformSpecInternal.class);
+           builder.defaultImplementation(DefaultHaxeApplicationBinarySpec.class);
+           builder.internalView(HaxeApplicationBinarySpecInternal.class);
         }
 
+        /**
+         * PlatformSpec
+         */
         @ComponentType
-        void registerHaxeApplicationSpec( TypeBuilder<HaxeApplicationSpec> builder ) {
+        void registerPlatformAwareSpec( TypeBuilder<HaxePlatformAwareSpec> builder )
+        {
+            builder.defaultImplementation(DefaultHaxePlatformAwareSpec.class);
+            builder.internalView(HaxePlatformAwareSpecInternal.class);
+        }
+
+        /**
+         * ApplicationSpec
+         */
+        @ComponentType
+        void registerApplicationSpec( TypeBuilder<HaxeApplicationSpec> builder )
+        {
+            builder.defaultImplementation(DefaultHaxeApplicationSpec.class);
             builder.internalView(HaxeApplicationSpecInternal.class);
         }
 
+        // -------------------------------------------------- //
+        // -------------------------------------------------- //
+
+        /**
+         * PlatformResolver
+         */
         @Mutate
-        void createDefaultHaxeApplication( ModelMap<HaxeApplicationSpec> builder ) {
-            builder.create("haxe");
+        public void registerPlatformResolver( PlatformResolvers platformResolvers )
+        {
+           platformResolvers.register( new HaxePlatformResolver() );
+        }
+
+        @Mutate
+        void createDefaultHaxeApplication( ModelMap<HaxeApplicationSpec> builder )
+        {
+            builder.create("libraries");
+            builder.create("documentations");
+            builder.create("tests");
         }
 
         @Defaults

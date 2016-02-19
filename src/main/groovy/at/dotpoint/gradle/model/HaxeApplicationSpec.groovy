@@ -1,13 +1,27 @@
 package at.dotpoint.gradle.model
 
+import at.dotpoint.gradle.platform.HaxePlatformNotationParser
+import org.gradle.internal.HasInternalProtocol
 import org.gradle.model.Managed
 import org.gradle.platform.base.ApplicationSpec
+import org.gradle.platform.base.internal.PlatformRequirement
 
 /**
  * software component that should be built
  */
+@HasInternalProtocol
+//
+public interface HaxeApplicationSpec extends ApplicationSpec, HaxePlatformAwareSpec
+{
+    void platform( Object platformRequirements );
+}
+
+/**
+ *
+ */
 @Managed
-public interface HaxeApplicationSpec extends ApplicationSpec, HaxeTargetPlatformSpec
+//
+public interface HaxeApplicationSpecInternal extends HaxeApplicationSpec, HaxePlatformAwareSpecInternal
 {
 
 }
@@ -15,8 +29,15 @@ public interface HaxeApplicationSpec extends ApplicationSpec, HaxeTargetPlatform
 /**
  *
  */
-@Managed
-public interface HaxeApplicationSpecInternal extends HaxeApplicationSpec, HaxeTargetPlatformSpecInternal
+class DefaultHaxeApplicationSpec extends DefaultHaxePlatformAwareSpec implements HaxeApplicationSpecInternal
 {
 
+    @Override
+    public void platform( Object platformRequirements )
+    {
+        PlatformRequirement requirement = HaxePlatformNotationParser.getInstance().parseNotation( platformRequirements );
+
+        if( requirement != null )
+            this.targetPlatformList.add( requirement );
+    }
 }

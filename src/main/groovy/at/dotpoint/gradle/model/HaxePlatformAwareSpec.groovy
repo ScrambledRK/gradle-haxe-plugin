@@ -1,23 +1,21 @@
 package at.dotpoint.gradle.model
 
-import org.gradle.internal.reflect.Instantiator
+import org.gradle.internal.HasInternalProtocol
 import org.gradle.model.Managed
 import org.gradle.platform.base.ApplicationSpec
-import org.gradle.platform.base.Platform
 import org.gradle.platform.base.PlatformAwareComponentSpec
-import org.gradle.platform.base.PlatformContainer
 import org.gradle.platform.base.TransformationFileType
 import org.gradle.platform.base.component.BaseComponentSpec
-import org.gradle.platform.base.internal.DefaultPlatformContainer
 import org.gradle.platform.base.internal.DefaultPlatformRequirement
 import org.gradle.platform.base.internal.PlatformAwareComponentSpecInternal
 import org.gradle.platform.base.internal.PlatformRequirement
-import org.gradle.play.internal.DefaultPlayPlatformAwareComponentSpec
 
 /**
  *
  */
-public interface HaxeTargetPlatformSpec extends PlatformAwareComponentSpec
+@HasInternalProtocol
+//
+public interface HaxePlatformAwareSpec extends PlatformAwareComponentSpec
 {
 
 }
@@ -27,7 +25,7 @@ public interface HaxeTargetPlatformSpec extends PlatformAwareComponentSpec
  */
 @Managed
 //
-public interface HaxeTargetPlatformSpecInternal extends HaxeTargetPlatformSpec, PlatformAwareComponentSpecInternal
+public interface HaxePlatformAwareSpecInternal extends HaxePlatformAwareSpec, PlatformAwareComponentSpecInternal
 {
 
 }
@@ -35,22 +33,29 @@ public interface HaxeTargetPlatformSpecInternal extends HaxeTargetPlatformSpec, 
 /**
  *
  */
-public class DefaultHaxeTargetPlatformSpec extends BaseComponentSpec implements HaxeTargetPlatformSpecInternal, ApplicationSpec
+public class DefaultHaxePlatformAwareSpec extends BaseComponentSpec implements HaxePlatformAwareSpecInternal, ApplicationSpec
 {
 
     //
-    private final List<PlatformRequirement> targetPlatforms = new ArrayList<PlatformRequirement>();
+    protected final ArrayList<PlatformRequirement> targetPlatformList = new ArrayList<PlatformRequirement>();
+
+    @Override
+    protected String getTypeName()
+    {
+        return "HaxeApplication";
+    }
+
 
     @Override
     void targetPlatform( String targetPlatform )
     {
-        this.targetPlatforms.add( DefaultPlatformRequirement.create(targetPlatform) );
+        this.targetPlatformList.add( DefaultPlatformRequirement.create( targetPlatform ) );
     }
 
     @Override
     List<PlatformRequirement> getTargetPlatforms()
     {
-        return Collections.unmodifiableList(targetPlatforms);
+        return Collections.unmodifiableList( this.targetPlatformList );
     }
 
     @Override
