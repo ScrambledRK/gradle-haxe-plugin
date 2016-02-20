@@ -1,18 +1,22 @@
 package at.dotpoint.gradle.platform
 
+import org.gradle.internal.HasInternalProtocol
 import org.gradle.model.Managed
 import org.gradle.platform.base.Platform
 
 /**
  *
  */
-@Managed
+@HasInternalProtocol
+//
 public interface HaxePlatform extends Platform {
 }
 
 /**
  *
  */
+@Managed
+//
 public interface HaxePlatformInternal extends HaxePlatform {
 }
 
@@ -35,7 +39,6 @@ public class DefaultHaxePlatform implements HaxePlatformInternal
     public DefaultHaxePlatform( HaxePlatformType platformType )
     {
         assert( platformType != null );
-
         this.platformType = platformType;
     }
 
@@ -45,12 +48,17 @@ public class DefaultHaxePlatform implements HaxePlatformInternal
     @Override
     String getDisplayName()
     {
-        return "Haxe Platform " + this.platformType.toString();
+        return "Haxe Platform " + this.getName();
     }
 
     @Override
     String getName()
     {
         return this.platformType.toString();
+    }
+
+    String toString()
+    {
+        return "[" + this.getName() + "]";
     }
 }

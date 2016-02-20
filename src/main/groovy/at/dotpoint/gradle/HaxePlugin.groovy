@@ -3,26 +3,41 @@ package at.dotpoint.gradle
 import at.dotpoint.gradle.model.DefaultHaxeApplicationBinarySpec
 import at.dotpoint.gradle.model.DefaultHaxeApplicationSpec
 import at.dotpoint.gradle.model.DefaultHaxePlatformAwareSpec
+import at.dotpoint.gradle.model.DefaultHaxeReleaseFlavor
+import at.dotpoint.gradle.model.HaxeReleaseFlavor
+import at.dotpoint.gradle.model.HaxeReleaseFlavorType
+import at.dotpoint.gradle.sourceset.DefaultHaxeSourceSet
 import at.dotpoint.gradle.model.HaxeApplicationBinarySpec
 import at.dotpoint.gradle.model.HaxeApplicationBinarySpecInternal
 import at.dotpoint.gradle.model.HaxeApplicationSpecInternal
-import at.dotpoint.gradle.model.HaxeSourceSet
+import at.dotpoint.gradle.sourceset.HaxeSourceSet
 import at.dotpoint.gradle.model.HaxeApplicationSpec
 import at.dotpoint.gradle.model.HaxePlatformAwareSpec
 import at.dotpoint.gradle.model.HaxePlatformAwareSpecInternal
+import at.dotpoint.gradle.sourceset.HaxeSourceSetInternal
+import at.dotpoint.gradle.platform.DefaultHaxePlatform
+import at.dotpoint.gradle.platform.HaxePlatform
 import at.dotpoint.gradle.platform.HaxePlatformResolver
+import at.dotpoint.gradle.platform.HaxePlatformType
+import at.dotpoint.gradle.util.StringUtil
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.internal.file.FileResolver
 import org.gradle.internal.reflect.Instantiator
-import org.gradle.model.Defaults
-import org.gradle.model.Each
+import org.gradle.language.base.LanguageSourceSet
+import org.gradle.language.base.ProjectSourceSet
+import org.gradle.model.Model
 import org.gradle.model.ModelMap
 import org.gradle.model.Mutate
 import org.gradle.model.RuleSource
 import org.gradle.platform.base.BinaryType
+import org.gradle.platform.base.ComponentBinaries
 import org.gradle.platform.base.ComponentType
+import org.gradle.platform.base.LanguageType
+import org.gradle.platform.base.Platform
+import org.gradle.platform.base.PlatformContainer
 import org.gradle.platform.base.TypeBuilder
+import org.gradle.platform.base.internal.PlatformRequirement
 import org.gradle.platform.base.internal.PlatformResolvers
 
 import javax.inject.Inject
@@ -65,6 +80,8 @@ class HaxePlugin implements Plugin<Project>
     private HaxeExtension createExtension( Project project )
     {
         return project.extensions.create( HaxeExtension.NAME, HaxeExtension, project, this );
+
+        project.extensions.extraProperties.set( "HaxeSourceSet", HaxeSourceSet );
     }
 
     // ---------------------------------------------------------- //
@@ -77,6 +94,15 @@ class HaxePlugin implements Plugin<Project>
     //
     static class HaxePluginRules extends RuleSource
     {
+        /**
+         * LanguageSourceSet
+         */
+        @LanguageType
+        void registerSourceSet( TypeBuilder<HaxeSourceSet> builder )
+		{
+			builder.defaultImplementation(DefaultHaxeSourceSet.class);
+		    builder.internalView(HaxeSourceSetInternal.class);
+        }
 
         /**
          * BinarySpec
@@ -115,26 +141,58 @@ class HaxePlugin implements Plugin<Project>
          * PlatformResolver
          */
         @Mutate
-        public void registerPlatformResolver( PlatformResolvers platformResolvers )
+        public void registerPlatformResolver( PlatformResolvers platformResolvers, PlatformContainer platformContainer  )
         {
-           platformResolvers.register( new HaxePlatformResolver() );
+           platformResolvers.register( new HaxePlatformResolver( platformContainer ) );
         }
 
+        /**
+         * DefaultPlatforms
+         */
         @Mutate
-        void createDefaultHaxeApplication( ModelMap<HaxeApplicationSpec> builder )
+        void createDefaultPlatforms( PlatformContainer platformContainer )
         {
-            builder.create("libraries");
-            builder.create("documentations");
-            builder.create("tests");
+            for( HaxePlatformType type : HaxePlatformType.values() )
+            {
+                platformContainer.add( new DefaultHaxePlatform( type ) );
+            }
         }
 
-        @Defaults
-        void createHaxeSourceSet( @Each HaxeApplicationSpec haxeApplication )
+        /**
+         * DefaultApplications
+         */
+        @Mutate
+        void createDefaultApplications( ModelMap<HaxeApplicationSpec> builder, PlatformContainer platformContainer )
         {
-            haxeApplication.getSources().create( "haxe", HaxeSourceSet.class )
+			builder.create( "docs" ){ HaxeApplicationSpec applicationSpec ->
+
+				platformContainer.all{ Platform platform ->
+					applicationSpec.platform( platform.name );
+				}
+
+			}
+        }
+
+        @ComponentBinaries
+        void generateApplicationBinaries( ModelMap<HaxeApplicationBinarySpec> builder, HaxeApplicationSpec applicationSpec, PlatformResolvers platformResolver )
+        {
+            HaxeApplicationSpecInternal applicationSpecInternal = (HaxeApplicationSpecInternal) applicationSpec;
+
+			//
+            for( PlatformRequirement platformRequirement : applicationSpecInternal.getTargetPlatforms() )
             {
-                getSource().srcDir("src");
-                getSource().include("**/*.hx");
+                HaxePlatform platform = platformResolver.resolve( HaxePlatform, platformRequirement );
+
+				for( HaxeReleaseFlavorType flavor : HaxeReleaseFlavorType.values() )
+				{
+					builder.create( StringUtil.toCamelCase( platform.name, flavor.toString() ) ){ HaxeApplicationBinarySpec binarySpec ->
+
+						HaxeApplicationBinarySpecInternal binarySpecInternal = (HaxeApplicationBinarySpecInternal) binarySpec;
+
+						binarySpecInternal.setTargetPlatform( platform );
+						binarySpecInternal.setReleaseType( new DefaultHaxeReleaseFlavor( flavor ) );
+					}
+				}
             }
         }
 

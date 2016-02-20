@@ -1,14 +1,13 @@
-package at.dotpoint.gradle.platform
+package at.dotpoint.gradle.model;
 
 /**
- * Created by RK on 19.02.16.
+ * Created by RK on 20.02.16.
  */
-public enum HaxePlatformType
+public enum HaxeReleaseFlavorType
 {
-   HAXE("haxe"),
- /*    JAVA("java"),
-    JAVASCRIPT("javascript"),*/
-	ACTIONSCRIPT("actionscript");
+	DEBUG("debug"),
+	PRODUCTION("production"),
+	RELEASE("release");
 
     // --------------------------- //
     // --------------------------- //
@@ -16,7 +15,7 @@ public enum HaxePlatformType
     private final String ID;
 
     //
-    private HaxePlatformType(final String id)
+    private HaxeReleaseFlavorType( final String id )
     {
         this.ID = id;
     }
@@ -24,12 +23,12 @@ public enum HaxePlatformType
     /**
      *
      */
-    public static HaxePlatformType createFromString( String name )
+    public static HaxeReleaseFlavorType createFromString( String name )
     {
         if( name == null || name.length() == 0 )
             return null;
 
-        for( HaxePlatformType type : HaxePlatformType.values() )
+        for( HaxeReleaseFlavorType type : HaxeReleaseFlavorType.values() )
         {
             if( name.equalsIgnoreCase( type.ID ) )
                 return type;

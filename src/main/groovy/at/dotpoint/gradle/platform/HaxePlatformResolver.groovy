@@ -1,5 +1,9 @@
 package at.dotpoint.gradle.platform
 
+import org.codehaus.groovy.runtime.StackTraceUtils
+import org.gradle.platform.base.Platform
+import org.gradle.platform.base.PlatformContainer
+import org.gradle.platform.base.internal.DefaultPlatformResolvers
 import org.gradle.platform.base.internal.PlatformRequirement
 import org.gradle.platform.base.internal.PlatformResolver
 
@@ -9,20 +13,31 @@ import org.gradle.platform.base.internal.PlatformResolver
 public class HaxePlatformResolver implements PlatformResolver<HaxePlatform>
 {
 
-    @Override
-    Class<HaxePlatform> getType()
-    {
-        return HaxePlatform.class;
-    }
+	//
+	private final PlatformContainer platformContainer;
 
-    @Override
-    HaxePlatform resolve( PlatformRequirement platformRequirement )
-    {
-        return new DefaultHaxePlatform( platformRequirement.getPlatformName() )
-    }
+	//
+	public HaxePlatformResolver(PlatformContainer platformContainer)
+	{
+		this.platformContainer = platformContainer;
+	}
 
-    HaxePlatform resolve( HaxePlatformRequirement platformRequirement )
-    {
-        return new DefaultHaxePlatform( platformRequirement );
-    }
+	@Override
+	Class<HaxePlatform> getType()
+	{
+		return HaxePlatform.class;
+	}
+
+	@Override
+	HaxePlatform resolve( PlatformRequirement platformRequirement )
+	{
+		for( Platform platform : this.platformContainer )
+		{
+			if( platform.name.equals( platformRequirement.platformName ) )
+				return platform;
+		}
+
+		return new DefaultHaxePlatform( platformRequirement.getPlatformName() );
+	}
+
 }

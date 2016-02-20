@@ -6,7 +6,6 @@ import org.gradle.model.Managed
 import org.gradle.platform.base.ApplicationBinarySpec
 import org.gradle.platform.base.Variant
 import org.gradle.platform.base.binary.BaseBinarySpec
-import org.gradle.platform.base.component.BaseComponentSpec
 import org.gradle.platform.base.internal.BinarySpecInternal
 
 /**
@@ -28,6 +27,9 @@ public interface HaxeApplicationBinarySpec extends ApplicationBinarySpec
     */
     @Variant
     HaxePlatform getTargetPlatform();
+
+	@Variant
+	HaxeReleaseFlavor getReleaseType();
 }
 
 /**
@@ -38,6 +40,7 @@ public interface HaxeApplicationBinarySpec extends ApplicationBinarySpec
 public interface HaxeApplicationBinarySpecInternal extends HaxeApplicationBinarySpec, BinarySpecInternal
 {
     void setTargetPlatform( HaxePlatform platform );
+    void setReleaseType( HaxeReleaseFlavor releaseType );
 }
 
 /**
@@ -47,6 +50,7 @@ public class DefaultHaxeApplicationBinarySpec extends BaseBinarySpec implements 
 {
 
     private HaxePlatform platform;
+    private HaxeReleaseFlavor releaseType;
 
     // --------------------------------------------------- //
     // --------------------------------------------------- //
@@ -63,6 +67,19 @@ public class DefaultHaxeApplicationBinarySpec extends BaseBinarySpec implements 
     {
         return this.platform;
     }
+
+	/**
+	 *
+	 */
+	void setReleaseType( HaxeReleaseFlavor releaseType )
+	{
+		this.releaseType = releaseType;
+	}
+
+	HaxeReleaseFlavor getReleaseType()
+	{
+		return this.releaseType;
+	}
 
     /**
      *
