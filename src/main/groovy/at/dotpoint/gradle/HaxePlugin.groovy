@@ -10,6 +10,7 @@ import at.dotpoint.gradle.sourceset.DefaultHaxeSourceSet
 import at.dotpoint.gradle.model.HaxeApplicationBinarySpec
 import at.dotpoint.gradle.model.HaxeApplicationBinarySpecInternal
 import at.dotpoint.gradle.model.HaxeApplicationSpecInternal
+import at.dotpoint.gradle.sourceset.HaxeLanguageTransform
 import at.dotpoint.gradle.sourceset.HaxeSourceSet
 import at.dotpoint.gradle.model.HaxeApplicationSpec
 import at.dotpoint.gradle.model.HaxePlatformAwareSpec
@@ -19,17 +20,22 @@ import at.dotpoint.gradle.platform.DefaultHaxePlatform
 import at.dotpoint.gradle.platform.HaxePlatform
 import at.dotpoint.gradle.platform.HaxePlatformResolver
 import at.dotpoint.gradle.platform.HaxePlatformType
+import at.dotpoint.gradle.tasks.ConvertSourceTask
 import at.dotpoint.gradle.util.StringUtil
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.internal.file.FileResolver
 import org.gradle.internal.reflect.Instantiator
+import org.gradle.internal.service.ServiceRegistry
 import org.gradle.language.base.LanguageSourceSet
 import org.gradle.language.base.ProjectSourceSet
+import org.gradle.language.base.internal.registry.LanguageTransformContainer
+import org.gradle.model.Defaults
 import org.gradle.model.Model
 import org.gradle.model.ModelMap
 import org.gradle.model.Mutate
 import org.gradle.model.RuleSource
+import org.gradle.model.internal.manage.schema.ModelSchemaStore
 import org.gradle.platform.base.BinaryType
 import org.gradle.platform.base.ComponentBinaries
 import org.gradle.platform.base.ComponentType
@@ -39,6 +45,7 @@ import org.gradle.platform.base.PlatformContainer
 import org.gradle.platform.base.TypeBuilder
 import org.gradle.platform.base.internal.PlatformRequirement
 import org.gradle.platform.base.internal.PlatformResolvers
+import org.gradle.tooling.model.Task
 
 import javax.inject.Inject
 
@@ -195,6 +202,13 @@ class HaxePlugin implements Plugin<Project>
 				}
             }
         }
+
+		@Mutate
+		void registerLanguageTransform(LanguageTransformContainer languages, ServiceRegistry serviceRegistry)
+		{
+			ModelSchemaStore schemaStore = serviceRegistry.get(ModelSchemaStore.class);
+			languages.add( new HaxeLanguageTransform(schemaStore) );
+		}
 
     }
 
