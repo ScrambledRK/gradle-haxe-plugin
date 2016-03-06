@@ -34,8 +34,10 @@ import org.gradle.model.Defaults
 import org.gradle.model.Model
 import org.gradle.model.ModelMap
 import org.gradle.model.Mutate
+import org.gradle.model.Path
 import org.gradle.model.RuleSource
 import org.gradle.model.internal.manage.schema.ModelSchemaStore
+import org.gradle.platform.base.BinaryTasksCollection
 import org.gradle.platform.base.BinaryType
 import org.gradle.platform.base.ComponentBinaries
 import org.gradle.platform.base.ComponentType
@@ -45,7 +47,7 @@ import org.gradle.platform.base.PlatformContainer
 import org.gradle.platform.base.TypeBuilder
 import org.gradle.platform.base.internal.PlatformRequirement
 import org.gradle.platform.base.internal.PlatformResolvers
-import org.gradle.tooling.model.Task
+import org.gradle.api.Task;
 
 import javax.inject.Inject
 
@@ -207,8 +209,27 @@ class HaxePlugin implements Plugin<Project>
 		void registerLanguageTransform(LanguageTransformContainer languages, ServiceRegistry serviceRegistry)
 		{
 			ModelSchemaStore schemaStore = serviceRegistry.get(ModelSchemaStore.class);
-			languages.add( new HaxeLanguageTransform(schemaStore) );
+			languages.add( new HaxeLanguageTransform() );
 		}
+
+		@Mutate
+		void attachBinariesToCheckLifecycle(@Path("tasks.check") Task checkTask, @Path("binaries") ModelMap<HaxeApplicationBinarySpec> binaries)
+		{
+			for( HaxeApplicationBinarySpec testBinary : binaries )
+			{
+				if( testBinary.isBuildable() )
+				{
+
+					println( "!?!: " + testBinary + " :: " + testBinary.getBuildTask().class );
+
+//					if (tasks instanceof TestSuiteTaskCollection) {
+//						checkTask.dependsOn(((TestSuiteTaskCollection) tasks).getRun());
+//					}
+				}
+			}
+		}
+
+
 
     }
 

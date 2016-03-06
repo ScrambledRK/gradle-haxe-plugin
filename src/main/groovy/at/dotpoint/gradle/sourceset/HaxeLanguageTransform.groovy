@@ -19,11 +19,9 @@ import org.gradle.api.Task
  */
 class HaxeLanguageTransform implements LanguageTransform<HaxeSourceSet, HaxeSourceSet>
 {
-       private final HaxeSourceTransformTaskConfig config;
-
-       public HaxeLanguageTransform(ModelSchemaStore schemaStore)
+       public HaxeLanguageTransform()
 	   {
-           this.config = new HaxeSourceTransformTaskConfig(schemaStore);
+
        }
 
 		// -------------------------------------- //
@@ -51,7 +49,7 @@ class HaxeLanguageTransform implements LanguageTransform<HaxeSourceSet, HaxeSour
 
        @Override
        public SourceTransformTaskConfig getTransformTask() {
-           return config;
+           return new HaxeSourceTransformTaskConfig();
        }
 
        @Override
@@ -67,11 +65,9 @@ class HaxeLanguageTransform implements LanguageTransform<HaxeSourceSet, HaxeSour
 	*/
 	public static class HaxeSourceTransformTaskConfig implements SourceTransformTaskConfig {
 
-		private final ModelSchemaStore schemaStore;
-
-		private HaxeSourceTransformTaskConfig( ModelSchemaStore schemaStore )
+		private HaxeSourceTransformTaskConfig()
 		{
-		   this.schemaStore = schemaStore;
+
 		}
 
 		@Override
@@ -101,6 +97,7 @@ class HaxeLanguageTransform implements LanguageTransform<HaxeSourceSet, HaxeSour
 
 		   convertSourceTask.setOutputPlatform(targetPlatform);
 
+			println("configureTask: " + convertSourceTask + " @: " + haxeApplicationBinarySpec );
 		}
 
 	}
