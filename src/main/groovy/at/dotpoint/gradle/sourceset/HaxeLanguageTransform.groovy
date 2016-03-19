@@ -3,6 +3,7 @@ package at.dotpoint.gradle.sourceset
 import at.dotpoint.gradle.model.HaxeApplicationBinarySpec
 import at.dotpoint.gradle.platform.HaxePlatform
 import at.dotpoint.gradle.tasks.ConvertSourceTask
+import at.dotpoint.gradle.util.StringUtil
 import org.gradle.api.DefaultTask
 import org.gradle.internal.service.ServiceRegistry
 import org.gradle.jvm.internal.SourceSetDependencyResolvingClasspath
@@ -29,7 +30,7 @@ class HaxeLanguageTransform implements LanguageTransform<HaxeSourceSet, HaxeSour
 
        @Override
        public String getLanguageName() {
-           return "haxe";
+           return "compile";
        }
 
        @Override
@@ -83,21 +84,21 @@ class HaxeLanguageTransform implements LanguageTransform<HaxeSourceSet, HaxeSour
 		@Override
 		public void configureTask( Task task, BinarySpec binary, LanguageSourceSet sourceSet, ServiceRegistry serviceRegistry )
 		{
-		   ConvertSourceTask convertSourceTask = (ConvertSourceTask) task;
-		   HaxeSourceSet haxeSourceSet = (HaxeSourceSet) sourceSet;
-		   HaxeApplicationBinarySpec haxeApplicationBinarySpec = (HaxeApplicationBinarySpec) binary;
+			ConvertSourceTask convertSourceTask = (ConvertSourceTask) task;
+			HaxeSourceSet haxeSourceSet = (HaxeSourceSet) sourceSet;
+			HaxeApplicationBinarySpec haxeApplicationBinarySpec = (HaxeApplicationBinarySpec) binary;
 
-		   haxeApplicationBinarySpec.builtBy(convertSourceTask);
+			haxeApplicationBinarySpec.builtBy(convertSourceTask);
 
-		   convertSourceTask.setDescription(String.format("Converts %s.", haxeSourceSet));
-		   convertSourceTask.setSource(haxeSourceSet.getSource());
-		   convertSourceTask.dependsOn(haxeSourceSet);
+			convertSourceTask.setDescription(String.format("Converts %s.", haxeSourceSet));
+			convertSourceTask.setSource(haxeSourceSet.getSource());
+			convertSourceTask.dependsOn(haxeSourceSet);
 
-		   HaxePlatform targetPlatform = haxeApplicationBinarySpec.getTargetPlatform();
+			HaxePlatform targetPlatform = haxeApplicationBinarySpec.getTargetPlatform();
+			HaxePlatform originPlatform = haxeSourceSet.getTargetPlatform();
 
-		   convertSourceTask.setOutputPlatform(targetPlatform);
-
-			println("configureTask: " + convertSourceTask + " @: " + haxeApplicationBinarySpec );
+			convertSourceTask.setOutputPlatform(targetPlatform);
+			convertSourceTask.setInputPlatform(originPlatform);
 		}
 
 	}

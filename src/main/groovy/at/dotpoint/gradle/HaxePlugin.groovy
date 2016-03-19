@@ -31,6 +31,8 @@ import org.gradle.language.base.LanguageSourceSet
 import org.gradle.language.base.ProjectSourceSet
 import org.gradle.language.base.internal.registry.LanguageTransformContainer
 import org.gradle.model.Defaults
+import org.gradle.model.Each
+import org.gradle.model.Finalize
 import org.gradle.model.Model
 import org.gradle.model.ModelMap
 import org.gradle.model.Mutate
@@ -212,24 +214,19 @@ class HaxePlugin implements Plugin<Project>
 			languages.add( new HaxeLanguageTransform() );
 		}
 
-		@Mutate
-		void attachBinariesToCheckLifecycle(@Path("tasks.check") Task checkTask, @Path("binaries") ModelMap<HaxeApplicationBinarySpec> binaries)
+		@Finalize
+		void assignSourceSetPlatforms( @Each HaxeSourceSet sourceSet, PlatformResolvers platformResolver )
 		{
-			for( HaxeApplicationBinarySpec testBinary : binaries )
+			HaxeSourceSetInternal languageSourceSet = (HaxeSourceSetInternal) sourceSet;
+
+			PlatformRequirement platformRequirement = languageSourceSet.getPlatformRequirement();
+
+			if( platformRequirement != null )
 			{
-				if( testBinary.isBuildable() )
-				{
-
-					println( "!?!: " + testBinary + " :: " + testBinary.getBuildTask().class );
-
-//					if (tasks instanceof TestSuiteTaskCollection) {
-//						checkTask.dependsOn(((TestSuiteTaskCollection) tasks).getRun());
-//					}
-				}
+				HaxePlatform platform = platformResolver.resolve( HaxePlatform, platformRequirement);
+				languageSourceSet.setTargetPlatform( platform );
 			}
 		}
-
-
 
     }
 

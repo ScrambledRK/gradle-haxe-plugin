@@ -1,6 +1,7 @@
 package at.dotpoint.gradle.sourceset
 
 import at.dotpoint.gradle.platform.HaxePlatform
+import at.dotpoint.gradle.platform.HaxePlatformNotationParser
 import org.gradle.internal.HasInternalProtocol
 import org.gradle.language.base.DependentSourceSet
 import org.gradle.language.base.LanguageSourceSet
@@ -10,6 +11,7 @@ import org.gradle.model.Managed
 import org.gradle.platform.base.DependencySpecContainer
 import org.gradle.platform.base.TransformationFileType
 import org.gradle.platform.base.internal.DefaultDependencySpecContainer
+import org.gradle.platform.base.internal.PlatformRequirement
 
 /**
  *
@@ -19,6 +21,7 @@ import org.gradle.platform.base.internal.DefaultDependencySpecContainer
 public interface HaxeSourceSet extends LanguageSourceSet, DependentSourceSet, TransformationFileType
 {
 	HaxePlatform getTargetPlatform();
+	void platform( Object platformRequirements );
 }
 
 /**
@@ -29,6 +32,7 @@ public interface HaxeSourceSet extends LanguageSourceSet, DependentSourceSet, Tr
 public interface HaxeSourceSetInternal extends HaxeSourceSet, LanguageSourceSetInternal
 {
 	void setTargetPlatform( HaxePlatform platform );
+	PlatformRequirement getPlatformRequirement();
 }
 
 /**
@@ -38,10 +42,25 @@ public class DefaultHaxeSourceSet extends BaseLanguageSourceSet implements HaxeS
 {
 
 	private HaxePlatform platform;
+	private PlatformRequirement platformRequirement;
+
 	private final DefaultDependencySpecContainer dependencies = new DefaultDependencySpecContainer();
 
     // --------------------------------------------------- //
 	// --------------------------------------------------- //
+
+	@Override
+	public void platform( Object platformRequirements )
+	{
+		PlatformRequirement requirement = HaxePlatformNotationParser.getInstance().parseNotation( platformRequirements );
+
+		if( requirement != null )
+			this.platformRequirement = requirement;
+	}
+
+	PlatformRequirement getPlatformRequirement() {
+			return platformRequirement
+		}
 
 	/**
 	*
