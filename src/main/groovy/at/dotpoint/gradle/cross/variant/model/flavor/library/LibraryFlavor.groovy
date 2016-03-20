@@ -28,6 +28,9 @@ public interface ILibraryFlavorInternal extends ILibraryFlavor {
  */
 class LibraryFlavor extends DefaultDisplayNamed implements ILibraryFlavorInternal {
 
+	public LibraryFlavor(String name) {
+		super(name, name)
+	}
 
 	public LibraryFlavor(String name, String displayName) {
 		super(name, displayName)

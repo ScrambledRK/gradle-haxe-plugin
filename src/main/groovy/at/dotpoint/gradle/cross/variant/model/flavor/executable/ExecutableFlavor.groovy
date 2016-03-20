@@ -29,6 +29,10 @@ public interface IExecutableFlavorInternal extends IExecutableFlavor {
 class ExecutableFlavor extends DefaultDisplayNamed implements IExecutableFlavorInternal {
 
 
+	public ExecutableFlavor(String name) {
+		super(name, name)
+	}
+
 	public ExecutableFlavor(String name, String displayName) {
 		super(name, displayName)
 	}

@@ -43,26 +43,40 @@ class VariantIterator<TVariant> implements Iterator<VariantContainer<TVariant>>
 	 */
 	private void generatePermutations()
 	{
-		int numPermutations = 1;
+		int numTotalPermutations = 1;
 
 		for( int i = 0; i < this.collection.size(); i++ )
 		{
 			if( this.collection.get(i).size() == 0 )
 				continue;
 
-			numPermutations *= this.collection.get(i).size();
+			numTotalPermutations *= this.collection.get(i).size();
 		}
 
-		for( int j = 0; j < numPermutations; j++ )
+		// ----------------- //
+
+		int numCurrentPermutations = 1;
+
+		for( int k = 0; k < this.collection.size(); k++ )
 		{
-			this.permutations.add( j, new VariantContainer<TVariant>() );
+			if( this.collection.get(k).size() == 0 )
+				continue;
 
-			for( int k = 0; k < this.collection.size(); k++ )
+			numCurrentPermutations *= this.collection.get(k).size();
+
+			int repetitions = numTotalPermutations / numCurrentPermutations;
+			int counter = 0;
+
+			for( int j = 0; j < numCurrentPermutations; j++ )
 			{
-				if( this.collection.get(k).size() == 0 )
-					continue;
+				for (int r = 0; r < repetitions; r++)
+				{
+					if( this.permutations.size() <= counter )
+						this.permutations.add( new VariantContainer<TVariant>() );
 
-				this.permutations.get(j).add( k, this.collection.get(k).get(j % this.collection.get(k).size()) );
+					this.permutations.get(counter).add( this.collection.get(k).get( j % this.collection.get(k).size() ) );
+					counter++;
+				}
 			}
 		}
 	}

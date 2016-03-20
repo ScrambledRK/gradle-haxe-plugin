@@ -9,6 +9,10 @@ import at.dotpoint.gradle.cross.specification.library.ILibraryComponentSpecInter
 import at.dotpoint.gradle.cross.specification.library.LibraryComponentSpec
 import at.dotpoint.gradle.cross.variant.iterator.VariantContainer
 import at.dotpoint.gradle.cross.variant.iterator.VariantIterator
+import at.dotpoint.gradle.cross.variant.model.IVariant
+import at.dotpoint.gradle.cross.variant.model.flavor.IFlavor
+import at.dotpoint.gradle.cross.variant.model.flavor.library.ILibraryFlavor
+import at.dotpoint.gradle.cross.variant.model.flavor.library.LibraryFlavor
 import at.dotpoint.gradle.cross.variant.model.platform.IPlatform
 import at.dotpoint.gradle.cross.variant.model.platform.Platform
 import at.dotpoint.gradle.cross.variant.requirement.IVariantRequirement
@@ -19,6 +23,7 @@ import at.dotpoint.gradle.cross.variant.resolver.VariantResolverRepository
 import at.dotpoint.gradle.cross.variant.resolver.flavor.executable.ExecutableFlavorResolver
 import at.dotpoint.gradle.cross.variant.resolver.flavor.library.LibraryFlavorResolver
 import at.dotpoint.gradle.cross.variant.resolver.platform.PlatformResolver
+import org.gradle.api.Named
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.internal.file.FileResolver
@@ -156,9 +161,6 @@ class CrossPlugin implements Plugin<Project>
 										  IVariantResolverRepository variantResolver )
 		{
 			ILibraryComponentSpecInternal libraryComponentSpecInternal = (ILibraryComponentSpecInternal) libraryComponentSpec;
-
-			println( libraryComponentSpecInternal.getVariantRequirements() )
-
 			VariantIterator<IVariantRequirement> iterator = new VariantIterator<>( libraryComponentSpecInternal.getVariantRequirements() );
 
 			while( iterator.hasNext() )
@@ -166,22 +168,45 @@ class CrossPlugin implements Plugin<Project>
 				VariantContainer<IVariantRequirement> permutation = iterator.next();
 
 				PlatformRequirement platformRequirement= permutation.getVariant( PlatformRequirement.class );
+				LibraryFlavorRequirement flavorRequirement = permutation.getVariant( LibraryFlavorRequirement.class );
 
-				println( permutation );
-				println( platformRequirement );
+				builder.create( this.getVariationName( permutation ) ){ IApplicationBinarySpec binarySpec ->
 
-				if( platformRequirement != null )
-				{
-					IPlatform platform = variantResolver.resolve( IPlatform, platformRequirement );
+					IApplicationBinarySpecInternal binarySpecInternal = (IApplicationBinarySpecInternal) binarySpec;
 
-					builder.create( platform.name ){ IApplicationBinarySpec binarySpec ->
+					if( platformRequirement != null )
+					{
+						Platform platform = variantResolver.resolve( IPlatform, platformRequirement );
 
-						IApplicationBinarySpecInternal binarySpecInternal = (IApplicationBinarySpecInternal) binarySpec;
+						if( platform != null )
+							binarySpecInternal.setTargetPlatform( platform );
+					}
 
-						binarySpecInternal.setTargetPlatform( platform );
+					if( flavorRequirement != null )
+					{
+						LibraryFlavor flavor = variantResolver.resolve( ILibraryFlavor, flavorRequirement );
+
+						if( flavor != null )
+							binarySpecInternal.setTargetFlavor( flavor );
 					}
 				}
 			}
+		}
+
+		/**
+		 *
+		 * @param permutation
+		 * @return
+		 */
+		private String getVariationName( VariantContainer<Named> permutation )
+		{
+			ArrayList<String> names = new ArrayList<>();
+
+			for (int i = 0; i < permutation.size(); i++) {
+				names.add( permutation.get(i).name );
+			}
+
+			return StringUtil.toCamelCase( names );
 		}
 	}
 }
