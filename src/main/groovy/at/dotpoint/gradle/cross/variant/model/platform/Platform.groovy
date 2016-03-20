@@ -29,6 +29,10 @@ public interface IPlatformInternal extends IPlatform {
 class Platform extends DefaultDisplayNamed implements IPlatformInternal {
 
 
+	public Platform(String name) {
+			super(name, name)
+		}
+
 	public Platform(String name, String displayName) {
 		super(name, displayName)
 	}

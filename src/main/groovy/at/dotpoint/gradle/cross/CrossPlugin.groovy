@@ -1,40 +1,34 @@
 package at.dotpoint.gradle.cross
 
-import at.dotpoint.gradle.cross.specification.ApplicationBinarySpec
-import at.dotpoint.gradle.cross.specification.ApplicationComponentSpec
-import at.dotpoint.gradle.cross.specification.GeneralComponentSpec
-import at.dotpoint.gradle.cross.specification.IApplicationBinarySpec
-import at.dotpoint.gradle.cross.specification.IApplicationBinarySpecInternal
-import at.dotpoint.gradle.cross.specification.IApplicationComponentSpec
-import at.dotpoint.gradle.cross.specification.IApplicationComponentSpecInternal
-import at.dotpoint.gradle.cross.specification.IGeneralComponentSpec
-import at.dotpoint.gradle.cross.specification.IGeneralComponentSpecInternal
+import at.dotpoint.gradle.cross.specification.*
 import at.dotpoint.gradle.cross.specification.executable.ExecutableComponentSpec
 import at.dotpoint.gradle.cross.specification.executable.IExecutableComponentSpec
 import at.dotpoint.gradle.cross.specification.executable.IExecutableComponentSpecInternal
 import at.dotpoint.gradle.cross.specification.library.ILibraryComponentSpec
 import at.dotpoint.gradle.cross.specification.library.ILibraryComponentSpecInternal
 import at.dotpoint.gradle.cross.specification.library.LibraryComponentSpec
+import at.dotpoint.gradle.cross.variant.model.platform.IPlatform
+import at.dotpoint.gradle.cross.variant.model.platform.Platform
+import at.dotpoint.gradle.cross.variant.requirement.platform.PlatformRequirement
 import at.dotpoint.gradle.cross.variant.resolver.IVariantResolverRepository
 import at.dotpoint.gradle.cross.variant.resolver.VariantResolverRepository
 import at.dotpoint.gradle.cross.variant.resolver.flavor.executable.ExecutableFlavorResolver
 import at.dotpoint.gradle.cross.variant.resolver.flavor.library.LibraryFlavorResolver
 import at.dotpoint.gradle.cross.variant.resolver.platform.PlatformResolver
-import at.dotpoint.gradle.model.HaxeApplicationSpec
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.internal.file.FileResolver
 import org.gradle.internal.reflect.Instantiator
 import org.gradle.language.base.plugins.LanguageBasePlugin
 import org.gradle.model.Model
+import org.gradle.model.ModelMap
 import org.gradle.model.Mutate
-import org.gradle.model.Path
 import org.gradle.model.RuleSource
 import org.gradle.model.internal.core.Hidden
+import org.gradle.platform.base.ComponentBinaries
 import org.gradle.platform.base.ComponentType
 import org.gradle.platform.base.PlatformContainer
 import org.gradle.platform.base.TypeBuilder
-import org.gradle.platform.base.internal.DefaultPlatformContainer
 import org.gradle.platform.base.plugins.BinaryBasePlugin
 
 import javax.inject.Inject
@@ -142,6 +136,35 @@ class CrossPlugin implements Plugin<Project>
 			variantResolver.register( new PlatformResolver( platformContainer ) );
 			variantResolver.register( new ExecutableFlavorResolver() );
 			variantResolver.register( new LibraryFlavorResolver() );
+		}
+
+		// -------------------------------------------------- //
+		// -------------------------------------------------- //
+
+		/**
+		 *
+		 * @param builder
+		 * @param libraryComponentSpec
+		 * @param variantResolver
+		 */
+		@ComponentBinaries
+		void generateLibraryBinaries( ModelMap<IApplicationBinarySpec> builder, ILibraryComponentSpec libraryComponentSpec,
+										  IVariantResolverRepository variantResolver )
+		{
+			ILibraryComponentSpecInternal libraryComponentSpecInternal = (ILibraryComponentSpecInternal) libraryComponentSpec;
+
+			//
+			for( PlatformRequirement platformRequirement : libraryComponentSpecInternal.getTargetPlatforms() )
+			{
+				IPlatform platform = variantResolver.resolve( IPlatform, platformRequirement );
+
+				builder.create( platform.name ){ IApplicationBinarySpec binarySpec ->
+
+					IApplicationBinarySpecInternal binarySpecInternal = (IApplicationBinarySpecInternal) binarySpec;
+
+					binarySpecInternal.setTargetPlatform( platform );
+				}
+			}
 		}
 	}
 }
