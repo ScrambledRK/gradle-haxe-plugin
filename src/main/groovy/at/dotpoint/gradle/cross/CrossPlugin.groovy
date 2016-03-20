@@ -9,6 +9,12 @@ import at.dotpoint.gradle.cross.specification.IApplicationComponentSpec
 import at.dotpoint.gradle.cross.specification.IApplicationComponentSpecInternal
 import at.dotpoint.gradle.cross.specification.IGeneralComponentSpec
 import at.dotpoint.gradle.cross.specification.IGeneralComponentSpecInternal
+import at.dotpoint.gradle.cross.specification.executable.ExecutableComponentSpec
+import at.dotpoint.gradle.cross.specification.executable.IExecutableComponentSpec
+import at.dotpoint.gradle.cross.specification.executable.IExecutableComponentSpecInternal
+import at.dotpoint.gradle.cross.specification.library.ILibraryComponentSpec
+import at.dotpoint.gradle.cross.specification.library.ILibraryComponentSpecInternal
+import at.dotpoint.gradle.cross.specification.library.LibraryComponentSpec
 import at.dotpoint.gradle.cross.variant.resolver.IVariantResolverRepository
 import at.dotpoint.gradle.cross.variant.resolver.VariantResolverRepository
 import at.dotpoint.gradle.cross.variant.resolver.flavor.executable.ExecutableFlavorResolver
@@ -59,6 +65,9 @@ class CrossPlugin implements Plugin<Project>
 	{
 		project.getPluginManager().apply(LanguageBasePlugin.class);
 		project.getPluginManager().apply(BinaryBasePlugin.class);
+
+		project.extensions.extraProperties.set( "LibraryComponentSpec", ILibraryComponentSpec );
+		project.extensions.extraProperties.set( "ExecutableComponentSpec", IExecutableComponentSpec );
 	}
 
 	// ---------------------------------------------------------- //
@@ -83,13 +92,23 @@ class CrossPlugin implements Plugin<Project>
 		}
 
 		/**
-		 * IApplicationComponentSpec
+		 * ILibraryComponentSpec
 		 */
 		@ComponentType
-		void registerApplicationComponentSpec( TypeBuilder<IApplicationComponentSpec> builder )
+		void registerLibraryComponentSpec( TypeBuilder<ILibraryComponentSpec> builder )
 		{
-			builder.defaultImplementation(ApplicationComponentSpec.class);
-			builder.internalView(IApplicationComponentSpecInternal.class);
+			builder.defaultImplementation(LibraryComponentSpec.class);
+			builder.internalView(ILibraryComponentSpecInternal.class);
+		}
+
+		/**
+		 * IExecutableComponentSpec
+		 */
+		@ComponentType
+		void registerExecutableComponentSpec( TypeBuilder<IExecutableComponentSpec> builder )
+		{
+			builder.defaultImplementation(ExecutableComponentSpec.class);
+			builder.internalView(IExecutableComponentSpecInternal.class);
 		}
 
 		/**

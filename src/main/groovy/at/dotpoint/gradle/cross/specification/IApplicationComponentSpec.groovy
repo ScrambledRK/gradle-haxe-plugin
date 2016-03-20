@@ -9,27 +9,24 @@ import org.gradle.platform.base.ApplicationSpec
 /**
  *
  */
-@HasInternalProtocol
-//
 public interface IApplicationComponentSpec extends IGeneralComponentSpec, ApplicationSpec
 {
 	//
-	void targetPlatform( String targetPlatform );
+	void platform( Object platformRequirements );
 
 	//
-	void targetFlavor( String targetFlavor );
+	void flavor( Object flavorRequirements );
 }
 
 /**
  *
  */
-@Managed
-//
-public interface IApplicationComponentSpecInternal extends IApplicationComponentSpec
+public interface IApplicationComponentSpecInternal<TFlavorRequirement extends IFlavorRequirement>
+		extends IApplicationComponentSpec
 {
 	//
     List<PlatformRequirement> getTargetPlatforms();
 
 	//
-	List<IFlavorRequirement> getTargetFlavors();
+	List<TFlavorRequirement> getTargetFlavors();
 }
