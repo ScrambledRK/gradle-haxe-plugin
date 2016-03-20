@@ -3,6 +3,7 @@ package at.dotpoint.gradle.cross.specification
 import at.dotpoint.gradle.cross.variant.parser.flavor.IFlavorNotationParser
 import at.dotpoint.gradle.cross.variant.parser.platform.IPlatformNotationParser
 import at.dotpoint.gradle.cross.variant.parser.platform.PlatformNotationParser
+import at.dotpoint.gradle.cross.variant.requirement.IVariantRequirement
 import at.dotpoint.gradle.cross.variant.requirement.flavor.IFlavorRequirement
 import at.dotpoint.gradle.cross.variant.requirement.platform.PlatformRequirement
 
@@ -60,6 +61,21 @@ class ApplicationComponentSpec<TFlavorRequirement extends IFlavorRequirement>
 	{
 		return Collections.unmodifiableList( this.targetFlavorList );
 	}
+
+	/**
+	 *
+	 * @return
+	 */
+	@Override
+	List<List<IVariantRequirement>> getVariantRequirements()
+	{
+		List<List<IVariantRequirement>> variants = new ArrayList<List<IVariantRequirement>>();
+		variants.add( this.getTargetPlatforms() );
+		variants.add( this.getTargetFlavors() );
+
+		return Collections.unmodifiableList( variants );
+	}
+
 
 	/**
 	 *

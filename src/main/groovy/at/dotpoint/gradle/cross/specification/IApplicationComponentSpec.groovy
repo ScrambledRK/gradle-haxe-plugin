@@ -1,5 +1,6 @@
 package at.dotpoint.gradle.cross.specification
 
+import at.dotpoint.gradle.cross.variant.requirement.IVariantRequirement
 import at.dotpoint.gradle.cross.variant.requirement.flavor.IFlavorRequirement
 import at.dotpoint.gradle.cross.variant.requirement.platform.PlatformRequirement
 import org.gradle.internal.HasInternalProtocol
@@ -29,4 +30,7 @@ public interface IApplicationComponentSpecInternal<TFlavorRequirement extends IF
 
 	//
 	List<TFlavorRequirement> getTargetFlavors();
+
+	//
+	List<List<IVariantRequirement>> getVariantRequirements();
 }

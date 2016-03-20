@@ -7,8 +7,12 @@ import at.dotpoint.gradle.cross.specification.executable.IExecutableComponentSpe
 import at.dotpoint.gradle.cross.specification.library.ILibraryComponentSpec
 import at.dotpoint.gradle.cross.specification.library.ILibraryComponentSpecInternal
 import at.dotpoint.gradle.cross.specification.library.LibraryComponentSpec
+import at.dotpoint.gradle.cross.variant.iterator.VariantContainer
+import at.dotpoint.gradle.cross.variant.iterator.VariantIterator
 import at.dotpoint.gradle.cross.variant.model.platform.IPlatform
 import at.dotpoint.gradle.cross.variant.model.platform.Platform
+import at.dotpoint.gradle.cross.variant.requirement.IVariantRequirement
+import at.dotpoint.gradle.cross.variant.requirement.flavor.library.LibraryFlavorRequirement
 import at.dotpoint.gradle.cross.variant.requirement.platform.PlatformRequirement
 import at.dotpoint.gradle.cross.variant.resolver.IVariantResolverRepository
 import at.dotpoint.gradle.cross.variant.resolver.VariantResolverRepository
@@ -153,16 +157,29 @@ class CrossPlugin implements Plugin<Project>
 		{
 			ILibraryComponentSpecInternal libraryComponentSpecInternal = (ILibraryComponentSpecInternal) libraryComponentSpec;
 
-			//
-			for( PlatformRequirement platformRequirement : libraryComponentSpecInternal.getTargetPlatforms() )
+			println( libraryComponentSpecInternal.getVariantRequirements() )
+
+			VariantIterator<IVariantRequirement> iterator = new VariantIterator<>( libraryComponentSpecInternal.getVariantRequirements() );
+
+			while( iterator.hasNext() )
 			{
-				IPlatform platform = variantResolver.resolve( IPlatform, platformRequirement );
+				VariantContainer<IVariantRequirement> permutation = iterator.next();
 
-				builder.create( platform.name ){ IApplicationBinarySpec binarySpec ->
+				PlatformRequirement platformRequirement= permutation.getVariant( PlatformRequirement.class );
 
-					IApplicationBinarySpecInternal binarySpecInternal = (IApplicationBinarySpecInternal) binarySpec;
+				println( permutation );
+				println( platformRequirement );
 
-					binarySpecInternal.setTargetPlatform( platform );
+				if( platformRequirement != null )
+				{
+					IPlatform platform = variantResolver.resolve( IPlatform, platformRequirement );
+
+					builder.create( platform.name ){ IApplicationBinarySpec binarySpec ->
+
+						IApplicationBinarySpecInternal binarySpecInternal = (IApplicationBinarySpecInternal) binarySpec;
+
+						binarySpecInternal.setTargetPlatform( platform );
+					}
 				}
 			}
 		}
