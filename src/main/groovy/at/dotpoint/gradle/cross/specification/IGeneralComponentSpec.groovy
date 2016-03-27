@@ -16,7 +16,6 @@ public interface IGeneralComponentSpec extends GeneralComponentSpec {
 /**
  * Created by RK on 11.03.16.
  */
-@Managed
 //
 public interface IGeneralComponentSpecInternal extends IGeneralComponentSpec {
 

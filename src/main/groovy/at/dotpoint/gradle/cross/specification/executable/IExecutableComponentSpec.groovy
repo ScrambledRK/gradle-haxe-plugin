@@ -19,9 +19,7 @@ public interface IExecutableComponentSpec extends IApplicationComponentSpec {
 /**
  *
  */
-@Managed
 //
-public interface IExecutableComponentSpecInternal
-		extends IApplicationComponentSpecInternal<ExecutableFlavorRequirement>, IExecutableComponentSpec {
+public interface IExecutableComponentSpecInternal extends IApplicationComponentSpecInternal, IExecutableComponentSpec {
 
 }

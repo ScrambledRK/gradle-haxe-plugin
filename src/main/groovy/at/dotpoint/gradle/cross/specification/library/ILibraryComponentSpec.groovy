@@ -19,9 +19,7 @@ public interface ILibraryComponentSpec extends IApplicationComponentSpec {
 /**
  *
  */
-@Managed
 //
-public interface ILibraryComponentSpecInternal
-		extends IApplicationComponentSpecInternal<LibraryFlavorRequirement>, ILibraryComponentSpec {
+public interface ILibraryComponentSpecInternal extends IApplicationComponentSpecInternal, ILibraryComponentSpec {
 
 }

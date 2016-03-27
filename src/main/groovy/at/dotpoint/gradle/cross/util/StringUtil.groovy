@@ -1,4 +1,4 @@
-package at.dotpoint.gradle.cross
+package at.dotpoint.gradle.cross.util
 
 /**
  * Created by RK on 20.02.16.

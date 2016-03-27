@@ -8,8 +8,7 @@ import at.dotpoint.gradle.cross.variant.requirement.flavor.executable.Executable
 /**
  * Created by RK on 20.03.16.
  */
-class ExecutableComponentSpec extends ApplicationComponentSpec<ExecutableFlavorRequirement>
-		implements IExecutableComponentSpecInternal
+class ExecutableComponentSpec extends ApplicationComponentSpec implements IExecutableComponentSpecInternal
 {
 	ExecutableComponentSpec()
 	{

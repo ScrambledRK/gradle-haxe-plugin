@@ -5,7 +5,9 @@ import at.dotpoint.gradle.cross.variant.model.platform.IPlatform
 import org.gradle.internal.HasInternalProtocol
 import org.gradle.model.Managed
 import org.gradle.platform.base.ApplicationBinarySpec
+import org.gradle.platform.base.ComponentSpec
 import org.gradle.platform.base.Variant
+import org.gradle.platform.base.VariantComponentSpec
 import org.gradle.platform.base.internal.BinarySpecInternal
 import org.gradle.platform.base.internal.HasIntermediateOutputsComponentSpec
 
@@ -32,7 +34,6 @@ public interface IApplicationBinarySpec extends ApplicationBinarySpec, HasInterm
 /**
  * Created by RK on 11.03.16.
  */
-@Managed
 //
 public interface IApplicationBinarySpecInternal extends IApplicationBinarySpec, BinarySpecInternal
 {

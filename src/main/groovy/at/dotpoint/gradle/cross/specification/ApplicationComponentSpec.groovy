@@ -10,17 +10,16 @@ import at.dotpoint.gradle.cross.variant.requirement.platform.PlatformRequirement
 /**
  * Created by RK on 19.03.16.
  */
-class ApplicationComponentSpec<TFlavorRequirement extends IFlavorRequirement>
-		extends GeneralComponentSpec implements IApplicationComponentSpecInternal<TFlavorRequirement>
+class ApplicationComponentSpec extends GeneralComponentSpec implements IApplicationComponentSpecInternal
 {
 
 	 //
     protected final ArrayList<PlatformRequirement> targetPlatformList;
-    protected final ArrayList<TFlavorRequirement> targetFlavorList;
+    protected final ArrayList<IFlavorRequirement> targetFlavorList;
 
 	//
 	protected final IPlatformNotationParser platformNotationParser;
-	protected final IFlavorNotationParser<TFlavorRequirement> flavorNotationParser;
+	protected final IFlavorNotationParser<IFlavorRequirement> flavorNotationParser;
 
 	// --------------------------------------------- //
 	// --------------------------------------------- //
@@ -30,10 +29,10 @@ class ApplicationComponentSpec<TFlavorRequirement extends IFlavorRequirement>
 	 * @param flavorNotationParser
 	 * @param targetFlavorList
 	 */
-	ApplicationComponentSpec( IFlavorNotationParser<TFlavorRequirement> flavorNotationParser )
+	ApplicationComponentSpec( IFlavorNotationParser<IFlavorRequirement> flavorNotationParser )
 	{
 		this.targetPlatformList = new ArrayList<PlatformRequirement>();
-		this.targetFlavorList = new ArrayList<TFlavorRequirement>();
+		this.targetFlavorList = new ArrayList<IFlavorRequirement>();
 
 		this.platformNotationParser = PlatformNotationParser.getInstance();
 		this.flavorNotationParser = flavorNotationParser;
@@ -57,7 +56,7 @@ class ApplicationComponentSpec<TFlavorRequirement extends IFlavorRequirement>
 	 * @return
 	 */
 	@Override
-	List<TFlavorRequirement> getTargetFlavors()
+	List<IFlavorRequirement> getTargetFlavors()
 	{
 		return Collections.unmodifiableList( this.targetFlavorList );
 	}
@@ -97,7 +96,7 @@ class ApplicationComponentSpec<TFlavorRequirement extends IFlavorRequirement>
 	@Override
 	public void flavor( Object flavorRequirements )
 	{
-		TFlavorRequirement requirement = this.flavorNotationParser.parseNotation( flavorRequirements );
+		IFlavorRequirement requirement = this.flavorNotationParser.parseNotation( flavorRequirements );
 
 		if( requirement != null )
 			this.targetFlavorList.add( requirement );

@@ -7,10 +7,9 @@ import at.dotpoint.gradle.cross.specification.executable.IExecutableComponentSpe
 import at.dotpoint.gradle.cross.specification.library.ILibraryComponentSpec
 import at.dotpoint.gradle.cross.specification.library.ILibraryComponentSpecInternal
 import at.dotpoint.gradle.cross.specification.library.LibraryComponentSpec
+import at.dotpoint.gradle.cross.util.StringUtil
 import at.dotpoint.gradle.cross.variant.iterator.VariantContainer
 import at.dotpoint.gradle.cross.variant.iterator.VariantIterator
-import at.dotpoint.gradle.cross.variant.model.IVariant
-import at.dotpoint.gradle.cross.variant.model.flavor.IFlavor
 import at.dotpoint.gradle.cross.variant.model.flavor.library.ILibraryFlavor
 import at.dotpoint.gradle.cross.variant.model.flavor.library.LibraryFlavor
 import at.dotpoint.gradle.cross.variant.model.platform.IPlatform
@@ -34,6 +33,7 @@ import org.gradle.model.ModelMap
 import org.gradle.model.Mutate
 import org.gradle.model.RuleSource
 import org.gradle.model.internal.core.Hidden
+import org.gradle.platform.base.BinaryType
 import org.gradle.platform.base.ComponentBinaries
 import org.gradle.platform.base.ComponentType
 import org.gradle.platform.base.PlatformContainer

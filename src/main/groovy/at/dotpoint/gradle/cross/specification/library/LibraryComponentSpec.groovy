@@ -8,8 +8,7 @@ import at.dotpoint.gradle.cross.variant.requirement.flavor.library.LibraryFlavor
 /**
  * Created by RK on 20.03.16.
  */
-class LibraryComponentSpec extends ApplicationComponentSpec<LibraryFlavorRequirement>
-		implements ILibraryComponentSpecInternal
+class LibraryComponentSpec extends ApplicationComponentSpec	implements ILibraryComponentSpecInternal
 {
 	LibraryComponentSpec()
 	{

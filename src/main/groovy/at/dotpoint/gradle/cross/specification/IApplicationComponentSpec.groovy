@@ -22,14 +22,13 @@ public interface IApplicationComponentSpec extends IGeneralComponentSpec, Applic
 /**
  *
  */
-public interface IApplicationComponentSpecInternal<TFlavorRequirement extends IFlavorRequirement>
-		extends IApplicationComponentSpec
+public interface IApplicationComponentSpecInternal extends IApplicationComponentSpec
 {
 	//
     List<PlatformRequirement> getTargetPlatforms();
 
 	//
-	List<TFlavorRequirement> getTargetFlavors();
+	List<IFlavorRequirement> getTargetFlavors();
 
 	//
 	List<List<IVariantRequirement>> getVariantRequirements();
