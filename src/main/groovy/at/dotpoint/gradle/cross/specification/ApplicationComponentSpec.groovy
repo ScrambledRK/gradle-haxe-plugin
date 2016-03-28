@@ -81,6 +81,22 @@ class ApplicationComponentSpec extends GeneralComponentSpec implements IApplicat
 	 * @param platformRequirements
 	 */
 	@Override
+	public void platform( Iterable<Object> platformRequirements )
+	{
+		Iterator<Object> iterator = platformRequirements.iterator();
+
+		while( iterator.hasNext() )
+			this.platform( iterator.next() );
+	}
+
+	@Override
+	public void platform( Object[] platformRequirements )
+	{
+		for (int i = 0; i < platformRequirements.length; i++)
+			this.platform( platformRequirements[i] );
+	}
+
+	@Override
 	public void platform( Object platformRequirements )
 	{
 		PlatformRequirement requirement = this.platformNotationParser.parseNotation( platformRequirements );
@@ -93,6 +109,22 @@ class ApplicationComponentSpec extends GeneralComponentSpec implements IApplicat
 	 *
 	 * @param flavorRequirements
 	 */
+	@Override
+	public void flavor( Iterable<Object> flavorRequirements )
+	{
+		Iterator<Object> iterator = flavorRequirements.iterator();
+
+		while( iterator.hasNext() )
+			this.flavor( iterator.next() );
+	}
+
+	@Override
+	public void flavor( Object[] flavorRequirements )
+	{
+		for (int i = 0; i < flavorRequirements.length; i++)
+			this.flavor( flavorRequirements[i] );
+	}
+
 	@Override
 	public void flavor( Object flavorRequirements )
 	{

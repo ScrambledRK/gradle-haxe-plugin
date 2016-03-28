@@ -202,14 +202,14 @@ class CrossPlugin implements Plugin<Project>
 		/**
 		 *
 		 * @param builder
-		 * @param libraryComponentSpec
+		 * @param applicationComponentSpec
 		 * @param variantResolver
 		 */
 		@ComponentBinaries
-		void generateLibraryBinaries( ModelMap<IApplicationBinarySpec> builder, IApplicationComponentSpec libraryComponentSpec,
-										  IVariantResolverRepository variantResolver )
+		void generateApplicationBinaries(ModelMap<IApplicationBinarySpec> builder, IApplicationComponentSpec applicationComponentSpec,
+										 IVariantResolverRepository variantResolver )
 		{
-			IApplicationComponentSpecInternal applicationComponentSpecInternal = (IApplicationComponentSpecInternal) libraryComponentSpec;
+			IApplicationComponentSpecInternal applicationComponentSpecInternal = (IApplicationComponentSpecInternal) applicationComponentSpec;
 			VariantIterator<IVariantRequirement> iterator = new VariantIterator<>( applicationComponentSpecInternal.getVariantRequirements() );
 
 			while( iterator.hasNext() )

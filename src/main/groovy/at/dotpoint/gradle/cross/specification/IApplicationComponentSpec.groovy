@@ -14,9 +14,13 @@ public interface IApplicationComponentSpec extends IGeneralComponentSpec, Applic
 {
 	//
 	void platform( Object platformRequirements );
+	void platform( Object[] platformRequirements );
+	void platform( Iterable<Object> platformRequirements );
 
 	//
 	void flavor( Object flavorRequirements );
+	void flavor( Object[] flavorRequirements );
+	void flavor( Iterable<Object> flavorRequirements );
 }
 
 /**
