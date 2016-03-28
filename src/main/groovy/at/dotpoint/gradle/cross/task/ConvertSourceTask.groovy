@@ -1,7 +1,6 @@
-package at.dotpoint.gradle.tasks
+package at.dotpoint.gradle.cross.task
 
-import at.dotpoint.gradle.platform.HaxePlatform
-import org.gradle.api.DefaultTask
+import at.dotpoint.gradle.cross.variant.model.platform.Platform
 import org.gradle.api.tasks.SourceTask
 import org.gradle.api.tasks.TaskAction
 
@@ -10,22 +9,22 @@ import org.gradle.api.tasks.TaskAction
  */
 class ConvertSourceTask extends SourceTask
 {
-	private HaxePlatform inputPlatform;
-	private HaxePlatform outputPlatform;
+	private Platform inputPlatform;
+	private Platform outputPlatform;
 
-	HaxePlatform getInputPlatform() {
+	Platform getInputPlatform() {
 		return inputPlatform
 	}
 
-	void setInputPlatform(HaxePlatform inputPlatform) {
+	void setInputPlatform(Platform inputPlatform) {
 		this.inputPlatform = inputPlatform
 	}
 
-	HaxePlatform getOutputPlatform() {
+	Platform getOutputPlatform() {
 		return outputPlatform
 	}
 
-	void setOutputPlatform(HaxePlatform outputPlatform) {
+	void setOutputPlatform(Platform outputPlatform) {
 		this.outputPlatform = outputPlatform
 	}
 

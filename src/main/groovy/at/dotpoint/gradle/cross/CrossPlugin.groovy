@@ -1,5 +1,9 @@
 package at.dotpoint.gradle.cross
 
+import at.dotpoint.gradle.cross.sourceset.CrossLanguageTransform
+import at.dotpoint.gradle.cross.sourceset.CrossSourceSet
+import at.dotpoint.gradle.cross.sourceset.ISourceSet
+import at.dotpoint.gradle.cross.sourceset.ISourceSetInternal
 import at.dotpoint.gradle.cross.specification.*
 import at.dotpoint.gradle.cross.specification.executable.ExecutableComponentSpec
 import at.dotpoint.gradle.cross.specification.executable.IExecutableComponentSpec
@@ -27,13 +31,17 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.internal.file.FileResolver
 import org.gradle.internal.reflect.Instantiator
+import org.gradle.internal.service.ServiceRegistry
+import org.gradle.language.base.internal.registry.LanguageTransformContainer
 import org.gradle.language.base.plugins.LanguageBasePlugin
+import org.gradle.model.Each
+import org.gradle.model.Finalize
 import org.gradle.model.Model
 import org.gradle.model.ModelMap
 import org.gradle.model.Mutate
 import org.gradle.model.RuleSource
 import org.gradle.model.internal.core.Hidden
-import org.gradle.platform.base.BinaryType
+import org.gradle.model.internal.manage.schema.ModelSchemaStore
 import org.gradle.platform.base.ComponentBinaries
 import org.gradle.platform.base.ComponentType
 import org.gradle.platform.base.PlatformContainer
@@ -71,6 +79,7 @@ class CrossPlugin implements Plugin<Project>
 
 		project.extensions.extraProperties.set( "LibraryComponentSpec", ILibraryComponentSpec );
 		project.extensions.extraProperties.set( "ExecutableComponentSpec", IExecutableComponentSpec );
+		project.extensions.extraProperties.set( "CrossSourceSet", ISourceSet );
 	}
 
 	// ---------------------------------------------------------- //
@@ -149,6 +158,43 @@ class CrossPlugin implements Plugin<Project>
 
 		// -------------------------------------------------- //
 		// -------------------------------------------------- //
+		// source transformation:
+
+		/**
+		 * LanguageSourceSet
+		 */
+		@ComponentType
+		void registerSourceSet( TypeBuilder<ISourceSet> builder )
+		{
+			builder.defaultImplementation(CrossSourceSet.class);
+			builder.internalView(ISourceSetInternal.class);
+		}
+
+		@Mutate
+		void registerLanguageTransform(LanguageTransformContainer languages, ServiceRegistry serviceRegistry)
+		{
+			ModelSchemaStore schemaStore = serviceRegistry.get(ModelSchemaStore.class);
+			languages.add( new CrossLanguageTransform() );
+		}
+
+		@Finalize
+		void assignSourceSetPlatforms(@Each ISourceSet sourceSet, IVariantResolverRepository variantResolver )
+		{
+			ISourceSetInternal languageSourceSet = (ISourceSetInternal) sourceSet;
+			PlatformRequirement platformRequirement = languageSourceSet.getPlatformRequirement();
+
+			if( platformRequirement != null )
+			{
+				Platform platform = variantResolver.resolve( IPlatform, platformRequirement );
+
+				if( platform != null )
+					languageSourceSet.setTargetPlatform( platform );
+			}
+		}
+
+		// -------------------------------------------------- //
+		// -------------------------------------------------- //
+		// generate binaries:
 
 		/**
 		 *

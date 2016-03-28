@@ -1,6 +1,6 @@
 package at.dotpoint.gradle.cross.variant.requirement.flavor.executable
 
-import at.dotpoint.gradle.cross.DefaultNamed
+import at.dotpoint.gradle.cross.util.DefaultNamed
 import at.dotpoint.gradle.cross.variant.requirement.flavor.IFlavorRequirement
 
 /**

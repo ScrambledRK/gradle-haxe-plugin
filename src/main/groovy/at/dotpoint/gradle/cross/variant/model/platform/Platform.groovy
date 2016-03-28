@@ -1,6 +1,6 @@
 package at.dotpoint.gradle.cross.variant.model.platform
 
-import at.dotpoint.gradle.cross.DefaultDisplayNamed
+import at.dotpoint.gradle.cross.util.DefaultDisplayNamed
 import at.dotpoint.gradle.cross.variant.model.IVariant
 import org.gradle.internal.HasInternalProtocol
 import org.gradle.model.Managed
@@ -36,5 +36,4 @@ class Platform extends DefaultDisplayNamed implements IPlatformInternal {
 	public Platform(String name, String displayName) {
 		super(name, displayName)
 	}
-
 }

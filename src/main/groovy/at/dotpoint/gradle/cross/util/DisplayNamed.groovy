@@ -1,4 +1,4 @@
-package at.dotpoint.gradle.cross
+package at.dotpoint.gradle.cross.util
 
 import org.gradle.api.Named
 
@@ -48,4 +48,8 @@ public class DefaultDisplayNamed extends DefaultNamed implements IDisplayNamed
 		return this.displayName;
 	}
 
+	@Override
+	String toString() {
+		return "[" + getDisplayName() + "]";
+	}
 }
