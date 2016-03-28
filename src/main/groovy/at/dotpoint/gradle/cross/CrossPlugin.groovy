@@ -14,11 +14,14 @@ import at.dotpoint.gradle.cross.specification.library.LibraryComponentSpec
 import at.dotpoint.gradle.cross.util.StringUtil
 import at.dotpoint.gradle.cross.variant.iterator.VariantContainer
 import at.dotpoint.gradle.cross.variant.iterator.VariantIterator
+import at.dotpoint.gradle.cross.variant.model.flavor.executable.ExecutableFlavor
+import at.dotpoint.gradle.cross.variant.model.flavor.executable.IExecutableFlavor
 import at.dotpoint.gradle.cross.variant.model.flavor.library.ILibraryFlavor
 import at.dotpoint.gradle.cross.variant.model.flavor.library.LibraryFlavor
 import at.dotpoint.gradle.cross.variant.model.platform.IPlatform
 import at.dotpoint.gradle.cross.variant.model.platform.Platform
 import at.dotpoint.gradle.cross.variant.requirement.IVariantRequirement
+import at.dotpoint.gradle.cross.variant.requirement.flavor.executable.ExecutableFlavorRequirement
 import at.dotpoint.gradle.cross.variant.requirement.flavor.library.LibraryFlavorRequirement
 import at.dotpoint.gradle.cross.variant.requirement.platform.PlatformRequirement
 import at.dotpoint.gradle.cross.variant.resolver.IVariantResolverRepository
@@ -203,39 +206,67 @@ class CrossPlugin implements Plugin<Project>
 		 * @param variantResolver
 		 */
 		@ComponentBinaries
-		void generateLibraryBinaries( ModelMap<IApplicationBinarySpec> builder, ILibraryComponentSpec libraryComponentSpec,
+		void generateLibraryBinaries( ModelMap<IApplicationBinarySpec> builder, IApplicationComponentSpec libraryComponentSpec,
 										  IVariantResolverRepository variantResolver )
 		{
-			ILibraryComponentSpecInternal libraryComponentSpecInternal = (ILibraryComponentSpecInternal) libraryComponentSpec;
-			VariantIterator<IVariantRequirement> iterator = new VariantIterator<>( libraryComponentSpecInternal.getVariantRequirements() );
+			IApplicationComponentSpecInternal applicationComponentSpecInternal = (IApplicationComponentSpecInternal) libraryComponentSpec;
+			VariantIterator<IVariantRequirement> iterator = new VariantIterator<>( applicationComponentSpecInternal.getVariantRequirements() );
 
 			while( iterator.hasNext() )
 			{
 				VariantContainer<IVariantRequirement> permutation = iterator.next();
 
-				PlatformRequirement platformRequirement= permutation.getVariant( PlatformRequirement.class );
-				LibraryFlavorRequirement flavorRequirement = permutation.getVariant( LibraryFlavorRequirement.class );
-
 				builder.create( this.getVariationName( permutation ) ){ IApplicationBinarySpec binarySpec ->
 
 					IApplicationBinarySpecInternal binarySpecInternal = (IApplicationBinarySpecInternal) binarySpec;
 
-					if( platformRequirement != null )
-					{
-						Platform platform = variantResolver.resolve( IPlatform, platformRequirement );
-
-						if( platform != null )
-							binarySpecInternal.setTargetPlatform( platform );
-					}
-
-					if( flavorRequirement != null )
-					{
-						LibraryFlavor flavor = variantResolver.resolve( ILibraryFlavor, flavorRequirement );
-
-						if( flavor != null )
-							binarySpecInternal.setTargetFlavor( flavor );
-					}
+					this.setPlatformToBinarySpec( binarySpecInternal, variantResolver, permutation );
+					this.setFlavorToBinarySpec( binarySpecInternal, variantResolver, permutation );
 				}
+			}
+		}
+
+		//
+		private void setPlatformToBinarySpec( IApplicationBinarySpecInternal binarySpecInternal,
+											  IVariantResolverRepository variantResolver,
+											  VariantContainer<IVariantRequirement> permutation  )
+		{
+			PlatformRequirement platformRequirement= permutation.getVariant( PlatformRequirement.class );
+
+			if( platformRequirement != null )
+			{
+				Platform platform = variantResolver.resolve( IPlatform, platformRequirement );
+
+				if( platform != null )
+					binarySpecInternal.setTargetPlatform( platform );
+			}
+		}
+
+		//
+		private void setFlavorToBinarySpec( IApplicationBinarySpecInternal binarySpecInternal,
+											IVariantResolverRepository variantResolver,
+											VariantContainer<IVariantRequirement> permutation )
+		{
+			LibraryFlavorRequirement libraryFlavorRequirement = permutation.getVariant( LibraryFlavorRequirement.class );
+
+			if( libraryFlavorRequirement != null )
+			{
+				LibraryFlavor libraryFlavor = variantResolver.resolve( ILibraryFlavor, libraryFlavorRequirement );
+
+				if( libraryFlavor != null )
+					binarySpecInternal.setTargetFlavor( libraryFlavor );
+			}
+
+			// ----------------------------------- //
+
+			ExecutableFlavorRequirement executableFlavorRequirement = permutation.getVariant( ExecutableFlavorRequirement.class );
+
+			if( executableFlavorRequirement != null )
+			{
+				ExecutableFlavor executableFlavor = variantResolver.resolve( IExecutableFlavor, executableFlavorRequirement );
+
+				if( executableFlavor != null )
+					binarySpecInternal.setTargetFlavor( executableFlavor );
 			}
 		}
 
