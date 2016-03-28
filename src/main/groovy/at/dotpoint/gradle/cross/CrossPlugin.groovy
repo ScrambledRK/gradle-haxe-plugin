@@ -14,8 +14,12 @@ import at.dotpoint.gradle.cross.specification.library.LibraryComponentSpec
 import at.dotpoint.gradle.cross.util.StringUtil
 import at.dotpoint.gradle.cross.variant.container.flavor.FlavorContainer
 import at.dotpoint.gradle.cross.variant.container.flavor.IFlavorContainer
+import at.dotpoint.gradle.cross.variant.factory.flavor.ExecutableFlavorFactory
+import at.dotpoint.gradle.cross.variant.factory.flavor.LibraryFlavorFactory
+import at.dotpoint.gradle.cross.variant.factory.platform.PlatformFactory
 import at.dotpoint.gradle.cross.variant.iterator.VariantContainer
 import at.dotpoint.gradle.cross.variant.iterator.VariantIterator
+import at.dotpoint.gradle.cross.variant.model.IVariant
 import at.dotpoint.gradle.cross.variant.model.flavor.executable.ExecutableFlavor
 import at.dotpoint.gradle.cross.variant.model.flavor.executable.IExecutableFlavor
 import at.dotpoint.gradle.cross.variant.model.flavor.library.ILibraryFlavor
@@ -141,9 +145,31 @@ class CrossPlugin implements Plugin<Project>
 		// -------------------------------------------------- //
 		// -------------------------------------------------- //
 
+		/**
+		 * IFlavorContainer
+		 */
 		@Model
 		IFlavorContainer flavors() {
 			return new FlavorContainer()
+		}
+
+		/**
+		 * Flavor Factories
+		 */
+		@Mutate
+		void registerFlavorFactories( IFlavorContainer flavorContainer )
+		{
+			flavorContainer.registerFactory( ILibraryFlavor.class, new LibraryFlavorFactory() );
+			flavorContainer.registerFactory( IExecutableFlavor.class, new ExecutableFlavorFactory() );
+		}
+
+		/**
+		 * Platform Factories
+		 */
+		@Mutate
+		void registerPlatformFactories( PlatformContainer platformContainer )
+		{
+			platformContainer.registerFactory( IPlatform.class, new PlatformFactory() );
 		}
 
 		/**
@@ -159,9 +185,9 @@ class CrossPlugin implements Plugin<Project>
 		 * VariantResolver
 		 */
 		@Mutate
-		public void registerVariationResolver(IVariantResolverRepository variantResolver,
-											  PlatformContainer platformContainer,
-											  IFlavorContainer flavorContainer )
+		void registerVariationResolver(IVariantResolverRepository variantResolver,
+									   PlatformContainer platformContainer,
+									   IFlavorContainer flavorContainer )
 		{
 			variantResolver.register( new PlatformResolver( platformContainer ) );
 			variantResolver.register( new ExecutableFlavorResolver( flavorContainer ) );
@@ -229,53 +255,14 @@ class CrossPlugin implements Plugin<Project>
 
 					IApplicationBinarySpecInternal binarySpecInternal = (IApplicationBinarySpecInternal) binarySpec;
 
-					this.setPlatformToBinarySpec( binarySpecInternal, variantResolver, permutation );
-					this.setFlavorToBinarySpec( binarySpecInternal, variantResolver, permutation );
+					for( IVariantRequirement requirement : permutation )
+					{
+						IVariantRequirement variantRequirement = permutation.getVariant( requirement.getClass() );
+						IVariant variant = variantResolver.resolve( variantRequirement.getVariantType(), variantRequirement );
+
+						binarySpecInternal.setTargetVariant( variant );
+					}
 				}
-			}
-		}
-
-		//
-		private void setPlatformToBinarySpec( IApplicationBinarySpecInternal binarySpecInternal,
-											  IVariantResolverRepository variantResolver,
-											  VariantContainer<IVariantRequirement> permutation  )
-		{
-			PlatformRequirement platformRequirement= permutation.getVariant( PlatformRequirement.class );
-
-			if( platformRequirement != null )
-			{
-				Platform platform = variantResolver.resolve( IPlatform, platformRequirement );
-
-				if( platform != null )
-					binarySpecInternal.setTargetPlatform( platform );
-			}
-		}
-
-		//
-		private void setFlavorToBinarySpec( IApplicationBinarySpecInternal binarySpecInternal,
-											IVariantResolverRepository variantResolver,
-											VariantContainer<IVariantRequirement> permutation )
-		{
-			LibraryFlavorRequirement libraryFlavorRequirement = permutation.getVariant( LibraryFlavorRequirement.class );
-
-			if( libraryFlavorRequirement != null )
-			{
-				LibraryFlavor libraryFlavor = variantResolver.resolve( ILibraryFlavor, libraryFlavorRequirement );
-
-				if( libraryFlavor != null )
-					binarySpecInternal.setTargetFlavor( libraryFlavor );
-			}
-
-			// ----------------------------------- //
-
-			ExecutableFlavorRequirement executableFlavorRequirement = permutation.getVariant( ExecutableFlavorRequirement.class );
-
-			if( executableFlavorRequirement != null )
-			{
-				ExecutableFlavor executableFlavor = variantResolver.resolve( IExecutableFlavor, executableFlavorRequirement );
-
-				if( executableFlavor != null )
-					binarySpecInternal.setTargetFlavor( executableFlavor );
 			}
 		}
 

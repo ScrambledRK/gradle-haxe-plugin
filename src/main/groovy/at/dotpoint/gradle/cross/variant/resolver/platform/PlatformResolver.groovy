@@ -4,26 +4,23 @@ import at.dotpoint.gradle.cross.variant.model.platform.IPlatform
 import at.dotpoint.gradle.cross.variant.model.platform.Platform
 import at.dotpoint.gradle.cross.variant.requirement.platform.PlatformRequirement
 import at.dotpoint.gradle.cross.variant.resolver.IVariantResolver
+import at.dotpoint.gradle.cross.variant.resolver.VariantResolver
 import org.gradle.platform.base.PlatformContainer
 
 
 /**
  * Created by RK on 11.03.16.
  */
-class PlatformResolver implements IPlatformResolver
+class PlatformResolver extends VariantResolver<Platform,PlatformRequirement> implements IPlatformResolver
 {
 
 	//
-	private final PlatformContainer platformContainer;
-
-	//
-	public PlatformResolver( PlatformContainer platformContainer )
-	{
-		this.platformContainer = platformContainer;
+	public PlatformResolver( PlatformContainer platformContainer ) {
+		super( platformContainer );
 	}
 
 	@Override
-	Class<IPlatform> getVariantType()
+	Class<Platform> getVariantType()
 	{
 		return IPlatform.class;
 	}
@@ -33,26 +30,4 @@ class PlatformResolver implements IPlatformResolver
 		return PlatformRequirement.class;
 	}
 
-	// -------------------------------- //
-	// -------------------------------- //
-
-	@Override
-	IPlatform resolve( PlatformRequirement platformRequirement )
-	{
-		for (org.gradle.platform.base.Platform platform : this.platformContainer)
-		{
-			if ( !(platform instanceof IPlatform) ){
-				continue;
-			}
-
-			if (platform.name.equals( platformRequirement.platformName )){
-				return (IPlatform)platform;
-			}
-		}
-
-		Platform created = new Platform( platformRequirement.getPlatformName() );
-		this.platformContainer.add( created );
-
-		return created;
-	}
 }

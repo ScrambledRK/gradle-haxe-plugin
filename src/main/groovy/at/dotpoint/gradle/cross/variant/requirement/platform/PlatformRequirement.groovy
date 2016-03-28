@@ -1,6 +1,8 @@
 package at.dotpoint.gradle.cross.variant.requirement.platform
 
 import at.dotpoint.gradle.cross.util.DefaultNamed
+import at.dotpoint.gradle.cross.variant.model.IVariant
+import at.dotpoint.gradle.cross.variant.model.platform.IPlatform
 import at.dotpoint.gradle.cross.variant.requirement.IVariantRequirement
 
 /**
@@ -18,4 +20,8 @@ class PlatformRequirement extends DefaultNamed implements IVariantRequirement, o
 		return this.getName();
 	}
 
+	@Override
+	Class<? extends IVariant> getVariantType() {
+		return IPlatform.class;
+	}
 }

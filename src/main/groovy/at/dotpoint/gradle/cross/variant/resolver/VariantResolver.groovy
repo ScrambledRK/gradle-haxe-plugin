@@ -2,6 +2,7 @@ package at.dotpoint.gradle.cross.variant.resolver
 
 import at.dotpoint.gradle.cross.variant.model.IVariant
 import at.dotpoint.gradle.cross.variant.requirement.IVariantRequirement
+import org.gradle.api.ExtensiblePolymorphicDomainObjectContainer
 
 /**
  * Created by RK on 28.03.2016.
@@ -11,10 +12,10 @@ abstract class VariantResolver<TVariant extends IVariant, TRequirement extends I
 {
 
 	//
-	protected final Set<TVariant> variantContainer;
+	protected final ExtensiblePolymorphicDomainObjectContainer<TVariant> variantContainer;
 
 	//
-	public VariantResolver( Set<TVariant> variantContainer )
+	public VariantResolver( ExtensiblePolymorphicDomainObjectContainer<TVariant> variantContainer )
 	{
 		this.variantContainer = variantContainer;
 	}
@@ -34,27 +35,29 @@ abstract class VariantResolver<TVariant extends IVariant, TRequirement extends I
 	@Override
 	public TVariant resolve(TRequirement requirement)
 	{
-		TVariant created = this.createVariant( requirement );
-		TVariant unique = this.getUniqueVariant( created );
+		TVariant existing = this.getVariantFromContainer( requirement );
 
-		if ( unique == created )
-			this.variantContainer.add( created );
+		if ( existing == null )
+			return this.createVariant( requirement );
 
-		return unique;
+		return existing;
 	}
 
 	//
-	protected TVariant getUniqueVariant( TVariant compareTarget )
+	protected TVariant getVariantFromContainer( TRequirement requirement )
 	{
 		for ( TVariant variant : this.variantContainer )
 		{
-			if ( variant.equals( compareTarget ) )
+			if ( variant.name == requirement.name )
 				return variant;
 		}
 
-		return compareTarget;
+		return null;
 	}
 
 	//
-	abstract protected TVariant createVariant(TRequirement requirement);
+	protected TVariant createVariant( TRequirement requirement )
+	{
+		return this.variantContainer.create( requirement.name, this.getVariantType() );
+	}
 }

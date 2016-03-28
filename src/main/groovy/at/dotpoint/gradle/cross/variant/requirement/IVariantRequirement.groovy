@@ -1,5 +1,6 @@
 package at.dotpoint.gradle.cross.variant.requirement
 
+import at.dotpoint.gradle.cross.variant.model.IVariant
 import org.gradle.api.Named
 
 /**
@@ -7,4 +8,6 @@ import org.gradle.api.Named
  */
 public interface IVariantRequirement extends Named {
 
+	//
+	Class<? extends IVariant> getVariantType();
 }

@@ -1,5 +1,6 @@
 package at.dotpoint.gradle.cross.specification
 
+import at.dotpoint.gradle.cross.variant.model.IVariant
 import at.dotpoint.gradle.cross.variant.model.flavor.IFlavor
 import at.dotpoint.gradle.cross.variant.model.platform.IPlatform
 import org.gradle.internal.HasInternalProtocol
@@ -42,5 +43,8 @@ public interface IApplicationBinarySpecInternal extends IApplicationBinarySpec, 
 
 	//
 	void setTargetFlavor( IFlavor releaseType );
+
+	//
+	void setTargetVariant( IVariant variant );
 }
 

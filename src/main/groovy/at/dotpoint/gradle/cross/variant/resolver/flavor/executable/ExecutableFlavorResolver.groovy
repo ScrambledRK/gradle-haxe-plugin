@@ -25,8 +25,4 @@ class ExecutableFlavorResolver extends FlavorResolver<IExecutableFlavor,Executab
 		return ExecutableFlavorRequirement.class;
 	}
 
-	@Override
-	protected IExecutableFlavor createVariant(ExecutableFlavorRequirement requirement) {
-		return new ExecutableFlavor( requirement.name );
-	}
 }

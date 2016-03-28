@@ -29,8 +29,4 @@ class LibraryFlavorResolver extends FlavorResolver<ILibraryFlavor,LibraryFlavorR
 		return LibraryFlavorRequirement.class;
 	}
 
-	@Override
-	protected ILibraryFlavor createVariant(LibraryFlavorRequirement requirement) {
-		return new LibraryFlavor( requirement.name );
-	}
 }
