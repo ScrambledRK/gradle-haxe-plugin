@@ -6,13 +6,18 @@ import at.dotpoint.gradle.cross.variant.model.flavor.library.ILibraryFlavor
 import at.dotpoint.gradle.cross.variant.model.flavor.library.LibraryFlavor
 import at.dotpoint.gradle.cross.variant.requirement.flavor.executable.ExecutableFlavorRequirement
 import at.dotpoint.gradle.cross.variant.requirement.flavor.library.LibraryFlavorRequirement
+import at.dotpoint.gradle.cross.variant.resolver.flavor.FlavorResolver
 import at.dotpoint.gradle.cross.variant.resolver.flavor.executable.IExecutableFlavorResolver
 
 /**
  * Created by RK on 11.03.16.
  */
-class LibraryFlavorResolver implements ILibraryFlavorResolver
+class LibraryFlavorResolver extends FlavorResolver<ILibraryFlavor,LibraryFlavorRequirement> implements ILibraryFlavorResolver
 {
+
+	LibraryFlavorResolver(Set<ILibraryFlavor> variantContainer) {
+		super(variantContainer)
+	}
 
 	@Override
 	Class<ILibraryFlavor> getVariantType() {
@@ -25,7 +30,7 @@ class LibraryFlavorResolver implements ILibraryFlavorResolver
 	}
 
 	@Override
-	ILibraryFlavor resolve(LibraryFlavorRequirement requirement) {
+	protected ILibraryFlavor createVariant(LibraryFlavorRequirement requirement) {
 		return new LibraryFlavor( requirement.name );
 	}
 }

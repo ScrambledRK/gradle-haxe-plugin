@@ -33,6 +33,9 @@ class PlatformResolver implements IPlatformResolver
 		return PlatformRequirement.class;
 	}
 
+	// -------------------------------- //
+	// -------------------------------- //
+
 	@Override
 	IPlatform resolve( PlatformRequirement platformRequirement )
 	{

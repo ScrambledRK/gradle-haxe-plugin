@@ -12,6 +12,8 @@ import at.dotpoint.gradle.cross.specification.library.ILibraryComponentSpec
 import at.dotpoint.gradle.cross.specification.library.ILibraryComponentSpecInternal
 import at.dotpoint.gradle.cross.specification.library.LibraryComponentSpec
 import at.dotpoint.gradle.cross.util.StringUtil
+import at.dotpoint.gradle.cross.variant.container.flavor.FlavorContainer
+import at.dotpoint.gradle.cross.variant.container.flavor.IFlavorContainer
 import at.dotpoint.gradle.cross.variant.iterator.VariantContainer
 import at.dotpoint.gradle.cross.variant.iterator.VariantIterator
 import at.dotpoint.gradle.cross.variant.model.flavor.executable.ExecutableFlavor
@@ -139,6 +141,11 @@ class CrossPlugin implements Plugin<Project>
 		// -------------------------------------------------- //
 		// -------------------------------------------------- //
 
+		@Model
+		IFlavorContainer flavors() {
+			return new FlavorContainer()
+		}
+
 		/**
 		 * VariantResolverRepository
 		 */
@@ -152,11 +159,13 @@ class CrossPlugin implements Plugin<Project>
 		 * VariantResolver
 		 */
 		@Mutate
-		public void registerVariationResolver( IVariantResolverRepository variantResolver, PlatformContainer platformContainer  )
+		public void registerVariationResolver(IVariantResolverRepository variantResolver,
+											  PlatformContainer platformContainer,
+											  IFlavorContainer flavorContainer )
 		{
 			variantResolver.register( new PlatformResolver( platformContainer ) );
-			variantResolver.register( new ExecutableFlavorResolver() );
-			variantResolver.register( new LibraryFlavorResolver() );
+			variantResolver.register( new ExecutableFlavorResolver( flavorContainer ) );
+			variantResolver.register( new LibraryFlavorResolver( flavorContainer ) );
 		}
 
 		// -------------------------------------------------- //
@@ -186,7 +195,7 @@ class CrossPlugin implements Plugin<Project>
 			ISourceSetInternal languageSourceSet = (ISourceSetInternal) sourceSet;
 			PlatformRequirement platformRequirement = languageSourceSet.getPlatformRequirement();
 
-			if( platformRequirement != null )
+			if( platformRequirement != null && languageSourceSet.getTargetPlatform() == null )
 			{
 				Platform platform = variantResolver.resolve( IPlatform, platformRequirement );
 

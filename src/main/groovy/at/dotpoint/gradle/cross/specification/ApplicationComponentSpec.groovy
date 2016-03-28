@@ -12,7 +12,6 @@ import at.dotpoint.gradle.cross.variant.requirement.platform.PlatformRequirement
  */
 class ApplicationComponentSpec extends GeneralComponentSpec implements IApplicationComponentSpecInternal
 {
-
 	 //
     protected final ArrayList<PlatformRequirement> targetPlatformList;
     protected final ArrayList<IFlavorRequirement> targetFlavorList;

@@ -16,7 +16,6 @@ class PlatformRequirement extends DefaultNamed implements IVariantRequirement, o
 	@Override
 	String getPlatformName() {
 		return this.getName();
-
 	}
 
 }
