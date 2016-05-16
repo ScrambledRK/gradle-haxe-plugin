@@ -1,11 +1,11 @@
 package at.dotpoint.gradle.cross.variant.model.flavor.library
 
-import at.dotpoint.gradle.cross.util.DefaultDisplayNamed
+import at.dotpoint.gradle.cross.variant.model.DefaultVariant
 
 /**
  * Created by RK on 11.03.16.
  */
-class LibraryFlavor extends DefaultDisplayNamed implements ILibraryFlavorInternal {
+class LibraryFlavor extends DefaultVariant implements ILibraryFlavorInternal {
 
 	public LibraryFlavor(String name) {
 		super(name, name)

@@ -20,15 +20,11 @@ import at.dotpoint.gradle.cross.variant.factory.platform.PlatformFactory
 import at.dotpoint.gradle.cross.variant.iterator.VariantContainer
 import at.dotpoint.gradle.cross.variant.iterator.VariantIterator
 import at.dotpoint.gradle.cross.variant.model.IVariant
-import at.dotpoint.gradle.cross.variant.model.flavor.executable.ExecutableFlavor
 import at.dotpoint.gradle.cross.variant.model.flavor.executable.IExecutableFlavor
 import at.dotpoint.gradle.cross.variant.model.flavor.library.ILibraryFlavor
-import at.dotpoint.gradle.cross.variant.model.flavor.library.LibraryFlavor
 import at.dotpoint.gradle.cross.variant.model.platform.IPlatform
 import at.dotpoint.gradle.cross.variant.model.platform.Platform
 import at.dotpoint.gradle.cross.variant.requirement.IVariantRequirement
-import at.dotpoint.gradle.cross.variant.requirement.flavor.executable.ExecutableFlavorRequirement
-import at.dotpoint.gradle.cross.variant.requirement.flavor.library.LibraryFlavorRequirement
 import at.dotpoint.gradle.cross.variant.requirement.platform.PlatformRequirement
 import at.dotpoint.gradle.cross.variant.resolver.IVariantResolverRepository
 import at.dotpoint.gradle.cross.variant.resolver.VariantResolverRepository
@@ -43,12 +39,7 @@ import org.gradle.internal.reflect.Instantiator
 import org.gradle.internal.service.ServiceRegistry
 import org.gradle.language.base.internal.registry.LanguageTransformContainer
 import org.gradle.language.base.plugins.LanguageBasePlugin
-import org.gradle.model.Each
-import org.gradle.model.Finalize
-import org.gradle.model.Model
-import org.gradle.model.ModelMap
-import org.gradle.model.Mutate
-import org.gradle.model.RuleSource
+import org.gradle.model.*
 import org.gradle.model.internal.core.Hidden
 import org.gradle.model.internal.manage.schema.ModelSchemaStore
 import org.gradle.platform.base.ComponentBinaries
@@ -60,7 +51,7 @@ import org.gradle.platform.base.plugins.BinaryBasePlugin
 import javax.inject.Inject
 
 /**
- * Created by RK on 11.03.16.
+ *  Created by RK on 11.03.16.
  */
 class CrossPlugin implements Plugin<Project>
 {
@@ -83,8 +74,8 @@ class CrossPlugin implements Plugin<Project>
 	@Override
 	public void apply( final Project project )
 	{
-		project.getPluginManager().apply(LanguageBasePlugin.class);
-		project.getPluginManager().apply(BinaryBasePlugin.class);
+		project.getPluginManager().apply( LanguageBasePlugin.class );
+		project.getPluginManager().apply( BinaryBasePlugin.class );
 
 		project.extensions.extraProperties.set( "LibraryComponentSpec", ILibraryComponentSpec );
 		project.extensions.extraProperties.set( "ExecutableComponentSpec", IExecutableComponentSpec );
@@ -103,13 +94,13 @@ class CrossPlugin implements Plugin<Project>
 	{
 
 		/**
-		* IGeneralComponentSpec
-		*/
+		 * IGeneralComponentSpec
+		 */
 		@ComponentType
 		void registerGeneralComponentSpec( TypeBuilder<IGeneralComponentSpec> builder )
 		{
-			builder.defaultImplementation(GeneralComponentSpec.class);
-			builder.internalView(IGeneralComponentSpecInternal.class);
+			builder.defaultImplementation( GeneralComponentSpec.class );
+			builder.internalView( IGeneralComponentSpecInternal.class );
 		}
 
 		/**
@@ -118,8 +109,8 @@ class CrossPlugin implements Plugin<Project>
 		@ComponentType
 		void registerLibraryComponentSpec( TypeBuilder<ILibraryComponentSpec> builder )
 		{
-			builder.defaultImplementation(LibraryComponentSpec.class);
-			builder.internalView(ILibraryComponentSpecInternal.class);
+			builder.defaultImplementation( LibraryComponentSpec.class );
+			builder.internalView( ILibraryComponentSpecInternal.class );
 		}
 
 		/**
@@ -128,8 +119,8 @@ class CrossPlugin implements Plugin<Project>
 		@ComponentType
 		void registerExecutableComponentSpec( TypeBuilder<IExecutableComponentSpec> builder )
 		{
-			builder.defaultImplementation(ExecutableComponentSpec.class);
-			builder.internalView(IExecutableComponentSpecInternal.class);
+			builder.defaultImplementation( ExecutableComponentSpec.class );
+			builder.internalView( IExecutableComponentSpecInternal.class );
 		}
 
 		/**
@@ -138,8 +129,8 @@ class CrossPlugin implements Plugin<Project>
 		@ComponentType
 		void registerApplicationBinarySpec( TypeBuilder<IApplicationBinarySpec> builder )
 		{
-			builder.defaultImplementation(ApplicationBinarySpec.class);
-			builder.internalView(IApplicationBinarySpecInternal.class);
+			builder.defaultImplementation( ApplicationBinarySpec.class );
+			builder.internalView( IApplicationBinarySpecInternal.class );
 		}
 
 		// -------------------------------------------------- //
@@ -149,7 +140,8 @@ class CrossPlugin implements Plugin<Project>
 		 * IFlavorContainer
 		 */
 		@Model
-		IFlavorContainer flavors() {
+		IFlavorContainer flavors()
+		{
 			return new FlavorContainer()
 		}
 
@@ -175,7 +167,8 @@ class CrossPlugin implements Plugin<Project>
 		/**
 		 * VariantResolverRepository
 		 */
-		@Hidden @Model
+		@Hidden
+		@Model
 		IVariantResolverRepository variationResolver()
 		{
 			return new VariantResolverRepository();
@@ -185,9 +178,9 @@ class CrossPlugin implements Plugin<Project>
 		 * VariantResolver
 		 */
 		@Mutate
-		void registerVariationResolver(IVariantResolverRepository variantResolver,
-									   PlatformContainer platformContainer,
-									   IFlavorContainer flavorContainer )
+		void registerVariationResolver( IVariantResolverRepository variantResolver,
+										PlatformContainer platformContainer,
+										IFlavorContainer flavorContainer )
 		{
 			variantResolver.register( new PlatformResolver( platformContainer ) );
 			variantResolver.register( new ExecutableFlavorResolver( flavorContainer ) );
@@ -204,19 +197,19 @@ class CrossPlugin implements Plugin<Project>
 		@ComponentType
 		void registerSourceSet( TypeBuilder<ISourceSet> builder )
 		{
-			builder.defaultImplementation(CrossSourceSet.class);
-			builder.internalView(ISourceSetInternal.class);
+			builder.defaultImplementation( CrossSourceSet.class );
+			builder.internalView( ISourceSetInternal.class );
 		}
 
 		@Mutate
-		void registerLanguageTransform(LanguageTransformContainer languages, ServiceRegistry serviceRegistry)
+		void registerLanguageTransform( LanguageTransformContainer languages, ServiceRegistry serviceRegistry )
 		{
-			ModelSchemaStore schemaStore = serviceRegistry.get(ModelSchemaStore.class);
+			ModelSchemaStore schemaStore = serviceRegistry.get( ModelSchemaStore.class );
 			languages.add( new CrossLanguageTransform() );
 		}
 
 		@Finalize
-		void assignSourceSetPlatforms(@Each ISourceSet sourceSet, IVariantResolverRepository variantResolver )
+		void assignSourceSetPlatforms( @Each ISourceSet sourceSet, IVariantResolverRepository variantResolver )
 		{
 			ISourceSetInternal languageSourceSet = (ISourceSetInternal) sourceSet;
 			PlatformRequirement platformRequirement = languageSourceSet.getPlatformRequirement();
@@ -241,8 +234,8 @@ class CrossPlugin implements Plugin<Project>
 		 * @param variantResolver
 		 */
 		@ComponentBinaries
-		void generateApplicationBinaries(ModelMap<IApplicationBinarySpec> builder, IApplicationComponentSpec applicationComponentSpec,
-										 IVariantResolverRepository variantResolver )
+		void generateApplicationBinaries( ModelMap<IApplicationBinarySpec> builder, IApplicationComponentSpec applicationComponentSpec,
+										  IVariantResolverRepository variantResolver )
 		{
 			IApplicationComponentSpecInternal applicationComponentSpecInternal = (IApplicationComponentSpecInternal) applicationComponentSpec;
 			VariantIterator<IVariantRequirement> iterator = new VariantIterator<>( applicationComponentSpecInternal.getVariantRequirements() );
@@ -251,7 +244,7 @@ class CrossPlugin implements Plugin<Project>
 			{
 				VariantContainer<IVariantRequirement> permutation = iterator.next();
 
-				builder.create( this.getVariationName( permutation ) ){ IApplicationBinarySpec binarySpec ->
+				builder.create( this.getVariationName( permutation ) ) {IApplicationBinarySpec binarySpec ->
 
 					IApplicationBinarySpecInternal binarySpecInternal = (IApplicationBinarySpecInternal) binarySpec;
 
@@ -275,8 +268,9 @@ class CrossPlugin implements Plugin<Project>
 		{
 			ArrayList<String> names = new ArrayList<>();
 
-			for (int i = 0; i < permutation.size(); i++) {
-				names.add( permutation.get(i).name );
+			for( int i = 0; i < permutation.size(); i++ )
+			{
+				names.add( permutation.get( i ).name );
 			}
 
 			return StringUtil.toCamelCase( names );

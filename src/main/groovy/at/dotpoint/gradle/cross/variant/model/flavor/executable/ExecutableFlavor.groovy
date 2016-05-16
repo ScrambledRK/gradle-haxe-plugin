@@ -1,11 +1,11 @@
 package at.dotpoint.gradle.cross.variant.model.flavor.executable
 
-import at.dotpoint.gradle.cross.util.DefaultDisplayNamed
+import at.dotpoint.gradle.cross.variant.model.DefaultVariant
 
 /**
  * Created by RK on 11.03.16.
  */
-class ExecutableFlavor extends DefaultDisplayNamed implements IExecutableFlavorInternal {
+class ExecutableFlavor extends DefaultVariant implements IExecutableFlavorInternal {
 
 
 	public ExecutableFlavor(String name) {

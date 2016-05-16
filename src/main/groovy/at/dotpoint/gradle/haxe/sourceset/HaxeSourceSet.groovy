@@ -7,7 +7,7 @@ import at.dotpoint.gradle.cross.variant.requirement.platform.PlatformRequirement
 /**
  * Created by RK on 28.03.2016.
  */
-class HaxeSourceSet extends CrossSourceSet
+class HaxeSourceSet extends CrossSourceSet implements IHaxeSourceSetInternal
 {
 	HaxeSourceSet()
 	{
