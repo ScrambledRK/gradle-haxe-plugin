@@ -1,6 +1,5 @@
 package at.dotpoint.gradle.cross
 
-import at.dotpoint.gradle.cross.sourceset.CrossLanguageTransform
 import at.dotpoint.gradle.cross.sourceset.CrossSourceSet
 import at.dotpoint.gradle.cross.sourceset.ISourceSet
 import at.dotpoint.gradle.cross.sourceset.ISourceSetInternal
@@ -36,12 +35,9 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.internal.file.FileResolver
 import org.gradle.internal.reflect.Instantiator
-import org.gradle.internal.service.ServiceRegistry
-import org.gradle.language.base.internal.registry.LanguageTransformContainer
 import org.gradle.language.base.plugins.LanguageBasePlugin
 import org.gradle.model.*
 import org.gradle.model.internal.core.Hidden
-import org.gradle.model.internal.manage.schema.ModelSchemaStore
 import org.gradle.platform.base.ComponentBinaries
 import org.gradle.platform.base.ComponentType
 import org.gradle.platform.base.PlatformContainer
@@ -49,7 +45,6 @@ import org.gradle.platform.base.TypeBuilder
 import org.gradle.platform.base.plugins.BinaryBasePlugin
 
 import javax.inject.Inject
-
 /**
  *  Created by RK on 11.03.16.
  */
@@ -199,13 +194,6 @@ class CrossPlugin implements Plugin<Project>
 		{
 			builder.defaultImplementation( CrossSourceSet.class );
 			builder.internalView( ISourceSetInternal.class );
-		}
-
-		@Mutate
-		void registerLanguageTransform( LanguageTransformContainer languages, ServiceRegistry serviceRegistry )
-		{
-			ModelSchemaStore schemaStore = serviceRegistry.get( ModelSchemaStore.class );
-			languages.add( new CrossLanguageTransform() );
 		}
 
 		@Finalize

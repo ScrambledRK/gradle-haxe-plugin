@@ -1,7 +1,8 @@
-package at.dotpoint.gradle.cross.sourceset
+package at.dotpoint.gradle.haxe.transform
 
+import at.dotpoint.gradle.cross.sourceset.ISourceSet
 import at.dotpoint.gradle.cross.specification.IApplicationBinarySpec
-import at.dotpoint.gradle.cross.task.ConvertSourceTask
+import at.dotpoint.gradle.cross.task.AConvertSourceTask
 import at.dotpoint.gradle.cross.variant.model.platform.Platform
 import org.gradle.api.DefaultTask
 import org.gradle.api.Task
@@ -14,9 +15,9 @@ import org.gradle.platform.base.BinarySpec
 /**
  * Created by RK on 27.02.16.
  */
-class CrossLanguageTransform implements LanguageTransform<ISourceSet, ISourceSet>
+class HaxeLanguageTransform implements LanguageTransform<ISourceSet, ISourceSet>
 {
-       public CrossLanguageTransform()
+       public HaxeLanguageTransform()
 	   {
 
        }
@@ -26,7 +27,7 @@ class CrossLanguageTransform implements LanguageTransform<ISourceSet, ISourceSet
 
        @Override
        public String getLanguageName() {
-           return "compile";
+           return "convert";
        }
 
        @Override
@@ -46,7 +47,7 @@ class CrossLanguageTransform implements LanguageTransform<ISourceSet, ISourceSet
 
        @Override
        public SourceTransformTaskConfig getTransformTask() {
-           return new CrossSourceTransformTaskConfig();
+           return new HaxeSourceTransformTaskConfig();
        }
 
        @Override
@@ -60,9 +61,9 @@ class CrossLanguageTransform implements LanguageTransform<ISourceSet, ISourceSet
 	/**
 	*
 	*/
-	public static class CrossSourceTransformTaskConfig implements SourceTransformTaskConfig {
+	public static class HaxeSourceTransformTaskConfig implements SourceTransformTaskConfig {
 
-		private CrossSourceTransformTaskConfig()
+		private HaxeSourceTransformTaskConfig()
 		{
 
 		}
@@ -74,13 +75,13 @@ class CrossLanguageTransform implements LanguageTransform<ISourceSet, ISourceSet
 
 		@Override
 		public Class<? extends DefaultTask> getTaskType() {
-		   return ConvertSourceTask.class;
+		   return AConvertSourceTask.class;
 		}
 
 		@Override
 		public void configureTask( Task task, BinarySpec binary, LanguageSourceSet sourceSet, ServiceRegistry serviceRegistry )
 		{
-			ConvertSourceTask convertSourceTask = (ConvertSourceTask) task;
+			AConvertSourceTask convertSourceTask = (AConvertSourceTask) task;
 			ISourceSet iSourceSet = (ISourceSet) sourceSet;
 			IApplicationBinarySpec haxeApplicationBinarySpec = (IApplicationBinarySpec) binary;
 
