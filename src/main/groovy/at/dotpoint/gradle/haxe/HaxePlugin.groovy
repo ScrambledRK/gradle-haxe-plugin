@@ -1,9 +1,17 @@
 package at.dotpoint.gradle.haxe
 
 import at.dotpoint.gradle.cross.CrossPlugin
+import at.dotpoint.gradle.cross.sourceset.ISourceSet
+import at.dotpoint.gradle.cross.sourceset.ISourceSetInternal
 import at.dotpoint.gradle.cross.specification.IApplicationBinarySpec
 import at.dotpoint.gradle.cross.specification.IApplicationBinarySpecInternal
 import at.dotpoint.gradle.cross.specification.IApplicationComponentSpec
+import at.dotpoint.gradle.cross.specification.IApplicationComponentSpecInternal
+import at.dotpoint.gradle.cross.variant.model.IVariant
+import at.dotpoint.gradle.cross.variant.model.platform.IPlatform
+import at.dotpoint.gradle.cross.variant.requirement.IVariantRequirement
+import at.dotpoint.gradle.cross.variant.requirement.platform.PlatformRequirement
+import at.dotpoint.gradle.cross.variant.resolver.IVariantResolverRepository
 import at.dotpoint.gradle.haxe.sourceset.HaxeSourceSet
 import at.dotpoint.gradle.haxe.sourceset.IHaxeSourceSet
 import at.dotpoint.gradle.haxe.sourceset.IHaxeSourceSetInternal
@@ -17,13 +25,19 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.internal.file.FileResolver
 import org.gradle.internal.reflect.Instantiator
+import org.gradle.language.base.ProjectSourceSet
+import org.gradle.model.Each
+import org.gradle.model.Finalize
 import org.gradle.model.ModelMap
+import org.gradle.model.Path
 import org.gradle.model.RuleSource
 import org.gradle.platform.base.ComponentBinaries
 import org.gradle.platform.base.ComponentType
 import org.gradle.platform.base.TypeBuilder
 
 import javax.inject.Inject
+import javax.management.modelmbean.ModelMBean
+
 /**
  *  Created by RK on 28.03.2016.
  */
@@ -100,30 +114,30 @@ class HaxePlugin implements Plugin<Project>
 		 * @param applicationComponentSpec
 		 * @param variantResolver
 		 */
-		@ComponentBinaries
-		void generateApplicationBinaries( ModelMap<IApplicationBinarySpec> builder, IApplicationComponentSpec applicationComponentSpec )
+		@Finalize
+		void generateBinaryTasks( @Each IApplicationBinarySpec binarySpec )
 		{
-			println " > > > " + applicationComponentSpec.name;
+			IApplicationBinarySpecInternal binarySpecInternal = (IApplicationBinarySpecInternal) binarySpec;
+			IApplicationComponentSpecInternal applicationComponentSpec = (IApplicationComponentSpecInternal) binarySpec.application;
 
-			builder.each { IApplicationBinarySpec binarySpec ->
+			String nameScoped = binarySpecInternal.getProjectScopedName();
 
-				IApplicationBinarySpecInternal binarySpecInternal = (IApplicationBinarySpecInternal) binarySpec;
+			String nameTaskConvert 	= nameScoped + "Convert";
+			String nameTaskHxml 	= nameScoped + "Hxml";
 
-				println( "  " + binarySpec.name );
+			// ------------- //
 
-				binarySpec.tasks.create( binarySpecInternal.getProjectScopedName() + "Convert", ConvertHaxeSourceTask.class )
-				{
+			binarySpec.tasks.create( nameTaskConvert, ConvertHaxeSourceTask.class )
+			{
+				ISourceSetInternal sourceSet = (ISourceSetInternal)(applicationComponentSpec.sources.get("compile"));
 
-				}
+				it.inputPlatform = sourceSet.sourcePlatform;
+				it.outputPlatform = binarySpecInternal.targetPlatform;
+			}
 
-				binarySpec.tasks.create( binarySpecInternal.getProjectScopedName() + "Hxml", GenerateHXMLTask.class )
-				{
-
-				}
-
-				binarySpec.tasks.each {
-					println "     " + it.name;
-				}
+			binarySpec.tasks.create( nameTaskHxml, GenerateHXMLTask.class )
+			{
+				it.dependsOn nameTaskConvert;
 			}
 		}
 

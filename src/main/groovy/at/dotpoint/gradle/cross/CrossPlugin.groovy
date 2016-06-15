@@ -35,6 +35,7 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.internal.file.FileResolver
 import org.gradle.internal.reflect.Instantiator
+import org.gradle.language.base.ProjectSourceSet
 import org.gradle.language.base.plugins.LanguageBasePlugin
 import org.gradle.model.*
 import org.gradle.model.internal.core.Hidden
@@ -196,18 +197,21 @@ class CrossPlugin implements Plugin<Project>
 			builder.internalView( ISourceSetInternal.class );
 		}
 
-		@Finalize
+		@Mutate
 		void assignSourceSetPlatforms( @Each ISourceSet sourceSet, IVariantResolverRepository variantResolver )
 		{
 			ISourceSetInternal languageSourceSet = (ISourceSetInternal) sourceSet;
 			PlatformRequirement platformRequirement = languageSourceSet.getPlatformRequirement();
 
-			if( platformRequirement != null && languageSourceSet.getTargetPlatform() == null )
+			if( platformRequirement != null && languageSourceSet.getSourcePlatform() == null )
 			{
 				Platform platform = variantResolver.resolve( IPlatform, platformRequirement );
 
+				println "aha?"
+				println platform;
+
 				if( platform != null )
-					languageSourceSet.setTargetPlatform( platform );
+					languageSourceSet.setSourcePlatform( platform );
 			}
 		}
 

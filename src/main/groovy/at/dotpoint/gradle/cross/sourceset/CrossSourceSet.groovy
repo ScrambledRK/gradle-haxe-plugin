@@ -1,9 +1,11 @@
 package at.dotpoint.gradle.cross.sourceset
 
+import at.dotpoint.gradle.cross.variant.model.platform.IPlatform
 import at.dotpoint.gradle.cross.variant.model.platform.Platform
 import at.dotpoint.gradle.cross.variant.parser.platform.PlatformNotationParser
 import at.dotpoint.gradle.cross.variant.requirement.platform.PlatformRequirement
 import org.gradle.language.base.sources.BaseLanguageSourceSet
+import org.gradle.model.Managed
 import org.gradle.platform.base.DependencySpecContainer
 import org.gradle.platform.base.internal.DefaultDependencySpecContainer
 
@@ -11,10 +13,12 @@ import org.gradle.platform.base.internal.DefaultDependencySpecContainer
 /**
  * Created by RK on 27.03.2016.
  */
+@Managed
+//
 public class CrossSourceSet extends BaseLanguageSourceSet implements ISourceSetInternal
 {
 
-	private Platform platform;
+	private IPlatform platform;
 	private PlatformRequirement platformRequirement;
 
 	private final DefaultDependencySpecContainer dependencies = new DefaultDependencySpecContainer();
@@ -27,7 +31,7 @@ public class CrossSourceSet extends BaseLanguageSourceSet implements ISourceSetI
 		this( null, null );
 	}
 
-	CrossSourceSet(Platform platform, PlatformRequirement platformRequirement)
+	CrossSourceSet( IPlatform platform, PlatformRequirement platformRequirement )
 	{
 		this.platform = platform
 		this.platformRequirement = platformRequirement
@@ -52,12 +56,12 @@ public class CrossSourceSet extends BaseLanguageSourceSet implements ISourceSetI
 	/**
 	*
 	*/
-	void setTargetPlatform( Platform platform )
+	void setSourcePlatform( IPlatform platform )
 	{
 		this.platform = platform;
 	}
 
-	Platform getTargetPlatform()
+	IPlatform getSourcePlatform()
 	{
 		return this.platform;
 	}

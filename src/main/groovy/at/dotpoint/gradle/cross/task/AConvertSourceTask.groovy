@@ -1,26 +1,27 @@
 package at.dotpoint.gradle.cross.task
 
-import at.dotpoint.gradle.cross.variant.model.platform.Platform
+import at.dotpoint.gradle.cross.variant.model.platform.IPlatform
+import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.SourceTask
 
 /**
  * Created by RK on 25.02.16.
  */
-class AConvertSourceTask extends SourceTask
+class AConvertSourceTask extends DefaultTask
 {
-	private Platform inputPlatform;
-	private Platform outputPlatform;
+	private IPlatform inputPlatform;
+	private IPlatform outputPlatform;
 
 	/**
 	 *
 	 * @return
 	 */
-	Platform getInputPlatform()
+	IPlatform getInputPlatform()
 	{
 		return inputPlatform
 	}
 
-	void setInputPlatform( Platform inputPlatform )
+	void setInputPlatform( IPlatform inputPlatform )
 	{
 		this.inputPlatform = inputPlatform
 	}
@@ -29,12 +30,12 @@ class AConvertSourceTask extends SourceTask
 	 *
 	 * @return
 	 */
-	Platform getOutputPlatform()
+	IPlatform getOutputPlatform()
 	{
 		return outputPlatform
 	}
 
-	void setOutputPlatform( Platform outputPlatform )
+	void setOutputPlatform( IPlatform outputPlatform )
 	{
 		this.outputPlatform = outputPlatform
 	}

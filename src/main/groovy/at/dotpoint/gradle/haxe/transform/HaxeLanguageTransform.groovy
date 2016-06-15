@@ -27,7 +27,7 @@ class HaxeLanguageTransform implements LanguageTransform<ISourceSet, ISourceSet>
 
        @Override
        public String getLanguageName() {
-           return "convert";
+           return "haxe";
        }
 
        @Override
@@ -92,7 +92,7 @@ class HaxeLanguageTransform implements LanguageTransform<ISourceSet, ISourceSet>
 			convertSourceTask.dependsOn(iSourceSet);
 
 			Platform targetPlatform = haxeApplicationBinarySpec.getTargetPlatform();
-			Platform originPlatform = iSourceSet.getTargetPlatform();
+			Platform originPlatform = iSourceSet.getSourcePlatform();
 
 			convertSourceTask.setOutputPlatform(targetPlatform);
 			convertSourceTask.setInputPlatform(originPlatform);
