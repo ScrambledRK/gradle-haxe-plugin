@@ -19,16 +19,10 @@ class ApplicationBinarySpec extends BaseBinarySpec implements IApplicationBinary
 	private IPlatform platform;
 	private IFlavor flavor;
 
-	@Override
-	void setTargetPlatform(IPlatform platform) {
-		this.platform = platform;
-	}
-
-	@Override
-	void setTargetFlavor(IFlavor falvor) {
-		this.flavor = falvor;
-	}
-
+	/**
+	 *
+	 * @param variant
+	 */
 	@Override
 	void setTargetVariant( IVariant variant )
 	{
@@ -39,9 +33,13 @@ class ApplicationBinarySpec extends BaseBinarySpec implements IApplicationBinary
 			this.setTargetFlavor( (IFlavor) variant );
 	}
 
+	/**
+	 *
+	 * @param platform
+	 */
 	@Override
-	IApplicationComponentSpec getApplication() {
-		return getComponentAs(IApplicationComponentSpec.class);
+	void setTargetPlatform(IPlatform platform) {
+		this.platform = platform;
 	}
 
 	@Override
@@ -49,11 +47,33 @@ class ApplicationBinarySpec extends BaseBinarySpec implements IApplicationBinary
 		return this.platform;
 	}
 
+	/**
+	 *
+	 * @param falvor
+	 */
+	@Override
+	void setTargetFlavor(IFlavor flavor) {
+		this.flavor = flavor;
+	}
+
 	@Override
 	IFlavor getTargetFlavor() {
 		return this.flavor;
 	}
 
+	/**
+	 *
+	 * @return
+	 */
+	@Override
+	IApplicationComponentSpec getApplication() {
+		return getComponentAs(IApplicationComponentSpec.class);
+	}
+
+	/**
+	 *
+	 * @return
+	 */
 	@Override
 	Set<? extends Class<? extends TransformationFileType>> getIntermediateTypes() {
 		return new HashSet<? extends Class<? extends TransformationFileType>>(Arrays.asList(LanguageSourceSet.class));

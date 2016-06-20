@@ -11,6 +11,7 @@ class GenerateHXMLTask extends DefaultTask
     @TaskAction
     public void generateHXML()
     {
-        println( "... generating HXML" );
+        println( "... compiling HaxeSource" );
+        println( "" );
     }
 }

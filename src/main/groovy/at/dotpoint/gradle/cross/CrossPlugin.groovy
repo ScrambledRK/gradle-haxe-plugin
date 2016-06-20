@@ -10,6 +10,7 @@ import at.dotpoint.gradle.cross.specification.executable.IExecutableComponentSpe
 import at.dotpoint.gradle.cross.specification.library.ILibraryComponentSpec
 import at.dotpoint.gradle.cross.specification.library.ILibraryComponentSpecInternal
 import at.dotpoint.gradle.cross.specification.library.LibraryComponentSpec
+import at.dotpoint.gradle.cross.util.NameUtil
 import at.dotpoint.gradle.cross.util.StringUtil
 import at.dotpoint.gradle.cross.variant.container.flavor.FlavorContainer
 import at.dotpoint.gradle.cross.variant.container.flavor.IFlavorContainer
@@ -33,17 +34,22 @@ import at.dotpoint.gradle.cross.variant.resolver.platform.PlatformResolver
 import org.gradle.api.Named
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.Task
 import org.gradle.api.internal.file.FileResolver
+import org.gradle.api.tasks.TaskContainer
 import org.gradle.internal.reflect.Instantiator
 import org.gradle.language.base.ProjectSourceSet
 import org.gradle.language.base.plugins.LanguageBasePlugin
 import org.gradle.model.*
 import org.gradle.model.internal.core.Hidden
+import org.gradle.platform.base.BinaryContainer
+import org.gradle.platform.base.BinarySpec
 import org.gradle.platform.base.ComponentBinaries
 import org.gradle.platform.base.ComponentType
 import org.gradle.platform.base.PlatformContainer
 import org.gradle.platform.base.TypeBuilder
-import org.gradle.platform.base.plugins.BinaryBasePlugin
+import org.gradle.platform.base.binary.BaseBinarySpec
+import org.gradle.platform.base.internal.BinarySpecInternal
 
 import javax.inject.Inject
 /**
@@ -71,7 +77,6 @@ class CrossPlugin implements Plugin<Project>
 	public void apply( final Project project )
 	{
 		project.getPluginManager().apply( LanguageBasePlugin.class );
-		project.getPluginManager().apply( BinaryBasePlugin.class );
 
 		project.extensions.extraProperties.set( "LibraryComponentSpec", ILibraryComponentSpec );
 		project.extensions.extraProperties.set( "ExecutableComponentSpec", IExecutableComponentSpec );
@@ -207,9 +212,6 @@ class CrossPlugin implements Plugin<Project>
 			{
 				Platform platform = variantResolver.resolve( IPlatform, platformRequirement );
 
-				println "aha?"
-				println platform;
-
 				if( platform != null )
 					languageSourceSet.setSourcePlatform( platform );
 			}
@@ -236,7 +238,7 @@ class CrossPlugin implements Plugin<Project>
 			{
 				VariantContainer<IVariantRequirement> permutation = iterator.next();
 
-				builder.create( this.getVariationName( permutation ) ) {IApplicationBinarySpec binarySpec ->
+				builder.create( NameUtil.getVariationName( permutation ) ) {IApplicationBinarySpec binarySpec ->
 
 					IApplicationBinarySpecInternal binarySpecInternal = (IApplicationBinarySpecInternal) binarySpec;
 
@@ -251,21 +253,20 @@ class CrossPlugin implements Plugin<Project>
 			}
 		}
 
-		/**
-		 *
-		 * @param permutation
-		 * @return
-		 */
-		private String getVariationName( VariantContainer<Named> permutation )
+		@Mutate
+		void removeDefaultTasks( TaskContainer tasks, BinaryContainer binaries )
 		{
-			ArrayList<String> names = new ArrayList<>();
-
-			for( int i = 0; i < permutation.size(); i++ )
+			for( BinarySpec binary : binaries )
 			{
-				names.add( permutation.get( i ).name );
-			}
+				Task buildTask = binary.getBuildTask();
 
-			return StringUtil.toCamelCase( names );
+				if( buildTask != null )
+				{
+					tasks.remove( buildTask );
+					binary.tasks.remove( buildTask );
+				}
+			}
 		}
+
 	}
 }

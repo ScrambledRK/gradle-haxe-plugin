@@ -1,0 +1,73 @@
+buildscript 
+{
+    repositories 
+	{
+        mavenLocal()
+		mavenCentral()
+    }
+    dependencies 
+	{
+        classpath group: 'at.dotpoint', name: 'gradle-haxe-plugin', version: '1.0-SNAPSHOT'
+    }
+}
+
+// /////////////////////////////////////////////// //
+// /////////////////////////////////////////////// //
+
+apply plugin: 'haxe'
+
+model
+{
+	components
+	{
+	
+		library(LibraryComponentSpec)
+		{
+			platform "dotnet","html5"
+			flavor "debug","release"
+			
+			sources
+			{		
+				compile(CrossSourceSet)
+				{
+					source.srcDir 'src/main/universal'		
+					platform "java"					
+				}			
+			}
+			
+			binaries
+			{
+				dotnetDebug
+				{
+					sources
+					{		
+						compile(CrossSourceSet)
+						{
+							source.srcDir 'src/main/dotnet'
+							platform "dotnet"								
+						}			
+					}
+				}
+				
+				all
+				{
+					if( it.name.startsWith("html5") )
+					{
+						it.sources
+						{
+							compile(CrossSourceSet)
+							{
+								source.srcDir 'src/main/html5'	
+								platform "html5"								
+							}	
+						}
+					}					
+				}
+			}
+		}
+	}	
+}
+
+project.plugins.each {
+   println "> " + it
+}

@@ -7,6 +7,7 @@ import at.dotpoint.gradle.cross.specification.IApplicationBinarySpec
 import at.dotpoint.gradle.cross.specification.IApplicationBinarySpecInternal
 import at.dotpoint.gradle.cross.specification.IApplicationComponentSpec
 import at.dotpoint.gradle.cross.specification.IApplicationComponentSpecInternal
+import at.dotpoint.gradle.cross.util.StringUtil
 import at.dotpoint.gradle.cross.variant.model.IVariant
 import at.dotpoint.gradle.cross.variant.model.platform.IPlatform
 import at.dotpoint.gradle.cross.variant.requirement.IVariantRequirement
@@ -23,14 +24,21 @@ import at.dotpoint.gradle.haxe.task.GenerateHXMLTask
 import org.gradle.api.DefaultTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.Task
 import org.gradle.api.internal.file.FileResolver
+import org.gradle.api.internal.tasks.DefaultTaskDependency
+import org.gradle.api.tasks.TaskContainer
 import org.gradle.internal.reflect.Instantiator
 import org.gradle.language.base.ProjectSourceSet
+import org.gradle.language.base.plugins.LifecycleBasePlugin
 import org.gradle.model.Each
 import org.gradle.model.Finalize
 import org.gradle.model.ModelMap
+import org.gradle.model.Mutate
 import org.gradle.model.Path
 import org.gradle.model.RuleSource
+import org.gradle.platform.base.BinaryContainer
+import org.gradle.platform.base.BinarySpec
 import org.gradle.platform.base.ComponentBinaries
 import org.gradle.platform.base.ComponentType
 import org.gradle.platform.base.TypeBuilder
@@ -43,6 +51,10 @@ import javax.management.modelmbean.ModelMBean
  */
 class HaxePlugin implements Plugin<Project>
 {
+
+	public static final String NAME_TRANSPILE_SOURCE 	= "transpile";
+	public static final String NAME_COMPILE_SOURCE 		= "compile";
+	public static final String NAME_CONVERT_ASSETS 		= "convert";
 
 	/**
 	 *
@@ -108,13 +120,65 @@ class HaxePlugin implements Plugin<Project>
 //			languages.add( new HaxeLanguageTransform() );
 //		}
 
+		@Mutate
+		void removeDefaultTasks( TaskContainer tasks, BinaryContainer binaries )
+		{
+			tasks.create( HaxePlugin.NAME_TRANSPILE_SOURCE, DefaultTask.class )
+			{
+				it.group = LifecycleBasePlugin.BUILD_GROUP;
+				it.description = "converts non-native sources to the native target language of a binary"
+			}
+
+			tasks.create( HaxePlugin.NAME_COMPILE_SOURCE, DefaultTask.class )
+			{
+				it.group = LifecycleBasePlugin.BUILD_GROUP;
+				it.description = "compiles native sources to a native target binary"
+			}
+
+			tasks.create( HaxePlugin.NAME_CONVERT_ASSETS, DefaultTask.class )
+			{
+				it.group = LifecycleBasePlugin.BUILD_GROUP;
+				it.description = "converts raw assets for the native target binary"
+			}
+
+			tasks.getByName(HaxePlugin.NAME_COMPILE_SOURCE).dependsOn HaxePlugin.NAME_TRANSPILE_SOURCE;
+
+			// -------------- //
+
+			for( BinarySpec binary : binaries )
+			{
+				for( Task task in binary.getTasks() )
+				{
+					if( task.name.startsWith(HaxePlugin.NAME_TRANSPILE_SOURCE) )
+						tasks.getByName(HaxePlugin.NAME_TRANSPILE_SOURCE).dependsOn task;
+
+					if( task.name.startsWith(HaxePlugin.NAME_COMPILE_SOURCE) )
+						tasks.getByName(HaxePlugin.NAME_COMPILE_SOURCE).dependsOn task;
+
+					if( task.name.startsWith(HaxePlugin.NAME_CONVERT_ASSETS) )
+						tasks.getByName(HaxePlugin.NAME_CONVERT_ASSETS).dependsOn task;
+				}
+			}
+		}
+
+		/**
+		 *
+		 * @param task
+		 */
+		@Finalize
+		void removeAssembleDependencies( @Path("tasks.assemble") Task task )
+		{
+			(DefaultTaskDependency)(task.getTaskDependencies()).getValues().clear();
+			task.setDependsOn( [ HaxePlugin.NAME_COMPILE_SOURCE, HaxePlugin.NAME_CONVERT_ASSETS ] );
+		}
+
 		/**
 		 *
 		 * @param builder
 		 * @param applicationComponentSpec
 		 * @param variantResolver
 		 */
-		@Finalize
+		@Mutate
 		void generateBinaryTasks( @Each IApplicationBinarySpec binarySpec )
 		{
 			IApplicationBinarySpecInternal binarySpecInternal = (IApplicationBinarySpecInternal) binarySpec;
@@ -122,23 +186,28 @@ class HaxePlugin implements Plugin<Project>
 
 			String nameScoped = binarySpecInternal.getProjectScopedName();
 
-			String nameTaskConvert 	= nameScoped + "Convert";
-			String nameTaskHxml 	= nameScoped + "Hxml";
+			String nameTaskConvert 	= StringUtil.toCamelCase( HaxePlugin.NAME_TRANSPILE_SOURCE, nameScoped );
+			String nameTaskCompile 	= StringUtil.toCamelCase( HaxePlugin.NAME_COMPILE_SOURCE, nameScoped );
 
 			// ------------- //
 
+			Task buildTask = null;
+
 			binarySpec.tasks.create( nameTaskConvert, ConvertHaxeSourceTask.class )
 			{
-				ISourceSetInternal sourceSet = (ISourceSetInternal)(applicationComponentSpec.sources.get("compile"));
+				ISourceSetInternal sourceSet = (ISourceSetInternal)(applicationComponentSpec.sources.get(HaxePlugin.NAME_COMPILE_SOURCE));
 
 				it.inputPlatform = sourceSet.sourcePlatform;
 				it.outputPlatform = binarySpecInternal.targetPlatform;
 			}
 
-			binarySpec.tasks.create( nameTaskHxml, GenerateHXMLTask.class )
+			binarySpec.tasks.create( nameTaskCompile, GenerateHXMLTask.class )
 			{
 				it.dependsOn nameTaskConvert;
+				buildTask = it;
 			}
+
+			binarySpec.setBuildTask( buildTask );
 		}
 
 		/**
