@@ -45,6 +45,7 @@ import org.gradle.model.internal.core.Hidden
 import org.gradle.platform.base.*
 
 import javax.inject.Inject
+
 /**
  *  Created by RK on 11.03.16.
  */
@@ -83,14 +84,14 @@ class CrossPlugin implements Plugin<Project>
 	// ---------------------------------------------------------- //
 	// ---------------------------------------------------------- //
 
-	/**
-	 *
-	 */
-	@SuppressWarnings("UnusedDeclaration")
-	//
-	static class CrossPluginRules extends RuleSource
-	{
 
+	/**
+	 * ComponentSpecs, SourceSets
+	 */
+	@SuppressWarnings(["UnusedDeclaration", "GrMethodMayBeStatic"])
+	//
+	static class ComponentRules extends RuleSource
+	{
 		/**
 		 * IGeneralComponentSpec
 		 */
@@ -131,37 +132,85 @@ class CrossPlugin implements Plugin<Project>
 			builder.internalView( IApplicationBinarySpecInternal.class );
 		}
 
-		// -------------------------------------------------- //
-		// -------------------------------------------------- //
-
 		/**
-		 * IFlavorContainer
+		 * LanguageSourceSet
 		 */
-		@Model
-		IFlavorContainer flavors()
+		@ComponentType
+		void registerSourceSet( TypeBuilder<ISourceSet> builder )
 		{
-			return new FlavorContainer()
+			builder.defaultImplementation( CrossSourceSet.class );
+			builder.internalView( ISourceSetInternal.class );
 		}
+	}
+
+	/**
+	 * BinarySpecs, LanguageSourceSets
+	 */
+	@SuppressWarnings(["UnusedDeclaration", "GrMethodMayBeStatic"])
+	//
+	static class BinaryRules extends RuleSource
+	{
 
 		/**
-		 * Flavor Factories
-		 */
-		@Mutate
-		void registerFlavorFactories( IFlavorContainer flavorContainer )
-		{
-			flavorContainer.registerFactory( ILibraryFlavor.class, new LibraryFlavorFactory() );
-			flavorContainer.registerFactory( IExecutableFlavor.class, new ExecutableFlavorFactory() );
-		}
-
-		/**
-		 * Platform Factories
+		 * LanguageSourceSet <- Platforms
 		 */
 		@Mutate
-		void registerPlatformFactories( PlatformContainer platformContainer )
+		void assignSourceSetPlatforms( @Each ISourceSet sourceSet, IVariantResolverRepository variantResolver )
 		{
-			platformContainer.registerFactory( IPlatform.class, new PlatformFactory() );
+			ISourceSetInternal languageSourceSet = (ISourceSetInternal) sourceSet;
+			PlatformRequirement platformRequirement = languageSourceSet.getPlatformRequirement();
+
+			if( platformRequirement != null && languageSourceSet.getSourcePlatform() == null )
+			{
+				Platform platform = (Platform) variantResolver.resolve( IPlatform, platformRequirement );
+
+				if( platform != null )
+					languageSourceSet.setSourcePlatform( platform );
+			}
 		}
 
+		// -------------------------------------------------- //
+		// -------------------------------------------------- //
+		// generate binaries:
+
+		/**
+		 * generate BinarySpec permutations (Platform,BuildType,Flavor)
+		 */
+		@ComponentBinaries
+		void generateApplicationBinaries( ModelMap<IApplicationBinarySpec> builder, IApplicationComponentSpec applicationComponentSpec,
+										  IVariantResolverRepository variantResolver )
+		{
+			IApplicationComponentSpecInternal applicationComponentSpecInternal = (IApplicationComponentSpecInternal) applicationComponentSpec;
+			VariantIterator<IVariantRequirement> iterator = new VariantIterator<>( applicationComponentSpecInternal.getVariantRequirements() );
+
+			while( iterator.hasNext() )
+			{
+				VariantContainer<IVariantRequirement> permutation = iterator.next();
+
+				builder.create( NameUtil.getVariationName( permutation ) ) {IApplicationBinarySpec binarySpec ->
+
+					IApplicationBinarySpecInternal binarySpecInternal = (IApplicationBinarySpecInternal) binarySpec;
+
+					for( IVariantRequirement requirement : permutation )
+					{
+						IVariantRequirement variantRequirement = (IVariantRequirement) permutation.getVariant( requirement.getClass() );
+						IVariant variant = variantResolver.resolve( variantRequirement.getVariantType(), variantRequirement );
+
+						binarySpecInternal.setTargetVariant( variant );
+					}
+				}
+			}
+		}
+
+	}
+
+	/**
+	 * Variations: Platform, BuildType, Flavor for BinarySpecs
+	 */
+	@SuppressWarnings(["UnusedDeclaration", "GrMethodMayBeStatic"])
+	//
+	static class VariantRules extends RuleSource
+	{
 		/**
 		 * VariantResolverRepository
 		 */
@@ -181,54 +230,61 @@ class CrossPlugin implements Plugin<Project>
 										IFlavorContainer flavorContainer )
 		{
 			variantResolver.register( new PlatformResolver( platformContainer ) );
-			variantResolver.register( new ExecutableFlavorResolver( flavorContainer ) );
-			variantResolver.register( new LibraryFlavorResolver( flavorContainer ) );
+			variantResolver.register( new ExecutableFlavorResolver( flavorContainer as Set<IExecutableFlavor> ) );
+			variantResolver.register( new LibraryFlavorResolver( flavorContainer as Set<ILibraryFlavor> ) );
 		}
 
 		// -------------------------------------------------- //
 		// -------------------------------------------------- //
-		// source transformation:
+		// Variant:Flavor
 
 		/**
-		 * LanguageSourceSet
+		 * IFlavorContainer
 		 */
-		@ComponentType
-		void registerSourceSet( TypeBuilder<ISourceSet> builder )
+		@SuppressWarnings("GroovyAssignabilityCheck")
+		//
+		@Model
+		IFlavorContainer flavors()
 		{
-			builder.defaultImplementation( CrossSourceSet.class );
-			builder.internalView( ISourceSetInternal.class );
+			return new FlavorContainer()
 		}
 
+		/**
+		 * Flavor Factories
+		 */
 		@Mutate
-		void assignSourceSetPlatforms( @Each ISourceSet sourceSet, IVariantResolverRepository variantResolver )
+		void registerFlavorFactories( IFlavorContainer flavorContainer )
 		{
-			ISourceSetInternal languageSourceSet = (ISourceSetInternal) sourceSet;
-			PlatformRequirement platformRequirement = languageSourceSet.getPlatformRequirement();
-
-			if( platformRequirement != null && languageSourceSet.getSourcePlatform() == null )
-			{
-				Platform platform = variantResolver.resolve( IPlatform, platformRequirement );
-
-				if( platform != null )
-					languageSourceSet.setSourcePlatform( platform );
-			}
+			flavorContainer.registerFactory( ILibraryFlavor.class, new LibraryFlavorFactory() );
+			flavorContainer.registerFactory( IExecutableFlavor.class, new ExecutableFlavorFactory() );
 		}
 
 		// -------------------------------------------------- //
 		// -------------------------------------------------- //
+		// Variant:Platform (almost gradle-native)
 
 		/**
-		 *
-		 * @param task
+		 * Platform Factories
 		 */
-		@Finalize
-		void removeAssembleDependencies( @Path("tasks.assemble") Task task )
+		@Mutate
+		void registerPlatformFactories( PlatformContainer platformContainer )
 		{
-			(DefaultTaskDependency)(task.getTaskDependencies()).getValues().clear();
-			task.setDependsOn( [ NAME_COMPILE_SOURCE, NAME_CONVERT_ASSETS ] );
+			platformContainer.registerFactory( IPlatform.class, new PlatformFactory() );
 		}
 
+	}
 
+
+	/**
+	 * Variations: Platform, BuildType, Flavor for BinarySpecs
+	 */
+	@SuppressWarnings(["UnusedDeclaration", "GrMethodMayBeStatic"])
+	//
+	static class LifeCycleRules extends RuleSource
+	{
+		/**
+		 * create custom LifeCycleTasks
+		 */
 		@Mutate
 		void createLifeCycleTasks( TaskContainer tasks, BinaryContainer binaries )
 		{
@@ -253,6 +309,9 @@ class CrossPlugin implements Plugin<Project>
 			tasks.getByName(NAME_COMPILE_SOURCE).dependsOn NAME_TRANSPILE_SOURCE;
 		}
 
+		/**
+		 * assign custom LifeCycleTasks to BinarySpecs
+		 */
 		@Mutate
 		void assignBinaryTasksToLifeCycle( TaskContainer tasks, BinaryContainer binaries )
 		{
@@ -272,42 +331,9 @@ class CrossPlugin implements Plugin<Project>
 			}
 		}
 
-		// -------------------------------------------------- //
-		// -------------------------------------------------- //
-		// generate binaries:
-
 		/**
-		 *
-		 * @param builder
-		 * @param applicationComponentSpec
-		 * @param variantResolver
+		 * remove default BinarySpec buildBy tasks
 		 */
-		@ComponentBinaries
-		void generateApplicationBinaries( ModelMap<IApplicationBinarySpec> builder, IApplicationComponentSpec applicationComponentSpec,
-										  IVariantResolverRepository variantResolver )
-		{
-			IApplicationComponentSpecInternal applicationComponentSpecInternal = (IApplicationComponentSpecInternal) applicationComponentSpec;
-			VariantIterator<IVariantRequirement> iterator = new VariantIterator<>( applicationComponentSpecInternal.getVariantRequirements() );
-
-			while( iterator.hasNext() )
-			{
-				VariantContainer<IVariantRequirement> permutation = iterator.next();
-
-				builder.create( NameUtil.getVariationName( permutation ) ) {IApplicationBinarySpec binarySpec ->
-
-					IApplicationBinarySpecInternal binarySpecInternal = (IApplicationBinarySpecInternal) binarySpec;
-
-					for( IVariantRequirement requirement : permutation )
-					{
-						IVariantRequirement variantRequirement = permutation.getVariant( requirement.getClass() );
-						IVariant variant = variantResolver.resolve( variantRequirement.getVariantType(), variantRequirement );
-
-						binarySpecInternal.setTargetVariant( variant );
-					}
-				}
-			}
-		}
-
 		@Mutate
 		void removeDefaultTasks( TaskContainer tasks, BinaryContainer binaries )
 		{
@@ -323,5 +349,14 @@ class CrossPlugin implements Plugin<Project>
 			}
 		}
 
+		/**
+		 * clear assemble task dependencies, assign custom LifeCycleTasks
+		 */
+		@Finalize
+		void updateAssembleDependencies( @Path("tasks.assemble") Task task )
+		{
+			(DefaultTaskDependency)(task.getTaskDependencies()).getValues().clear();
+			task.setDependsOn( [ NAME_COMPILE_SOURCE, NAME_CONVERT_ASSETS ] );
+		}
 	}
 }
