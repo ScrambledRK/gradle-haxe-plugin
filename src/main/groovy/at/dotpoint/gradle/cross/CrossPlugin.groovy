@@ -11,7 +11,6 @@ import at.dotpoint.gradle.cross.specification.library.ILibraryComponentSpec
 import at.dotpoint.gradle.cross.specification.library.ILibraryComponentSpecInternal
 import at.dotpoint.gradle.cross.specification.library.LibraryComponentSpec
 import at.dotpoint.gradle.cross.util.NameUtil
-import at.dotpoint.gradle.cross.util.StringUtil
 import at.dotpoint.gradle.cross.variant.container.flavor.FlavorContainer
 import at.dotpoint.gradle.cross.variant.container.flavor.IFlavorContainer
 import at.dotpoint.gradle.cross.variant.factory.flavor.ExecutableFlavorFactory
@@ -31,25 +30,19 @@ import at.dotpoint.gradle.cross.variant.resolver.VariantResolverRepository
 import at.dotpoint.gradle.cross.variant.resolver.flavor.executable.ExecutableFlavorResolver
 import at.dotpoint.gradle.cross.variant.resolver.flavor.library.LibraryFlavorResolver
 import at.dotpoint.gradle.cross.variant.resolver.platform.PlatformResolver
-import org.gradle.api.Named
+import org.gradle.api.DefaultTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.internal.file.FileResolver
+import org.gradle.api.internal.tasks.DefaultTaskDependency
 import org.gradle.api.tasks.TaskContainer
 import org.gradle.internal.reflect.Instantiator
-import org.gradle.language.base.ProjectSourceSet
 import org.gradle.language.base.plugins.LanguageBasePlugin
+import org.gradle.language.base.plugins.LifecycleBasePlugin
 import org.gradle.model.*
 import org.gradle.model.internal.core.Hidden
-import org.gradle.platform.base.BinaryContainer
-import org.gradle.platform.base.BinarySpec
-import org.gradle.platform.base.ComponentBinaries
-import org.gradle.platform.base.ComponentType
-import org.gradle.platform.base.PlatformContainer
-import org.gradle.platform.base.TypeBuilder
-import org.gradle.platform.base.binary.BaseBinarySpec
-import org.gradle.platform.base.internal.BinarySpecInternal
+import org.gradle.platform.base.*
 
 import javax.inject.Inject
 /**
@@ -60,6 +53,10 @@ class CrossPlugin implements Plugin<Project>
 	/**
 	 *
 	 */
+	public static final String NAME_TRANSPILE_SOURCE 	= "transpile"
+	public static final String NAME_COMPILE_SOURCE 		= "compile"
+	public static final String NAME_CONVERT_ASSETS 		= "convert"
+
 	public final Instantiator instantiator;
 	public final FileResolver fileResolver;
 
@@ -214,6 +211,64 @@ class CrossPlugin implements Plugin<Project>
 
 				if( platform != null )
 					languageSourceSet.setSourcePlatform( platform );
+			}
+		}
+
+		// -------------------------------------------------- //
+		// -------------------------------------------------- //
+
+		/**
+		 *
+		 * @param task
+		 */
+		@Finalize
+		void removeAssembleDependencies( @Path("tasks.assemble") Task task )
+		{
+			(DefaultTaskDependency)(task.getTaskDependencies()).getValues().clear();
+			task.setDependsOn( [ NAME_COMPILE_SOURCE, NAME_CONVERT_ASSETS ] );
+		}
+
+
+		@Mutate
+		void createLifeCycleTasks( TaskContainer tasks, BinaryContainer binaries )
+		{
+			tasks.create( NAME_TRANSPILE_SOURCE, DefaultTask.class )
+			{
+				it.group = LifecycleBasePlugin.BUILD_GROUP;
+				it.description = "converts non-native sources to the native target language of a binary"
+			}
+
+			tasks.create( NAME_COMPILE_SOURCE, DefaultTask.class )
+			{
+				it.group = LifecycleBasePlugin.BUILD_GROUP;
+				it.description = "compiles native sources to a native target binary"
+			}
+
+			tasks.create( NAME_CONVERT_ASSETS, DefaultTask.class )
+			{
+				it.group = LifecycleBasePlugin.BUILD_GROUP;
+				it.description = "converts raw assets for the native target binary"
+			}
+
+			tasks.getByName(NAME_COMPILE_SOURCE).dependsOn NAME_TRANSPILE_SOURCE;
+		}
+
+		@Mutate
+		void assignBinaryTasksToLifeCycle( TaskContainer tasks, BinaryContainer binaries )
+		{
+			for( BinarySpec binary : binaries )
+			{
+				for( Task task in binary.getTasks() )
+				{
+					if( task.name.startsWith(NAME_TRANSPILE_SOURCE) )
+						tasks.getByName(NAME_TRANSPILE_SOURCE).dependsOn task;
+
+					if( task.name.startsWith(NAME_COMPILE_SOURCE) )
+						tasks.getByName(NAME_COMPILE_SOURCE).dependsOn task;
+
+					if( task.name.startsWith(NAME_CONVERT_ASSETS) )
+						tasks.getByName(NAME_CONVERT_ASSETS).dependsOn task;
+				}
 			}
 		}
 
