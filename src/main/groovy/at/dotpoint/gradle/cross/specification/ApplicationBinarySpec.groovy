@@ -4,12 +4,8 @@ import at.dotpoint.gradle.cross.variant.model.IVariant
 import at.dotpoint.gradle.cross.variant.model.flavor.IFlavor
 import at.dotpoint.gradle.cross.variant.model.platform.IPlatform
 import org.gradle.language.base.LanguageSourceSet
-import org.gradle.model.Managed
-import org.gradle.model.ModelMap
-import org.gradle.platform.base.BinarySpec
 import org.gradle.platform.base.TransformationFileType
 import org.gradle.platform.base.binary.BaseBinarySpec
-
 /**
  * Created by RK on 19.03.16.
  */
@@ -77,6 +73,11 @@ class ApplicationBinarySpec extends BaseBinarySpec implements IApplicationBinary
 	@Override
 	Set<? extends Class<? extends TransformationFileType>> getIntermediateTypes() {
 		return new HashSet<? extends Class<? extends TransformationFileType>>(Arrays.asList(LanguageSourceSet.class));
+	}
+
+	@Override
+	boolean hasCodependentSources() {
+		return true; //super.hasCodependentSources()
 	}
 
 }

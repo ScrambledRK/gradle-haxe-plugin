@@ -2,101 +2,84 @@ package at.dotpoint.gradle.haxe.transform
 
 import at.dotpoint.gradle.cross.sourceset.ISourceSet
 import at.dotpoint.gradle.cross.specification.IApplicationBinarySpec
-import at.dotpoint.gradle.cross.task.APlatformTask
-import at.dotpoint.gradle.cross.variant.model.platform.Platform
-import org.gradle.api.DefaultTask
+import at.dotpoint.gradle.cross.transform.ACrossTransform
+import at.dotpoint.gradle.cross.transform.ACrossTransformTaskConfig
+import at.dotpoint.gradle.cross.transform.ICrossTransformTaskConfig
+import at.dotpoint.gradle.cross.util.StringUtil
+import at.dotpoint.gradle.cross.util.TaskUtil
+import at.dotpoint.gradle.haxe.task.ExecuteHXMLTask
+import at.dotpoint.gradle.haxe.task.GenerateHXMLTask
 import org.gradle.api.Task
 import org.gradle.internal.service.ServiceRegistry
-import org.gradle.language.base.LanguageSourceSet
-import org.gradle.language.base.internal.SourceTransformTaskConfig
-import org.gradle.language.base.internal.registry.LanguageTransform
-import org.gradle.platform.base.BinarySpec
-
 /**
  * Created by RK on 27.02.16.
  */
-class HaxeLanguageTransform implements LanguageTransform<ISourceSet, ISourceSet>
+class HaxeLanguageTransform extends ACrossTransform<ISourceSet, ISourceSet>
 {
-       public HaxeLanguageTransform()
-	   {
 
-       }
+	@Override
+	public ICrossTransformTaskConfig getTransformTask()
+	{
+		return new HaxeSourceTransformTaskConfig();
+	}
 
-		// -------------------------------------- //
-		// -------------------------------------- //
+	@Override
+	public boolean applyToBinary( IApplicationBinarySpec binary )
+	{
+		return true;
+	}
 
-       @Override
-       public String getLanguageName() {
-           return "haxe";
-       }
-
-       @Override
-       public Class<ISourceSet> getSourceSetType() {
-           return ISourceSet.class;
-       }
-
-       @Override
-       public Map<String, Class<?>> getBinaryTools() {
-           return Collections.emptyMap();
-       }
-
-       @Override
-       public Class<ISourceSet> getOutputType() {
-           return ISourceSet.class;
-       }
-
-       @Override
-       public SourceTransformTaskConfig getTransformTask() {
-           return new HaxeSourceTransformTaskConfig();
-       }
-
-       @Override
-       public boolean applyToBinary(BinarySpec binary) {
-           return binary instanceof IApplicationBinarySpec;
-       }
-
-		// -------------------------------------- //
-		// -------------------------------------- //
+	// -------------------------------------- //
+	// -------------------------------------- //
 
 	/**
-	*
-	*/
-	public static class HaxeSourceTransformTaskConfig implements SourceTransformTaskConfig {
+	 *
+	 */
+	public static class HaxeSourceTransformTaskConfig extends ACrossTransformTaskConfig
+	{
 
-		private HaxeSourceTransformTaskConfig()
+		/**
+		 * in case multiple sourceSets are attached to a binarySpec you'll be asked if you can transform the other ones as well
+		 *
+		 * @param candidate
+		 * @return
+		 */
+		@Override
+		boolean canTransform( ISourceSet candidate )
 		{
-
+			return candidate.sourcePlatform.name == "haxe";
 		}
 
+		/**
+		 * actually create the sourceSet transformation tasks
+		 *
+		 * @param parent LifeCycleTask of the BinarySpec; convert or compile; dependsOn will be set for newly created task
+		 * @param cycle LifeCycle name; convert or compile
+		 * @param binarySpec variation permutation to transform (convert, compile)
+		 * @param sourceSet one of possible many source sets
+		 * @param serviceRegistry in case you need some fancy new classes
+		 * @param isJoint false - first run for the first sourceSet, true - followup runs for other sourceSets
+		 * @return sourceSet specific convert or compile task
+		 */
 		@Override
-		public String getTaskPrefix() {
-		   return "convert";
-		}
-
-		@Override
-		public Class<? extends DefaultTask> getTaskType() {
-		   return APlatformTask.class;
-		}
-
-		@Override
-		public void configureTask( Task task, BinarySpec binary, LanguageSourceSet sourceSet, ServiceRegistry serviceRegistry )
+		Task createSourceSetCycleTask( Task parent, String cycle, IApplicationBinarySpec binarySpec, ISourceSet sourceSet,
+									   ServiceRegistry serviceRegistry, boolean isJoint )
 		{
-			APlatformTask convertSourceTask = (APlatformTask) task;
-			ISourceSet iSourceSet = (ISourceSet) sourceSet;
-			IApplicationBinarySpec haxeApplicationBinarySpec = (IApplicationBinarySpec) binary;
+			if( isJoint && cycle == "compile" )
+				return null;
 
-			haxeApplicationBinarySpec.builtBy(convertSourceTask);
+			String cycleName 	= binarySpec.tasks.taskName( cycle );
+			String generateName = StringUtil.toCamelCase( "generate", cycleName, "hxml", sourceSet.name );
+			String executeName 	= StringUtil.toCamelCase( "execute", cycleName, "hxml", sourceSet.name );
 
-			convertSourceTask.setDescription(String.format("Converts %s.", iSourceSet));
-			convertSourceTask.setSource(iSourceSet.getSource());
-			convertSourceTask.dependsOn(iSourceSet);
+			// ---------------- //
 
-			Platform targetPlatform = haxeApplicationBinarySpec.getTargetPlatform();
-			Platform originPlatform = iSourceSet.getSourcePlatform();
+			Task generateTask 	= TaskUtil.createBinaryTask( binarySpec, sourceSet, GenerateHXMLTask.class, generateName );
+			Task executeTask 	= TaskUtil.createBinaryTask( binarySpec, sourceSet, ExecuteHXMLTask.class, executeName );
 
-			convertSourceTask.setOutputPlatform(targetPlatform);
-			convertSourceTask.setInputPlatform(originPlatform);
+			executeTask.dependsOn generateTask;
+
+			return executeTask;
 		}
-
 	}
 }
