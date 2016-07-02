@@ -45,7 +45,6 @@ import org.gradle.model.internal.core.Hidden
 import org.gradle.platform.base.*
 
 import javax.inject.Inject
-
 /**
  *  Created by RK on 11.03.16.
  */
@@ -54,9 +53,9 @@ class CrossPlugin implements Plugin<Project>
 	/**
 	 *
 	 */
-	public static final String NAME_TRANSPILE_SOURCE 	= "transpile"
-	public static final String NAME_COMPILE_SOURCE 		= "compile"
-	public static final String NAME_CONVERT_ASSETS 		= "convert"
+	public static final String NAME_CONVERT_SOURCE 	= "convert"
+	public static final String NAME_COMPILE_SOURCE 	= "compile"
+	public static final String NAME_ASSEMBLE 		= LifecycleBasePlugin.ASSEMBLE_TASK_NAME;
 
 	public final Instantiator instantiator;
 	public final FileResolver fileResolver;
@@ -83,7 +82,6 @@ class CrossPlugin implements Plugin<Project>
 
 	// ---------------------------------------------------------- //
 	// ---------------------------------------------------------- //
-
 
 	/**
 	 * ComponentSpecs, SourceSets
@@ -282,13 +280,36 @@ class CrossPlugin implements Plugin<Project>
 	//
 	static class LifeCycleRules extends RuleSource
 	{
+
 		/**
-		 * create custom LifeCycleTasks
+		 * remove default BinarySpec buildBy tasks
 		 */
 		@Mutate
-		void createLifeCycleTasks( TaskContainer tasks, BinaryContainer binaries )
+		void updateDefaultBinaryTasks( TaskContainer tasks, BinaryContainer binaries )
 		{
-			tasks.create( NAME_TRANSPILE_SOURCE, DefaultTask.class )
+			this.createLifeCycleTasks( tasks, binaries );
+
+			for( BinarySpec binary : binaries )
+			{
+				this.removeBaseBinaryTasks( tasks, binary );
+				this.createBinaryTasks( tasks, binary );
+			}
+
+			this.copyBinaryTasksToTaskContainer( tasks, binaries );
+			this.updateBinaryTaskDependencies( tasks, binaries );
+		}
+
+		// ---------------------------------------- //
+		// ---------------------------------------- //
+
+		/**
+		 *
+		 * @param tasks
+		 * @param binaries
+		 */
+		private void createLifeCycleTasks( TaskContainer tasks, BinaryContainer binaries )
+		{
+			tasks.create( NAME_CONVERT_SOURCE, DefaultTask.class )
 			{
 				it.group = LifecycleBasePlugin.BUILD_GROUP;
 				it.description = "converts non-native sources to the native target language of a binary"
@@ -300,63 +321,124 @@ class CrossPlugin implements Plugin<Project>
 				it.description = "compiles native sources to a native target binary"
 			}
 
-			tasks.create( NAME_CONVERT_ASSETS, DefaultTask.class )
-			{
-				it.group = LifecycleBasePlugin.BUILD_GROUP;
-				it.description = "converts raw assets for the native target binary"
-			}
-
-			tasks.getByName(NAME_COMPILE_SOURCE).dependsOn NAME_TRANSPILE_SOURCE;
+			tasks.getByName(NAME_COMPILE_SOURCE).dependsOn NAME_CONVERT_SOURCE;
 		}
 
 		/**
-		 * assign custom LifeCycleTasks to BinarySpecs
+		 *
+		 * @param tasks
+		 * @param binary
 		 */
-		@Mutate
-		void assignBinaryTasksToLifeCycle( TaskContainer tasks, BinaryContainer binaries )
+		private void removeBaseBinaryTasks( TaskContainer tasks, BinarySpec binary )
 		{
+			Task buildTask = binary.getBuildTask();
+
+			if( buildTask != null )
+			{
+				tasks.remove( buildTask );
+				binary.tasks.remove( buildTask );
+			}
+		}
+
+		/**
+		 *
+		 * @param tasks
+		 * @param binary
+		 */
+		private void createBinaryTasks( TaskContainer tasks, BinarySpec binary )
+		{
+			Task taskConvert 	= null;
+			Task taskCompile 	= null;
+			Task taskAssemble 	= null;
+
+			//
+			binary.tasks.create( binary.tasks.taskName( NAME_CONVERT_SOURCE ), DefaultTask.class )
+			{
+				taskConvert = it;
+			}
+
+			//
+			binary.tasks.create( binary.tasks.taskName( NAME_COMPILE_SOURCE ), DefaultTask.class )
+			{
+				taskCompile = it;
+			}
+
+			//
+			binary.tasks.create( binary.tasks.taskName( NAME_ASSEMBLE ), DefaultTask.class )
+			{
+				taskAssemble = it;
+			}
+
+			// --------- //
+
+			taskCompile.dependsOn taskConvert;
+			taskAssemble.dependsOn taskCompile;
+
+			binary.setBuildTask( taskAssemble );
+		}
+
+		/**
+		 *
+		 * @param tasks
+		 * @param binaries
+		 */
+		private void updateBinaryTaskDependencies(TaskContainer tasks, BinaryContainer binaries )
+		{
+			Task convertLifeCycleTask = tasks.getByName(NAME_CONVERT_SOURCE);
+			Task compileLifeCycleTask = tasks.getByName(NAME_COMPILE_SOURCE);
+
 			for( BinarySpec binary : binaries )
 			{
 				for( Task task in binary.getTasks() )
 				{
-					if( task.name.startsWith(NAME_TRANSPILE_SOURCE) )
-						tasks.getByName(NAME_TRANSPILE_SOURCE).dependsOn task;
+					if( task.name.startsWith(NAME_CONVERT_SOURCE) )
+						convertLifeCycleTask.dependsOn task;
 
 					if( task.name.startsWith(NAME_COMPILE_SOURCE) )
-						tasks.getByName(NAME_COMPILE_SOURCE).dependsOn task;
-
-					if( task.name.startsWith(NAME_CONVERT_ASSETS) )
-						tasks.getByName(NAME_CONVERT_ASSETS).dependsOn task;
+						compileLifeCycleTask.dependsOn task;
 				}
 			}
 		}
 
 		/**
-		 * remove default BinarySpec buildBy tasks
+		 *
+		 * @param tasks
+		 * @param binaries
 		 */
-		@Mutate
-		void removeDefaultTasks( TaskContainer tasks, BinaryContainer binaries )
+		private void copyBinaryTasksToTaskContainer( TaskContainer tasks, BinaryContainer binaries )
 		{
 			for( BinarySpec binary : binaries )
 			{
+				tasks.addAll( binary.getTasks() );
 				Task buildTask = binary.getBuildTask();
 
 				if( buildTask != null )
-				{
-					tasks.remove( buildTask );
-					binary.tasks.remove( buildTask );
-				}
+					tasks.add( buildTask );
 			}
 		}
+
+		// ---------------------------------------- //
+		// ---------------------------------------- //
 
 		/**
 		 * clear assemble task dependencies, assign custom LifeCycleTasks
 		 */
 		@Finalize
-		void updateAssembleDependencies( @Path("tasks.assemble") Task task )
+		void updateAssembleDependencies( @Path("tasks.assemble") Task assemble, BinaryContainer binaries )
 		{
-			(DefaultTaskDependency)(task.getTaskDependencies()).getValues().clear();
-			task.setDependsOn( [ NAME_COMPILE_SOURCE, NAME_CONVERT_ASSETS ] );
+			(DefaultTaskDependency)(assemble.getTaskDependencies()).getValues().clear();
+
+			for( BinarySpec binary : binaries )
+			{
+				for( Task task in binary.getTasks() )
+				{
+					if( task.name.startsWith(NAME_ASSEMBLE) )
+						assemble.dependsOn task;
+				}
+			}
+
+			assemble.dependsOn NAME_COMPILE_SOURCE;
 		}
+
 	}
 }
