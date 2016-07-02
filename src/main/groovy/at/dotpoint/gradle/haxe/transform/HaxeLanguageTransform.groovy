@@ -2,7 +2,7 @@ package at.dotpoint.gradle.haxe.transform
 
 import at.dotpoint.gradle.cross.sourceset.ISourceSet
 import at.dotpoint.gradle.cross.specification.IApplicationBinarySpec
-import at.dotpoint.gradle.cross.task.AConvertSourceTask
+import at.dotpoint.gradle.cross.task.APlatformTask
 import at.dotpoint.gradle.cross.variant.model.platform.Platform
 import org.gradle.api.DefaultTask
 import org.gradle.api.Task
@@ -75,13 +75,13 @@ class HaxeLanguageTransform implements LanguageTransform<ISourceSet, ISourceSet>
 
 		@Override
 		public Class<? extends DefaultTask> getTaskType() {
-		   return AConvertSourceTask.class;
+		   return APlatformTask.class;
 		}
 
 		@Override
 		public void configureTask( Task task, BinarySpec binary, LanguageSourceSet sourceSet, ServiceRegistry serviceRegistry )
 		{
-			AConvertSourceTask convertSourceTask = (AConvertSourceTask) task;
+			APlatformTask convertSourceTask = (APlatformTask) task;
 			ISourceSet iSourceSet = (ISourceSet) sourceSet;
 			IApplicationBinarySpec haxeApplicationBinarySpec = (IApplicationBinarySpec) binary;
 

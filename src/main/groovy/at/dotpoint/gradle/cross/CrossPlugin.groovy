@@ -274,7 +274,7 @@ class CrossPlugin implements Plugin<Project>
 
 
 	/**
-	 * Variations: Platform, BuildType, Flavor for BinarySpecs
+	 * LifeCycle: assemble, compile, convert; check, build
 	 */
 	@SuppressWarnings(["UnusedDeclaration", "GrMethodMayBeStatic"])
 	//
@@ -282,7 +282,7 @@ class CrossPlugin implements Plugin<Project>
 	{
 
 		/**
-		 * remove default BinarySpec buildBy tasks
+		 *
 		 */
 		@Mutate
 		void updateDefaultBinaryTasks( TaskContainer tasks, BinaryContainer binaries )
@@ -303,9 +303,7 @@ class CrossPlugin implements Plugin<Project>
 		// ---------------------------------------- //
 
 		/**
-		 *
-		 * @param tasks
-		 * @param binaries
+		 * custom LifeCycle tasks: compile, convert; (assemble)
 		 */
 		private void createLifeCycleTasks( TaskContainer tasks, BinaryContainer binaries )
 		{
@@ -325,9 +323,7 @@ class CrossPlugin implements Plugin<Project>
 		}
 
 		/**
-		 *
-		 * @param tasks
-		 * @param binary
+		 * remove default tasks created by the BinaryBasePlugin
 		 */
 		private void removeBaseBinaryTasks( TaskContainer tasks, BinarySpec binary )
 		{
@@ -341,9 +337,7 @@ class CrossPlugin implements Plugin<Project>
 		}
 
 		/**
-		 *
-		 * @param tasks
-		 * @param binary
+		 * hook-tasks for each binary, plugins can depend on these
 		 */
 		private void createBinaryTasks( TaskContainer tasks, BinarySpec binary )
 		{
@@ -378,9 +372,7 @@ class CrossPlugin implements Plugin<Project>
 		}
 
 		/**
-		 *
-		 * @param tasks
-		 * @param binaries
+		 * assign binary specific tasks to LifeCycle tasks
 		 */
 		private void updateBinaryTaskDependencies(TaskContainer tasks, BinaryContainer binaries )
 		{
@@ -401,9 +393,7 @@ class CrossPlugin implements Plugin<Project>
 		}
 
 		/**
-		 *
-		 * @param tasks
-		 * @param binaries
+		 * make binary tasks visible in root task container
 		 */
 		private void copyBinaryTasksToTaskContainer( TaskContainer tasks, BinaryContainer binaries )
 		{

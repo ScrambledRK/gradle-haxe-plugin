@@ -5,12 +5,12 @@ import org.gradle.api.tasks.TaskAction
 /**
  * Created by RK on 21.05.2016.
  */
-class GenerateHXMLTask extends APlatformTask
+class ExecuteHXMLTask extends APlatformTask
 {
     @TaskAction
-    public void generateHXML()
+    public void executeHXML()
     {
-        println( "... generate HXML" );
+        println( "... execute HXML" );
         println( "" );
     }
 }
