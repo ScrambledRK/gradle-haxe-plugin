@@ -1,5 +1,6 @@
 package at.dotpoint.gradle.cross.specification
 
+import at.dotpoint.gradle.cross.variant.iterator.VariantCombination
 import at.dotpoint.gradle.cross.variant.model.IVariant
 import at.dotpoint.gradle.cross.variant.model.flavor.IFlavor
 import at.dotpoint.gradle.cross.variant.model.platform.IPlatform
@@ -30,6 +31,26 @@ class ApplicationBinarySpec extends BaseBinarySpec implements IApplicationBinary
 	}
 
 	/**
+	 * IFlavor, IPlatform, IBuildType
+	 */
+	VariantCombination<IVariant> getTargetVariantCombination()
+	{
+		VariantCombination<IVariant> container = new VariantCombination<IVariant>();
+
+		if( this.platform != null )
+			container.add( this.platform );
+
+		if( this.flavor != null )
+			container.add( this.flavor );
+
+		return container;
+	}
+
+	// -------------------------------------- //
+	// -------------------------------------- //
+	// IPlatform
+
+	/**
 	 *
 	 * @param platform
 	 */
@@ -43,9 +64,13 @@ class ApplicationBinarySpec extends BaseBinarySpec implements IApplicationBinary
 		return this.platform;
 	}
 
+	// -------------------------------------- //
+	// -------------------------------------- //
+	// IFlavor
+
 	/**
 	 *
-	 * @param falvor
+	 * @param flavor
 	 */
 	@Override
 	void setTargetFlavor(IFlavor flavor) {
@@ -56,6 +81,9 @@ class ApplicationBinarySpec extends BaseBinarySpec implements IApplicationBinary
 	IFlavor getTargetFlavor() {
 		return this.flavor;
 	}
+
+	// -------------------------------------- //
+	// -------------------------------------- //
 
 	/**
 	 *

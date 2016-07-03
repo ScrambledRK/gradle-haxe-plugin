@@ -1,22 +1,20 @@
 package at.dotpoint.gradle.haxe
 
 import at.dotpoint.gradle.cross.CrossPlugin
+import at.dotpoint.gradle.cross.transform.ConvertTransformationContainer
 import at.dotpoint.gradle.haxe.sourceset.HaxeSourceSet
 import at.dotpoint.gradle.haxe.sourceset.IHaxeSourceSet
 import at.dotpoint.gradle.haxe.sourceset.IHaxeSourceSetInternal
 import at.dotpoint.gradle.haxe.specification.HaxeBinarySpec
 import at.dotpoint.gradle.haxe.specification.IHaxeBinarySpec
 import at.dotpoint.gradle.haxe.specification.IHaxeBinarySpecInternal
-import at.dotpoint.gradle.haxe.transform.HaxeLanguageTransform
+import at.dotpoint.gradle.haxe.transform.HaxeConvertTransform
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.internal.file.FileResolver
 import org.gradle.internal.reflect.Instantiator
-import org.gradle.internal.service.ServiceRegistry
-import org.gradle.language.base.internal.registry.LanguageTransformContainer
 import org.gradle.model.Mutate
 import org.gradle.model.RuleSource
-import org.gradle.model.internal.manage.schema.ModelSchemaStore
 import org.gradle.platform.base.ComponentType
 import org.gradle.platform.base.TypeBuilder
 
@@ -88,10 +86,9 @@ class HaxePlugin implements Plugin<Project>
 		// -------------------------------------------------- //
 
 		@Mutate
-		void registerLanguageTransform( LanguageTransformContainer languages, ServiceRegistry serviceRegistry )
+		void registerConvertTransform( ConvertTransformationContainer transforms )
 		{
-			ModelSchemaStore schemaStore = serviceRegistry.get( ModelSchemaStore.class );
-			languages.add( new HaxeLanguageTransform() );
+			transforms.add( new HaxeConvertTransform() );
 		}
 
 		/**

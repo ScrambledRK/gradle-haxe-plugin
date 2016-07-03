@@ -2,11 +2,11 @@ package at.dotpoint.gradle.cross.variant.iterator
 /**
  * Created by RK on 20.03.16.
  */
-class VariantIterator<TVariant> implements Iterator<VariantContainer<TVariant>>
+class VariantIterator<TVariant> implements Iterator<VariantCombination<TVariant>>
 {
 	//
 	private final List<List<TVariant>> collection;
-	private final List<VariantContainer<TVariant>> permutations;
+	private final List<VariantCombination<TVariant>> permutations;
 
 	//
 	private int counter;
@@ -19,7 +19,7 @@ class VariantIterator<TVariant> implements Iterator<VariantContainer<TVariant>>
 	{
 		this.collection = collection;
 
-		this.permutations = new ArrayList<VariantContainer<TVariant>>();
+		this.permutations = new ArrayList<VariantCombination<TVariant>>();
 		this.counter = 0;
 	}
 
@@ -30,7 +30,7 @@ class VariantIterator<TVariant> implements Iterator<VariantContainer<TVariant>>
 	 *
 	 * @return
 	 */
-	protected List<VariantContainer<TVariant>> getPermutations()
+	protected List<VariantCombination<TVariant>> getPermutations()
 	{
 		if( this.permutations.size() == 0 && this.collection.size() != 0 )
 			this.generatePermutations();
@@ -72,7 +72,7 @@ class VariantIterator<TVariant> implements Iterator<VariantContainer<TVariant>>
 				for (int r = 0; r < repetitions; r++)
 				{
 					if( this.permutations.size() <= counter )
-						this.permutations.add( new VariantContainer<TVariant>() );
+						this.permutations.add( new VariantCombination<TVariant>() );
 
 					this.permutations.get(counter).add( this.collection.get(k).get( j % this.collection.get(k).size() ) );
 					counter++;
@@ -96,7 +96,7 @@ class VariantIterator<TVariant> implements Iterator<VariantContainer<TVariant>>
 	 *
 	 */
 	@Override
-	VariantContainer<TVariant> next() {
+	VariantCombination<TVariant> next() {
 		return this.getPermutations().get( this.counter++ );
 	}
 
@@ -108,26 +108,4 @@ class VariantIterator<TVariant> implements Iterator<VariantContainer<TVariant>>
 	}
 }
 
-/**
- *
- * @param < TVariant >
- */
-class VariantContainer<TVariant> extends ArrayList<TVariant>
-{
 
-	/**
-	 *
-	 * @param variantType
-	 * @return
-	 */
-	public <TVariantType extends TVariant> TVariantType getVariant( Class<TVariantType> variantType )
-	{
-		for (int i = 0; i < this.size(); i++)
-		{
-			if ( this.get(i).class == variantType )
-				return (TVariantType) this.get(i);
-		}
-
-		return null;
-	}
-}

@@ -6,8 +6,12 @@ import at.dotpoint.gradle.cross.specification.IApplicationBinarySpec
 import at.dotpoint.gradle.cross.specification.IApplicationBinarySpecInternal
 import at.dotpoint.gradle.cross.specification.IApplicationComponentSpecInternal
 import at.dotpoint.gradle.cross.task.ICrossTask
+import at.dotpoint.gradle.cross.variant.iterator.VariantCombination
+import at.dotpoint.gradle.cross.variant.model.IVariant
+import at.dotpoint.gradle.cross.variant.model.platform.IPlatform
 import org.gradle.api.DomainObjectSet
 import org.gradle.api.Task
+import org.gradle.api.tasks.TaskContainer
 import org.gradle.platform.base.BinarySpec
 
 /**
@@ -74,6 +78,38 @@ class TaskUtil
 
 			it.inputPlatform 	= sourceSetInternal.sourcePlatform;
 			it.outputPlatform 	= binarySpecInternal.targetPlatform;
+		}
+
+		// --------------- //
+
+		return task;
+	}
+
+	/**
+	 *
+	 * @param prefix
+	 * @param type
+	 * @param sourceSet
+	 * @param targetVariation
+	 * @param taskContainer
+	 * @return
+	 */
+	public static <TTask extends ICrossTask> TTask createTransformTask( String prefix, Class<TTask> type, ISourceSet sourceSet,
+																		VariantCombination<IVariant> targetVariation,
+																	    TaskContainer taskContainer )
+	{
+		String name = NameUtil.generateTransformTaskName( prefix, sourceSet, targetVariation );
+
+		// --------------- //
+
+		TTask task = null;
+
+		taskContainer.create( name, type )
+		{
+			task = it;
+
+			it.inputPlatform 	= sourceSet.sourcePlatform;
+			it.outputPlatform 	= targetVariation.getVariant( IPlatform.class );
 		}
 
 		// --------------- //

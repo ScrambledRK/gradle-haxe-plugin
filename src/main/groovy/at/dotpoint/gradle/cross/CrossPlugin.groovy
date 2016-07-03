@@ -10,13 +10,15 @@ import at.dotpoint.gradle.cross.specification.executable.IExecutableComponentSpe
 import at.dotpoint.gradle.cross.specification.library.ILibraryComponentSpec
 import at.dotpoint.gradle.cross.specification.library.ILibraryComponentSpecInternal
 import at.dotpoint.gradle.cross.specification.library.LibraryComponentSpec
+import at.dotpoint.gradle.cross.transform.ConvertTransformationBuilder
+import at.dotpoint.gradle.cross.transform.ConvertTransformationContainer
 import at.dotpoint.gradle.cross.util.NameUtil
 import at.dotpoint.gradle.cross.variant.container.flavor.FlavorContainer
 import at.dotpoint.gradle.cross.variant.container.flavor.IFlavorContainer
 import at.dotpoint.gradle.cross.variant.factory.flavor.ExecutableFlavorFactory
 import at.dotpoint.gradle.cross.variant.factory.flavor.LibraryFlavorFactory
 import at.dotpoint.gradle.cross.variant.factory.platform.PlatformFactory
-import at.dotpoint.gradle.cross.variant.iterator.VariantContainer
+import at.dotpoint.gradle.cross.variant.iterator.VariantCombination
 import at.dotpoint.gradle.cross.variant.iterator.VariantIterator
 import at.dotpoint.gradle.cross.variant.model.IVariant
 import at.dotpoint.gradle.cross.variant.model.flavor.executable.IExecutableFlavor
@@ -43,6 +45,7 @@ import org.gradle.language.base.plugins.LifecycleBasePlugin
 import org.gradle.model.*
 import org.gradle.model.internal.core.Hidden
 import org.gradle.platform.base.*
+import org.gradle.platform.base.internal.BinarySpecInternal
 
 import javax.inject.Inject
 /**
@@ -142,6 +145,39 @@ class CrossPlugin implements Plugin<Project>
 	}
 
 	/**
+	 * ConvertTransform, CompileTransform
+	 */
+	@SuppressWarnings(["UnusedDeclaration", "GrMethodMayBeStatic"])
+	//
+	static class TransformRules extends RuleSource
+	{
+		/**
+		 * ConvertTransformationContainer
+		 */
+		@Hidden @Model
+		ConvertTransformationContainer convertTransforms()
+		{
+			return new ConvertTransformationContainer();
+		}
+
+		/**
+		 * create ConvertTransformTasks for BinarySpecs
+		 */
+		@Finalize
+		void createSourceTransformTasks(final TaskContainer taskContainer, @Path("binaries") final ModelMap<BinarySpecInternal> binaries,
+										ConvertTransformationContainer transformContainer )
+		{
+			ConvertTransformationBuilder builder = new ConvertTransformationBuilder( transformContainer, taskContainer );
+
+			for( BinarySpecInternal binarySpec : binaries )
+			{
+				if( binarySpec instanceof  IApplicationBinarySpecInternal )
+					builder.createConvertTransformationTasks( (IApplicationBinarySpecInternal) binarySpec )
+			}
+		}
+	}
+
+	/**
 	 * BinarySpecs, LanguageSourceSets
 	 */
 	@SuppressWarnings(["UnusedDeclaration", "GrMethodMayBeStatic"])
@@ -183,7 +219,7 @@ class CrossPlugin implements Plugin<Project>
 
 			while( iterator.hasNext() )
 			{
-				VariantContainer<IVariantRequirement> permutation = iterator.next();
+				VariantCombination<IVariantRequirement> permutation = iterator.next();
 
 				builder.create( NameUtil.getVariationName( permutation ) ) {IApplicationBinarySpec binarySpec ->
 
