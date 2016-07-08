@@ -1,4 +1,7 @@
 package at.dotpoint.gradle.cross.variant.iterator
+
+import at.dotpoint.gradle.cross.variant.target.VariantCombination
+
 /**
  * Created by RK on 20.03.16.
  */

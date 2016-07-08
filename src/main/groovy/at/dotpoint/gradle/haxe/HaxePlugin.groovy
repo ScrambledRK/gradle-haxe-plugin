@@ -1,7 +1,7 @@
 package at.dotpoint.gradle.haxe
 
 import at.dotpoint.gradle.cross.CrossPlugin
-import at.dotpoint.gradle.cross.transform.ConvertTransformationContainer
+import at.dotpoint.gradle.cross.transform.convert.ConvertTransformationContainer
 import at.dotpoint.gradle.haxe.sourceset.HaxeSourceSet
 import at.dotpoint.gradle.haxe.sourceset.IHaxeSourceSet
 import at.dotpoint.gradle.haxe.sourceset.IHaxeSourceSetInternal
@@ -91,44 +91,6 @@ class HaxePlugin implements Plugin<Project>
 			transforms.add( new HaxeConvertTransform() );
 		}
 
-		/**
-		 *
-		 * @param binarySpec
-		 */
-/*		@Mutate
-		void generateBinaryTasks( TaskContainer tasks, BinaryContainer binaries )
-		{
-			for( BinarySpec binary : binaries )
-			{
-				if ( !(binary instanceof IApplicationBinarySpec) )
-					continue;
-
-				IApplicationBinarySpec binarySpec = (IApplicationBinarySpec) binary;
-
-				// ------------- //
-
-				List<String> cycles = [CrossPlugin.NAME_CONVERT_SOURCE, CrossPlugin.NAME_COMPILE_SOURCE ];
-
-				cycles.each { String cycle ->
-
-					String cycleName 	= binarySpec.tasks.taskName( cycle );
-					String generateName = StringUtil.toCamelCase( "generate", cycleName, "hxml" );
-					String executeName 	= StringUtil.toCamelCase( "execute", cycleName, "hxml" );
-
-					// ---------------- //
-
-					Task cycleTask 		= TaskUtil.findTaskByName( binarySpec.tasks, cycleName );
-
-					Task generateTask 	= TaskUtil.createBinaryTask( binarySpec, GenerateHXMLTask.class, generateName );
-					Task executeTask 	= TaskUtil.createBinaryTask( binarySpec, ExecuteHXMLTask.class, executeName );
-
-					// ---------------- //
-
-					executeTask.dependsOn generateTask;
-					cycleTask.dependsOn executeTask;
-				}
-			}
-		}*/
 
 	}
 }

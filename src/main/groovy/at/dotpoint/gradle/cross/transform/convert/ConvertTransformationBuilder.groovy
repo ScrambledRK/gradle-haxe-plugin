@@ -1,10 +1,10 @@
-package at.dotpoint.gradle.cross.transform
+package at.dotpoint.gradle.cross.transform.convert
 
 import at.dotpoint.gradle.cross.CrossPlugin
 import at.dotpoint.gradle.cross.sourceset.ISourceSet
 import at.dotpoint.gradle.cross.specification.IApplicationBinarySpecInternal
 import at.dotpoint.gradle.cross.util.TaskUtil
-import at.dotpoint.gradle.cross.variant.iterator.VariantCombination
+import at.dotpoint.gradle.cross.variant.target.VariantCombination
 import at.dotpoint.gradle.cross.variant.model.IVariant
 import com.google.common.collect.Lists
 import org.gradle.api.logging.Logger
@@ -29,6 +29,7 @@ class ConvertTransformationBuilder
 
 	//
 	private TaskContainer taskContainer;
+
 	// ------------------------------------------------- //
 	// ------------------------------------------------- //
 

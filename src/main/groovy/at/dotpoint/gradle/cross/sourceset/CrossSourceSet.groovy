@@ -1,12 +1,15 @@
 package at.dotpoint.gradle.cross.sourceset
 
+import at.dotpoint.gradle.cross.variant.model.IVariant
 import at.dotpoint.gradle.cross.variant.model.platform.IPlatform
 import at.dotpoint.gradle.cross.variant.parser.platform.PlatformNotationParser
 import at.dotpoint.gradle.cross.variant.requirement.platform.PlatformRequirement
+import at.dotpoint.gradle.cross.variant.target.VariantCombination
 import org.gradle.language.base.sources.BaseLanguageSourceSet
 import org.gradle.model.Managed
 import org.gradle.platform.base.DependencySpecContainer
 import org.gradle.platform.base.internal.DefaultDependencySpecContainer
+
 /**
  * Created by RK on 27.03.2016.
  */
@@ -15,70 +18,94 @@ import org.gradle.platform.base.internal.DefaultDependencySpecContainer
 public class CrossSourceSet extends BaseLanguageSourceSet implements ISourceSetInternal
 {
 
-	private IPlatform platform;
-	private PlatformRequirement platformRequirement;
+    private IPlatform platform;
+    private PlatformRequirement platformRequirement;
 
-	private final DefaultDependencySpecContainer dependencies = new DefaultDependencySpecContainer();
+    private final DefaultDependencySpecContainer dependencies = new DefaultDependencySpecContainer();
 
     // --------------------------------------------------- //
-	// --------------------------------------------------- //
+    // --------------------------------------------------- //
 
-	CrossSourceSet()
-	{
-		this( null, null );
-	}
+    CrossSourceSet()
+    {
+        this( null, null );
+    }
 
-	CrossSourceSet( IPlatform platform, PlatformRequirement platformRequirement )
-	{
-		this.platform = platform
-		this.platformRequirement = platformRequirement
-	}
+    CrossSourceSet( IPlatform platform, PlatformRequirement platformRequirement )
+    {
+        this.platform = platform
+        this.platformRequirement = platformRequirement
+    }
 
-	// --------------------------------------------------- //
-	// --------------------------------------------------- //
+    // --------------------------------------------------- //
+    // --------------------------------------------------- //
 
-	@Override
-	public void platform( Object platformRequirements )
-	{
-		PlatformRequirement requirement = PlatformNotationParser.getInstance().parseNotation( platformRequirements );
+    @Override
+    public void platform( Object platformRequirements )
+    {
+        PlatformRequirement requirement = PlatformNotationParser.getInstance().parseNotation( platformRequirements );
 
-		if( requirement != null )
-			this.platformRequirement = requirement;
-	}
+        if( requirement != null )
+            this.platformRequirement = requirement;
+    }
 
-	PlatformRequirement getPlatformRequirement() {
-			return platformRequirement
-	}
+    PlatformRequirement getPlatformRequirement()
+    {
+        return platformRequirement
+    }
 
-	/**
-	*
-	*/
-	void setSourcePlatform( IPlatform platform )
-	{
-		this.platform = platform;
-	}
+    /**
+     *
+     */
+    void setSourcePlatform( IPlatform platform )
+    {
+        this.platform = platform;
+    }
 
-	IPlatform getSourcePlatform()
-	{
-		return this.platform;
-	}
+    IPlatform getSourcePlatform()
+    {
+        return this.platform;
+    }
 
-	@Override
-	protected String getLanguageName() {
+    @Override
+    protected String getLanguageName()
+    {
 
-		if (this.platform != null)
-			return this.platform.getName() + "Source";
+        if( this.platform != null )
+            return this.platform.getName() + "Source";
 
-		return super.getLanguageName()
-	}
+        return super.getLanguageName()
+    }
 
-	// --------------------------------------------------- //
-	// --------------------------------------------------- //
+    // --------------------------------------------------- //
+    // --------------------------------------------------- //
 
-	@Override
-    public DependencySpecContainer getDependencies() {
+    @Override
+    public DependencySpecContainer getDependencies()
+    {
         return dependencies;
     }
 
+    /**
+     * IFlavor, IPlatform, IBuildType
+     */
+    @Override
+    void setTargetVariantCombination( VariantCombination<IVariant> combination )
+    {
+        this.platform = combination.getVariant( IPlatform.class );
+    }
 
+    /**
+     * IFlavor, IPlatform, IBuildType
+     */
+    @Override
+    VariantCombination<IVariant> getTargetVariantCombination()
+    {
+        VariantCombination<IVariant> container = new VariantCombination<IVariant>();
+
+        if( this.platform != null )
+            container.add( this.platform );
+
+        return container;
+    }
 }

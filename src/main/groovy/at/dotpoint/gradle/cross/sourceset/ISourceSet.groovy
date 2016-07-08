@@ -2,6 +2,8 @@ package at.dotpoint.gradle.cross.sourceset
 
 import at.dotpoint.gradle.cross.variant.model.platform.IPlatform
 import at.dotpoint.gradle.cross.variant.requirement.platform.PlatformRequirement
+import at.dotpoint.gradle.cross.variant.target.IVariationsTarget
+import at.dotpoint.gradle.cross.variant.target.IVariationsTargetInternal
 import org.gradle.internal.HasInternalProtocol
 import org.gradle.language.base.DependentSourceSet
 import org.gradle.language.base.LanguageSourceSet
@@ -13,7 +15,7 @@ import org.gradle.platform.base.TransformationFileType
  */
 @HasInternalProtocol
 //
-public interface ISourceSet extends LanguageSourceSet, DependentSourceSet, TransformationFileType
+public interface ISourceSet extends LanguageSourceSet, DependentSourceSet, TransformationFileType, IVariationsTarget
 {
 	IPlatform getSourcePlatform();
 	void platform( Object platformRequirements );
@@ -22,7 +24,7 @@ public interface ISourceSet extends LanguageSourceSet, DependentSourceSet, Trans
 /**
  *
  */
-public interface ISourceSetInternal extends ISourceSet, LanguageSourceSetInternal
+public interface ISourceSetInternal extends ISourceSet, LanguageSourceSetInternal, IVariationsTargetInternal
 {
 	void setSourcePlatform( IPlatform platform );
 	PlatformRequirement getPlatformRequirement();

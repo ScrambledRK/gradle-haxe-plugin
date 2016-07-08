@@ -1,4 +1,4 @@
-package at.dotpoint.gradle.cross.transform
+package at.dotpoint.gradle.cross.transform.convert
 
 import org.gradle.api.internal.DefaultDomainObjectSet
 /**

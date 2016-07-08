@@ -1,4 +1,4 @@
-package at.dotpoint.gradle.cross.variant.iterator
+package at.dotpoint.gradle.cross.variant.target
 
 /**
  *

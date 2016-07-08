@@ -1,15 +1,18 @@
 package at.dotpoint.gradle.cross.specification
 
-import at.dotpoint.gradle.cross.variant.iterator.VariantCombination
+import at.dotpoint.gradle.cross.variant.target.VariantCombination
 import at.dotpoint.gradle.cross.variant.model.IVariant
 import at.dotpoint.gradle.cross.variant.model.flavor.IFlavor
 import at.dotpoint.gradle.cross.variant.model.platform.IPlatform
 import org.gradle.language.base.LanguageSourceSet
 import org.gradle.platform.base.TransformationFileType
 import org.gradle.platform.base.binary.BaseBinarySpec
+
 /**
  * Created by RK on 19.03.16.
  */
+// TODO: refactor to simplify IVariationsTargetInternal methods
+//
 class ApplicationBinarySpec extends BaseBinarySpec implements IApplicationBinarySpecInternal
 {
 
@@ -44,6 +47,15 @@ class ApplicationBinarySpec extends BaseBinarySpec implements IApplicationBinary
 			container.add( this.flavor );
 
 		return container;
+	}
+
+	/**
+	 * IFlavor, IPlatform, IBuildType
+	 */
+	void setTargetVariantCombination( VariantCombination<IVariant> combination )
+	{
+		this.setTargetPlatform( combination.getVariant( IPlatform.class ) );
+		this.setTargetFlavor( combination.getVariant( IFlavor.class ) );
 	}
 
 	// -------------------------------------- //

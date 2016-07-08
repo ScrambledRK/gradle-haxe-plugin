@@ -1,12 +1,12 @@
 package at.dotpoint.gradle.haxe.transform
 
 import at.dotpoint.gradle.cross.sourceset.ISourceSet
-import at.dotpoint.gradle.cross.transform.convert.AConvertTransform
+import at.dotpoint.gradle.cross.specification.IApplicationBinarySpec
+import at.dotpoint.gradle.cross.transform.compile.ACompileTransform
 import at.dotpoint.gradle.cross.util.NameUtil
 import at.dotpoint.gradle.cross.util.TaskUtil
 import at.dotpoint.gradle.cross.variant.model.IVariant
 import at.dotpoint.gradle.cross.variant.model.platform.IPlatform
-import at.dotpoint.gradle.cross.variant.target.VariantCombination
 import at.dotpoint.gradle.haxe.task.ExecuteHXMLTask
 import at.dotpoint.gradle.haxe.task.GenerateHXMLTask
 import org.gradle.api.Task
@@ -14,14 +14,14 @@ import org.gradle.api.tasks.TaskContainer
 /**
  * Created by RK on 27.02.16.
  */
-class HaxeConvertTransform extends AConvertTransform
+class HaxeCompileTransform extends ACompileTransform
 {
 
 	/**
 	 * SourceSet to convert
 	 */
 	@Override
-	protected boolean isValidTransformTarget( ISourceSet iSourceSet )
+	protected boolean isValidTransformTarget( IApplicationBinarySpec binarySpec )
 	{
 		return true
 	}
@@ -30,7 +30,7 @@ class HaxeConvertTransform extends AConvertTransform
 	 * target VariantCombination to transform the target SourceSet to
      */
 	@Override
-	protected boolean isValidTransformInput( VariantCombination<IVariant> target )
+	protected boolean isValidTransformInput( List<ISourceSet> sources )
 	{
 		return true;
 	}
@@ -51,18 +51,18 @@ class HaxeConvertTransform extends AConvertTransform
 	 * @return top-level task to depend the conversion LifeCycle step on
 	 */
 	@Override
-	Task createTransformTask( ISourceSet sourceSet, VariantCombination<IVariant> targetVariation, TaskContainer taskContainer )
+	Task createTransformTask( IApplicationBinarySpec binarySpec, List<ISourceSet> sources, TaskContainer taskContainer )
 	{
 		//
-		Task generateTask = TaskUtil.createTaskContainerTask( taskContainer, GenerateHXMLTask.class,
-				NameUtil.generateTransformTaskName( "generateConvertHxml", sourceSet, targetVariation ) )
+		Task generateTask = TaskUtil.createBinaryTask( binarySpec, GenerateHXMLTask.class,
+				NameUtil.generateTransformTaskName( "generateCompileHxml", binarySpec.targetVariantCombination ) )
 		{
 
 		};
 
 		//
-		Task executeTask = TaskUtil.createTaskContainerTask( taskContainer, ExecuteHXMLTask.class,
-				NameUtil.generateTransformTaskName( "executeConvertHxml", sourceSet, targetVariation ) )
+		Task executeTask = TaskUtil.createBinaryTask( binarySpec, ExecuteHXMLTask.class,
+				NameUtil.generateTransformTaskName( "executeCompileHxml", binarySpec.targetVariantCombination ) )
 		{
 
 		};
