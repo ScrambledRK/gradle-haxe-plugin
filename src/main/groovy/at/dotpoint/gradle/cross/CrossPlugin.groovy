@@ -10,6 +10,7 @@ import at.dotpoint.gradle.cross.specification.executable.IExecutableComponentSpe
 import at.dotpoint.gradle.cross.specification.library.ILibraryComponentSpec
 import at.dotpoint.gradle.cross.specification.library.ILibraryComponentSpecInternal
 import at.dotpoint.gradle.cross.specification.library.LibraryComponentSpec
+import at.dotpoint.gradle.cross.transform.compile.CompileTransformationContainer
 import at.dotpoint.gradle.cross.transform.convert.ConvertTransformationBuilder
 import at.dotpoint.gradle.cross.transform.convert.ConvertTransformationContainer
 import at.dotpoint.gradle.cross.util.NameUtil
@@ -18,7 +19,6 @@ import at.dotpoint.gradle.cross.variant.container.flavor.IFlavorContainer
 import at.dotpoint.gradle.cross.variant.factory.flavor.ExecutableFlavorFactory
 import at.dotpoint.gradle.cross.variant.factory.flavor.LibraryFlavorFactory
 import at.dotpoint.gradle.cross.variant.factory.platform.PlatformFactory
-import at.dotpoint.gradle.cross.variant.target.VariantCombination
 import at.dotpoint.gradle.cross.variant.iterator.VariantIterator
 import at.dotpoint.gradle.cross.variant.model.IVariant
 import at.dotpoint.gradle.cross.variant.model.flavor.executable.IExecutableFlavor
@@ -32,6 +32,7 @@ import at.dotpoint.gradle.cross.variant.resolver.VariantResolverRepository
 import at.dotpoint.gradle.cross.variant.resolver.flavor.executable.ExecutableFlavorResolver
 import at.dotpoint.gradle.cross.variant.resolver.flavor.library.LibraryFlavorResolver
 import at.dotpoint.gradle.cross.variant.resolver.platform.PlatformResolver
+import at.dotpoint.gradle.cross.variant.target.VariantCombination
 import org.gradle.api.DefaultTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -48,6 +49,7 @@ import org.gradle.platform.base.*
 import org.gradle.platform.base.internal.BinarySpecInternal
 
 import javax.inject.Inject
+
 /**
  *  Created by RK on 11.03.16.
  */
@@ -161,13 +163,23 @@ class CrossPlugin implements Plugin<Project>
 		}
 
 		/**
+		 * CompileTransformationContainer
+		 */
+		@Hidden @Model
+		CompileTransformationContainer compileTransforms()
+		{
+			return new CompileTransformationContainer();
+		}
+
+
+		/**
 		 * create ConvertTransformTasks for BinarySpecs
 		 */
 		@Finalize
-		void createSourceTransformTasks(final TaskContainer taskContainer, @Path("binaries") final ModelMap<BinarySpecInternal> binaries,
-										ConvertTransformationContainer transformContainer )
+		void createTransformTasks(final TaskContainer taskContainer, @Path("binaries") final ModelMap<BinarySpecInternal> binaries,
+										ConvertTransformationContainer convertTransforms )
 		{
-			ConvertTransformationBuilder builder = new ConvertTransformationBuilder( transformContainer, taskContainer );
+			ConvertTransformationBuilder builder = new ConvertTransformationBuilder( convertTransforms, taskContainer );
 
 			for( BinarySpecInternal binarySpec : binaries )
 			{

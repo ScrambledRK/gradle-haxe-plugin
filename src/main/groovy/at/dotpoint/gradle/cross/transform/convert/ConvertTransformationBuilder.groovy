@@ -64,7 +64,7 @@ class ConvertTransformationBuilder
 	 * @param iterator
 	 * @param binarySpec
 	 */
-	private void createSourceSetTransformations(Iterator<LanguageSourceSet> iterator, IApplicationBinarySpecInternal binarySpec )
+	private void createSourceSetTransformations( Iterator<LanguageSourceSet> iterator, IApplicationBinarySpecInternal binarySpec )
 	{
 		while( iterator.hasNext() )
 		{
@@ -189,7 +189,7 @@ class ConvertTransformationBuilder
 	 * @param targetVariation
 	 * @return
 	 */
-	private AssignedTransform getAssignedTransform(ISourceSet sourceSet, VariantCombination<IVariant> targetVariation )
+	private AssignedTransform getAssignedTransform( ISourceSet sourceSet, VariantCombination<IVariant> targetVariation )
 	{
 		for( AssignedTransform transform : this.assignedTransforms )
 		{

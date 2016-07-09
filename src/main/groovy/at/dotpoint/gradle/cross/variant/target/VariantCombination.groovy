@@ -1,14 +1,12 @@
 package at.dotpoint.gradle.cross.variant.target
 
-import at.dotpoint.gradle.cross.variant.model.IVariant
 import at.dotpoint.gradle.cross.variant.model.flavor.IFlavor
 import at.dotpoint.gradle.cross.variant.model.platform.IPlatform
-
 /**
  *
  * @param < TVariant >
  */
-class VariantCombination<TVariant extends IVariant> extends ArrayList<TVariant>
+class VariantCombination<TVariant> extends ArrayList<TVariant>
 {
 
 	//
@@ -133,5 +131,14 @@ class VariantCombination<TVariant extends IVariant> extends ArrayList<TVariant>
 		}
 
 		return true;
+	}
+
+	// ---------------------------------------------------------- //
+	// ---------------------------------------------------------- //
+
+	@Override
+	Object clone()
+	{
+		return super.clone()
 	}
 }

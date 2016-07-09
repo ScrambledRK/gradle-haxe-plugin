@@ -57,7 +57,8 @@ class HaxeConvertTransform extends AConvertTransform
 		Task generateTask = TaskUtil.createTaskContainerTask( taskContainer, GenerateHXMLTask.class,
 				NameUtil.generateTransformTaskName( "generateConvertHxml", sourceSet, targetVariation ) )
 		{
-
+			it.sourceVariantCombination.platform = sourceSet.sourcePlatform;
+			it.targetVariantCombination.platform = targetVariation.platform;
 		};
 
 		//

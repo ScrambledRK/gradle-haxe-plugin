@@ -90,7 +90,7 @@ public class CrossSourceSet extends BaseLanguageSourceSet implements ISourceSetI
      * IFlavor, IPlatform, IBuildType
      */
     @Override
-    void setTargetVariantCombination( VariantCombination<IVariant> combination )
+    void setSourceVariantCombination( VariantCombination<IVariant> combination )
     {
         this.platform = combination.getVariant( IPlatform.class );
     }
@@ -99,7 +99,7 @@ public class CrossSourceSet extends BaseLanguageSourceSet implements ISourceSetI
      * IFlavor, IPlatform, IBuildType
      */
     @Override
-    VariantCombination<IVariant> getTargetVariantCombination()
+    VariantCombination<IVariant> getSourceVariantCombination()
     {
         VariantCombination<IVariant> container = new VariantCombination<IVariant>();
 
