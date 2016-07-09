@@ -1,10 +1,60 @@
 package at.dotpoint.gradle.cross.variant.target
 
+import at.dotpoint.gradle.cross.variant.model.IVariant
+import at.dotpoint.gradle.cross.variant.model.flavor.IFlavor
+import at.dotpoint.gradle.cross.variant.model.platform.IPlatform
+
 /**
  *
  * @param < TVariant >
  */
-class VariantCombination<TVariant> extends ArrayList<TVariant> {
+class VariantCombination<TVariant extends IVariant> extends ArrayList<TVariant>
+{
+
+	//
+	public IPlatform getPlatform()
+	{
+		return this.getVariant( IPlatform.class );
+	}
+
+	public void setPlatform( IPlatform platform )
+	{
+		this.setVariant( platform, IPlatform.class );
+	}
+
+	//
+	public IFlavor getFlavor()
+	{
+		return this.getVariant( IFlavor.class );
+	}
+
+	public void setFlavor( IFlavor flavor )
+	{
+		this.setVariant( flavor, IFlavor.class );
+	}
+
+	// ---------------------------------------------------------- //
+	// ---------------------------------------------------------- //
+
+	/**
+	 *
+	 * @param variant
+	 */
+	public void setVariant( TVariant variant, Class<TVariant> variantType )
+	{
+		int index = this.getIndexOfVariant( variantType );
+
+		if( variant != null )
+		{
+			if( index != -1 ) 	this.set( index, variant );
+			else				this.add( variant );
+		}
+		else
+		{
+			if( index != -1 )
+				this.remove( index );
+		}
+	}
 
 	/**
 	 *
@@ -13,14 +63,31 @@ class VariantCombination<TVariant> extends ArrayList<TVariant> {
 	 */
 	public <TVariantType extends TVariant> TVariantType getVariant( Class<TVariantType> variantType )
 	{
-		for (int i = 0; i < this.size(); i++)
-		{
-			if( this.get(i).class.isAssignableFrom( variantType ) || variantType.isAssignableFrom( this.get(i).class ) )
-				return (TVariantType) this.get(i);
-		}
+		int index = this.getIndexOfVariant( variantType );
+
+		if( index != -1 )
+			return this.get( index );
 
 		return null;
 	}
+
+	/**
+	 *
+	 * @return
+	 */
+	protected int getIndexOfVariant( Class<TVariant> variantType )
+	{
+		for (int i = 0; i < this.size(); i++)
+		{
+			if( this.get(i).class.isAssignableFrom( variantType ) || variantType.isAssignableFrom( this.get(i).class ) )
+				return i;
+		}
+
+		return -1;
+	}
+
+	// ---------------------------------------------------------- //
+	// ---------------------------------------------------------- //
 
 	/**
 	 *
