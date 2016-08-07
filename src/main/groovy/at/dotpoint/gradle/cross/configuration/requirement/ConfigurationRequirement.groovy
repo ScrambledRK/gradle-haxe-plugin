@@ -9,7 +9,7 @@ import at.dotpoint.gradle.cross.configuration.setting.IConfigurationSetting
 /**
  * Created by RK on 16.05.2016.
  */
-class ConfigurationRequirement implements IConfigurationRequirement
+class ConfigurationRequirement implements IConfigurationRequirementInternal
 {
 
 	//
@@ -21,6 +21,18 @@ class ConfigurationRequirement implements IConfigurationRequirement
 	public ConfigurationRequirement()
 	{
 		this.commands = new ArrayList<IConfigurationCommand>();
+	}
+
+	// --------------------- //
+	// --------------------- //
+
+	/**
+	 *
+	 * @return
+	 */
+	public ArrayList<IConfigurationCommand> getConfigurationCommands()
+	{
+		return this.commands;
 	}
 
 	// --------------------- //

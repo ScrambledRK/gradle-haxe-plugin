@@ -5,6 +5,7 @@ import at.dotpoint.gradle.cross.transform.convert.AConvertTransform
 import at.dotpoint.gradle.cross.util.NameUtil
 import at.dotpoint.gradle.cross.util.TaskUtil
 import at.dotpoint.gradle.cross.variant.model.IVariant
+import at.dotpoint.gradle.cross.variant.model.flavor.IFlavor
 import at.dotpoint.gradle.cross.variant.model.platform.IPlatform
 import at.dotpoint.gradle.cross.variant.target.VariantCombination
 import at.dotpoint.gradle.haxe.task.ExecuteHXMLTask
@@ -38,7 +39,7 @@ class HaxeConvertTransform extends AConvertTransform
 	@Override
 	protected boolean isValidVariant( IVariant variant )
 	{
-		return variant instanceof IPlatform;
+		return variant instanceof IPlatform || variant instanceof IFlavor;
 	}
 
 	/**
@@ -59,6 +60,9 @@ class HaxeConvertTransform extends AConvertTransform
 		{
 			it.sourceVariantCombination.platform = sourceSet.sourcePlatform;
 			it.targetVariantCombination.platform = targetVariation.platform;
+			it.targetVariantCombination.flavor 	 = targetVariation.flavor;
+
+			it.sourceSet = sourceSet;
 		};
 
 		//

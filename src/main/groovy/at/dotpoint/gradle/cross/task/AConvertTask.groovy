@@ -2,11 +2,11 @@ package at.dotpoint.gradle.cross.task
 
 import at.dotpoint.gradle.cross.variant.model.IVariant
 import at.dotpoint.gradle.cross.variant.target.VariantCombination
-import org.gradle.api.DefaultTask
+import org.gradle.api.tasks.SourceTask
 /**
  * Created by RK on 09.07.2016.
  */
-class AConvertTask extends DefaultTask implements IConvertTask
+class AConvertTask extends SourceTask implements IConvertTask
 {
 
 	//

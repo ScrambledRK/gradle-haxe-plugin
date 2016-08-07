@@ -49,7 +49,6 @@ import org.gradle.platform.base.*
 import org.gradle.platform.base.internal.BinarySpecInternal
 
 import javax.inject.Inject
-
 /**
  *  Created by RK on 11.03.16.
  */
@@ -83,6 +82,8 @@ class CrossPlugin implements Plugin<Project>
 		project.extensions.extraProperties.set( "LibraryComponentSpec", ILibraryComponentSpec );
 		project.extensions.extraProperties.set( "ExecutableComponentSpec", IExecutableComponentSpec );
 		project.extensions.extraProperties.set( "CrossSourceSet", ISourceSet );
+		project.extensions.extraProperties.set( "IPlatform", IPlatform );
+		project.extensions.extraProperties.set( "ILibraryFlavor", ILibraryFlavor );
 	}
 
 	// ---------------------------------------------------------- //
@@ -303,7 +304,7 @@ class CrossPlugin implements Plugin<Project>
 		{
 			flavorContainer.registerFactory( ILibraryFlavor.class, new LibraryFlavorFactory() );
 			flavorContainer.registerFactory( IExecutableFlavor.class, new ExecutableFlavorFactory() );
-		}
+			}
 
 		// -------------------------------------------------- //
 		// -------------------------------------------------- //

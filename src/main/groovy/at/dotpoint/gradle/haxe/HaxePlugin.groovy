@@ -12,6 +12,7 @@ import at.dotpoint.gradle.haxe.transform.HaxeConvertTransform
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.internal.file.FileResolver
+import org.gradle.api.plugins.JavaPluginConvention
 import org.gradle.internal.reflect.Instantiator
 import org.gradle.model.Mutate
 import org.gradle.model.RuleSource
@@ -45,6 +46,10 @@ class HaxePlugin implements Plugin<Project>
 	public void apply( final Project project )
 	{
 		project.getPluginManager().apply( CrossPlugin.class );
+
+		JavaPluginConvention javaConvention = new JavaPluginConvention(project, instantiator);
+  		project.getConvention().getPlugins().put("java", javaConvention);
+
 	}
 
 	// ---------------------------------------------------------- //
