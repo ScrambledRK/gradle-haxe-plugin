@@ -1,6 +1,8 @@
 package at.dotpoint.gradle.haxe.task
 
+import at.dotpoint.gradle.cross.configuration.builder.ConfigurationBuilder
 import at.dotpoint.gradle.cross.configuration.model.IConfiguration
+import at.dotpoint.gradle.cross.convention.ConventionUtil
 import at.dotpoint.gradle.cross.sourceset.ISourceSet
 import at.dotpoint.gradle.cross.task.AConvertTask
 import org.gradle.api.tasks.TaskAction
@@ -26,7 +28,8 @@ class GenerateHXMLTask extends AConvertTask
 	public File getHxmlFile()
 	{
 		if( this.hxmlFile == null )
-			this.hxmlFile = new File( this.project.getBuildDir(), this.getHxmlFileName() );
+			this.hxmlFile = new File( ConventionUtil.getVariationBuildDir( this.project, this.targetVariantCombination ),
+					"convert.hxml" );
 
 		return this.hxmlFile
 	}
@@ -51,21 +54,6 @@ class GenerateHXMLTask extends AConvertTask
 
 		this.inputs.files( this.source );
 		this.outputs.file( this.getHxmlFile() );
-	}
-
-	/**
-	 *
-	 * @return
-	 */
-	private String getHxmlFileName()
-	{
-		String platform = this.targetVariantCombination.platform.displayName;
-		String flavor = "default";
-
-		if(  this.targetVariantCombination.flavor != null )
-			flavor = this.targetVariantCombination.flavor.displayName;
-
-		return  platform + "/" + flavor + "/" +	"convert.hxml"
 	}
 
 	// ------------------------------------------------------------ //
@@ -125,7 +113,7 @@ class GenerateHXMLTask extends AConvertTask
 	{
 		String configs = "";
 
-		IConfiguration configuration = this.targetVariantCombination.getConfiguration();
+		IConfiguration configuration = new ConfigurationBuilder( this.project ).build( this.targetVariantCombination );
 
 		configuration.each {
 			configs += "\n" + it.name + " " + it.value;

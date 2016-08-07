@@ -1,9 +1,5 @@
 package at.dotpoint.gradle.cross.variant.target
 
-import at.dotpoint.gradle.cross.configuration.builder.ConfigurationBuilder
-import at.dotpoint.gradle.cross.configuration.model.IConfiguration
-import at.dotpoint.gradle.cross.configuration.requirement.IConfigurationRequirementInternal
-import at.dotpoint.gradle.cross.variant.model.IVariant
 import at.dotpoint.gradle.cross.variant.model.flavor.IFlavor
 import at.dotpoint.gradle.cross.variant.model.platform.IPlatform
 /**
@@ -12,26 +8,6 @@ import at.dotpoint.gradle.cross.variant.model.platform.IPlatform
  */
 class VariantCombination<TVariant> extends ArrayList<TVariant>
 {
-
-	/**
-	 *
-	 * @return
-	 */
-	public IConfiguration getConfiguration()
-	{
-		ArrayList<IConfigurationRequirementInternal> requirements = new ArrayList<>();
-
-		for( Object variant : this )
-		{
-			if( variant instanceof IVariant )
-				requirements.add( variant.configuration as IConfigurationRequirementInternal );
-		}
-
-		return ConfigurationBuilder.getInstance().build( requirements );
-	}
-
-	// ---------------------------------------------------------- //
-	// ---------------------------------------------------------- //
 
 	//
 	public IPlatform getPlatform()

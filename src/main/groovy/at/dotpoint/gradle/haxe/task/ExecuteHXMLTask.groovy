@@ -40,10 +40,6 @@ class ExecuteHXMLTask extends DefaultTask
         project.exec
 		{
 			it.executable "haxe"
-
-//			if( OperatingSystem.current().isWindows() )
-//				it.executable += ".exe"
-
 			it.args this.hxmlFile.absolutePath;
 		}
     }
