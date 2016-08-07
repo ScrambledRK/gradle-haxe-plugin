@@ -74,19 +74,19 @@ class GenerateHXMLTask extends AConvertTask
 
 		// -------------- //
 
-		String content = "";
+		String content = "##";
 
 		content += "\n## generated via gradle task:";
 		content += "\n## " + this.name;
 
 		content += "\n\n## classpaths:"
-		content += "\n" + this.getClassPaths();
+		content += this.getClassPaths();
 
 		content += "\n\n## configurations:"
-		content += "\n" + this.getConfigurations();
+		content += this.getConfigurations();
 
 		content += "\n\n## output:"
-		content += "\n" + this.getOutput();
+		content += this.getOutput();
 
 		// -------------- //
 
