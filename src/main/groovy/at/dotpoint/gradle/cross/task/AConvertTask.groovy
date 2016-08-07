@@ -1,5 +1,6 @@
 package at.dotpoint.gradle.cross.task
 
+import at.dotpoint.gradle.cross.convention.ConventionUtil
 import at.dotpoint.gradle.cross.variant.model.IVariant
 import at.dotpoint.gradle.cross.variant.target.VariantCombination
 import org.gradle.api.tasks.SourceTask
@@ -69,5 +70,17 @@ class AConvertTask extends SourceTask implements IConvertTask
 			this.setTargetVariantCombination( new VariantCombination<IVariant>() );
 
 		return this.targetVariantCombination;
+	}
+
+	// ------------------------------------------------------------------- //
+	// ------------------------------------------------------------------- //
+
+	/**
+	 *
+	 * @return
+	 */
+	protected File getOutputDir()
+	{
+		return ConventionUtil.getVariationBuildDir( this.project, this.targetVariantCombination );
 	}
 }

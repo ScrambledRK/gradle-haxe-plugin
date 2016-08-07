@@ -2,9 +2,11 @@ package at.dotpoint.gradle.haxe.task
 
 import at.dotpoint.gradle.cross.configuration.builder.ConfigurationBuilder
 import at.dotpoint.gradle.cross.configuration.model.IConfiguration
-import at.dotpoint.gradle.cross.convention.ConventionUtil
 import at.dotpoint.gradle.cross.sourceset.ISourceSet
 import at.dotpoint.gradle.cross.task.AConvertTask
+import at.dotpoint.gradle.cross.variant.model.flavor.IFlavor
+import at.dotpoint.gradle.cross.variant.model.flavor.library.ILibraryFlavor
+import at.dotpoint.gradle.cross.variant.model.platform.IPlatform
 import org.gradle.api.tasks.TaskAction
 import org.gradle.util.GFileUtils
 /**
@@ -28,8 +30,7 @@ class GenerateHXMLTask extends AConvertTask
 	public File getHxmlFile()
 	{
 		if( this.hxmlFile == null )
-			this.hxmlFile = new File( ConventionUtil.getVariationBuildDir( this.project, this.targetVariantCombination ),
-					"convert.hxml" );
+			this.hxmlFile = new File( this.getOutputDir(), "convert.hxml" );
 
 		return this.hxmlFile
 	}
@@ -84,6 +85,9 @@ class GenerateHXMLTask extends AConvertTask
 		content += "\n\n## configurations:"
 		content += "\n" + this.getConfigurations();
 
+		content += "\n\n## output:"
+		content += "\n" + this.getOutput();
+
 		// -------------- //
 
 		hxmlFile.text = content;
@@ -120,6 +124,30 @@ class GenerateHXMLTask extends AConvertTask
 		}
 
 		return configs;
+	}
+
+	/**
+	 *
+	 * @return
+	 */
+	private String getOutput()
+	{
+		String outputPath = new File( this.getOutputDir(), project.rootProject.name ).path;
+
+		IPlatform platform = this.targetVariantCombination.platform;
+		IFlavor flavor = this.targetVariantCombination.flavor;
+
+		//
+		if( flavor instanceof ILibraryFlavor )
+		{
+			switch( platform.name )
+			{
+				case "java": 	return "-java " + outputPath;
+				case "flash": 	return "-as3 " + outputPath;
+			}
+		}
+
+		return "";
 	}
 
 }
