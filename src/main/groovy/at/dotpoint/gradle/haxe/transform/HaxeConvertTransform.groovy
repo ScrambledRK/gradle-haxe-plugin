@@ -69,7 +69,7 @@ class HaxeConvertTransform extends AConvertTransform
 		Task executeTask = TaskUtil.createTaskContainerTask( taskContainer, ExecuteHXMLTask.class,
 				NameUtil.generateTransformTaskName( "executeConvertHxml", sourceSet, targetVariation ) )
 		{
-
+			it.hxmlFile = (generateTask as GenerateHXMLTask).hxmlFile;
 		};
 
 		executeTask.dependsOn generateTask;

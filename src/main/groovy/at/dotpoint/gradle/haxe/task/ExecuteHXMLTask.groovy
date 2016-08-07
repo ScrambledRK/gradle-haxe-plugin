@@ -7,10 +7,44 @@ import org.gradle.api.tasks.TaskAction
  */
 class ExecuteHXMLTask extends DefaultTask
 {
+	//
+	private File hxmlFile;
+
+	// ------------------------------------------------------------ //
+	// ------------------------------------------------------------ //
+
+	/**
+	 *
+	 * @return
+	 */
+	public File getHxmlFile()
+	{
+		return this.hxmlFile
+	}
+
+	/**
+	 *
+	 * @param hxmlFile
+	 */
+	public void setHxmlFile( File hxmlFile )
+	{
+		this.hxmlFile = hxmlFile
+	}
+
+	// ------------------------------------------------------------ //
+	// ------------------------------------------------------------ //
+
     @TaskAction
     public void executeHXML()
     {
-        println( "... execute HXML" );
-        println( "" );
+        project.exec
+		{
+			it.executable "haxe"
+
+//			if( OperatingSystem.current().isWindows() )
+//				it.executable += ".exe"
+
+			it.args this.hxmlFile.absolutePath;
+		}
     }
 }
