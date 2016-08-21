@@ -1,7 +1,7 @@
 package at.dotpoint.gradle.cross.transform
 
-import at.dotpoint.gradle.cross.variant.target.VariantCombination
 import at.dotpoint.gradle.cross.variant.model.IVariant
+import at.dotpoint.gradle.cross.variant.target.VariantCombination
 import org.gradle.api.Task
 import org.gradle.api.tasks.TaskContainer
 /**

@@ -1,5 +1,6 @@
 package at.dotpoint.gradle.cross.specification
 
+import at.dotpoint.gradle.cross.configuration.model.IConfiguration
 import at.dotpoint.gradle.cross.variant.model.IVariant
 import at.dotpoint.gradle.cross.variant.model.flavor.IFlavor
 import at.dotpoint.gradle.cross.variant.model.platform.IPlatform
@@ -26,6 +27,9 @@ public interface IApplicationBinarySpec extends ApplicationBinarySpec, HasInterm
 	IFlavor getTargetFlavor();
 
 	//
+	IConfiguration getConfiguration()
+
+	//
 	@Override
 	IApplicationComponentSpec getApplication();
 }
@@ -44,5 +48,8 @@ public interface IApplicationBinarySpecInternal extends IApplicationBinarySpec, 
 
 	//
 	void setTargetVariant( IVariant variant );
+
+	//
+	void setConfiguration( IConfiguration configuration );
 }
 

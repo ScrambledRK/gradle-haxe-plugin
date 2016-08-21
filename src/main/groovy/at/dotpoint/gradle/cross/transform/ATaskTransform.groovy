@@ -8,7 +8,8 @@ import org.gradle.api.tasks.TaskContainer
 /**
  * Created by RK on 08.07.2016.
  */
-abstract class ATaskTransform<TTarget, TInput> implements ITaskTransform<TTarget, TInput>
+abstract class ATaskTransform<TTarget, TInput>
+		implements ITaskTransform<TTarget, TInput>
 {
 
 	/**

@@ -81,6 +81,6 @@ class AConvertTask extends SourceTask implements IConvertTask
 	 */
 	protected File getOutputDir()
 	{
-		return ConventionUtil.getVariationBuildDir( this.project, this.targetVariantCombination );
+		return ConventionUtil.getVariationBuildDir( this.project.buildDir, this.targetVariantCombination );
 	}
 }

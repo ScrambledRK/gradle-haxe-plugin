@@ -1,13 +1,13 @@
 package at.dotpoint.gradle.cross.specification
 
-import at.dotpoint.gradle.cross.variant.target.VariantCombination
+import at.dotpoint.gradle.cross.configuration.model.IConfiguration
 import at.dotpoint.gradle.cross.variant.model.IVariant
 import at.dotpoint.gradle.cross.variant.model.flavor.IFlavor
 import at.dotpoint.gradle.cross.variant.model.platform.IPlatform
+import at.dotpoint.gradle.cross.variant.target.VariantCombination
 import org.gradle.language.base.LanguageSourceSet
 import org.gradle.platform.base.TransformationFileType
 import org.gradle.platform.base.binary.BaseBinarySpec
-
 /**
  * Created by RK on 19.03.16.
  */
@@ -18,6 +18,27 @@ class ApplicationBinarySpec extends BaseBinarySpec implements IApplicationBinary
 
 	private IPlatform platform;
 	private IFlavor flavor;
+
+	private IConfiguration configuration;
+
+	// ------------------------------------------------------------------ //
+	// ------------------------------------------------------------------ //
+
+	@Override
+	void setConfiguration( IConfiguration configuration )
+	{
+		this.configuration = configuration;
+	}
+
+	@Override
+	IConfiguration getConfiguration()
+	{
+		return this.configuration;
+	}
+
+	// -------------------------------------- //
+	// -------------------------------------- //
+	// Variants
 
 	/**
 	 *

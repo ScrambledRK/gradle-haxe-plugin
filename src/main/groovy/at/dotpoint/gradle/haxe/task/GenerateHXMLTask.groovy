@@ -15,7 +15,8 @@ import org.gradle.util.GFileUtils
 class GenerateHXMLTask extends AConvertTask
 {
 
-	private ISourceSet sourceSet;
+	//
+	private  sourceSet;
 
     //
 	private File hxmlFile;

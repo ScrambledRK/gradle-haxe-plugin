@@ -6,24 +6,24 @@ import at.dotpoint.gradle.cross.configuration.requirement.IConfigurationRequirem
 import at.dotpoint.gradle.cross.configuration.requirement.command.IConfigurationCommand
 import at.dotpoint.gradle.cross.configuration.setting.ConfigurationSetting
 import at.dotpoint.gradle.cross.convention.ConventionUtil
+import at.dotpoint.gradle.cross.specification.IApplicationBinarySpec
 import at.dotpoint.gradle.cross.variant.model.IVariant
 import at.dotpoint.gradle.cross.variant.target.VariantCombination
-import org.gradle.api.Project
 /**
  * Created by RK on 16.05.2016.
  */
 class ConfigurationBuilder implements IConfigurationBuilder
 {
 	//
-	private final Project project;
+	private final File buildDir;
 
 	/**
 	 *
 	 * @param project
 	 */
-	ConfigurationBuilder( Project project )
+	ConfigurationBuilder( File buildDir )
 	{
-		this.project = project
+		this.buildDir = buildDir
 	}
 
 	// ------------------------------------------------------------ //
@@ -34,8 +34,9 @@ class ConfigurationBuilder implements IConfigurationBuilder
 	 * @param variantCombination
 	 * @return
 	 */
-	IConfiguration build( VariantCombination<IVariant> variantCombination )
+	IConfiguration build( IApplicationBinarySpec binarySpec )
 	{
+		VariantCombination<IVariant> variantCombination = binarySpec.getTargetVariantCombination();
 		ArrayList<IConfigurationRequirementInternal> requirements = new ArrayList<>();
 
 		for( Object variant : variantCombination )
@@ -43,6 +44,9 @@ class ConfigurationBuilder implements IConfigurationBuilder
 			if( variant instanceof IVariant )
 				requirements.add( variant.configuration as IConfigurationRequirementInternal );
 		}
+
+		if( binarySpec.application.configuration != null )
+			requirements.add( binarySpec.application.configuration as IConfigurationRequirementInternal );
 
 		// ------------------------------- //
 
@@ -75,7 +79,7 @@ class ConfigurationBuilder implements IConfigurationBuilder
 	public String getStringVariable( VariantCombination<IVariant> variantCombination, String variable )
 	{
 		if( variable == "variation.buildDir" )
-			return ConventionUtil.getVariationBuildDir( this.project, variantCombination ).path;
+			return ConventionUtil.getVariationBuildDir( this.buildDir, variantCombination ).path;
 
 		return variable;
 	}

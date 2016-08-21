@@ -1,5 +1,6 @@
 package at.dotpoint.gradle.cross
 
+import at.dotpoint.gradle.cross.configuration.builder.ConfigurationBuilder
 import at.dotpoint.gradle.cross.sourceset.CrossSourceSet
 import at.dotpoint.gradle.cross.sourceset.ISourceSet
 import at.dotpoint.gradle.cross.sourceset.ISourceSetInternal
@@ -225,7 +226,7 @@ class CrossPlugin implements Plugin<Project>
 		 */
 		@ComponentBinaries
 		void generateApplicationBinaries( ModelMap<IApplicationBinarySpec> builder, IApplicationComponentSpec applicationComponentSpec,
-										  IVariantResolverRepository variantResolver )
+										  IVariantResolverRepository variantResolver, @Path('buildDir') File buildDir )
 		{
 			IApplicationComponentSpecInternal applicationComponentSpecInternal = (IApplicationComponentSpecInternal) applicationComponentSpec;
 			VariantIterator<IVariantRequirement> iterator = new VariantIterator<>( applicationComponentSpecInternal.getVariantRequirements() );
@@ -238,6 +239,7 @@ class CrossPlugin implements Plugin<Project>
 
 					IApplicationBinarySpecInternal binarySpecInternal = (IApplicationBinarySpecInternal) binarySpec;
 
+					//
 					for( IVariantRequirement requirement : permutation )
 					{
 						IVariantRequirement variantRequirement = (IVariantRequirement) permutation.getVariant( requirement.getClass() );
@@ -245,6 +247,9 @@ class CrossPlugin implements Plugin<Project>
 
 						binarySpecInternal.setTargetVariant( variant );
 					}
+
+					//
+					binarySpecInternal.setConfiguration( new ConfigurationBuilder( buildDir ).build( binarySpec ) )
 				}
 			}
 		}

@@ -1,12 +1,12 @@
 package at.dotpoint.gradle.cross.specification
 
+import at.dotpoint.gradle.cross.configuration.requirement.IConfigurationRequirement
 import at.dotpoint.gradle.cross.variant.parser.flavor.IFlavorNotationParser
 import at.dotpoint.gradle.cross.variant.parser.platform.IPlatformNotationParser
 import at.dotpoint.gradle.cross.variant.parser.platform.PlatformNotationParser
 import at.dotpoint.gradle.cross.variant.requirement.IVariantRequirement
 import at.dotpoint.gradle.cross.variant.requirement.flavor.IFlavorRequirement
 import at.dotpoint.gradle.cross.variant.requirement.platform.PlatformRequirement
-
 /**
  * Created by RK on 19.03.16.
  */
@@ -20,6 +20,9 @@ class ApplicationComponentSpec extends GeneralComponentSpec implements IApplicat
 	protected final IPlatformNotationParser platformNotationParser;
 	protected final IFlavorNotationParser<IFlavorRequirement> flavorNotationParser;
 
+	//
+	protected IConfigurationRequirement configuration;
+
 	// --------------------------------------------- //
 	// --------------------------------------------- //
 
@@ -30,8 +33,8 @@ class ApplicationComponentSpec extends GeneralComponentSpec implements IApplicat
 	 */
 	ApplicationComponentSpec( IFlavorNotationParser<IFlavorRequirement> flavorNotationParser )
 	{
-		this.targetPlatformList = new ArrayList<PlatformRequirement>();
-		this.targetFlavorList = new ArrayList<IFlavorRequirement>();
+		this.targetPlatformList = new ArrayList<>();
+		this.targetFlavorList = new ArrayList<>();
 
 		this.platformNotationParser = PlatformNotationParser.getInstance();
 		this.flavorNotationParser = flavorNotationParser;
@@ -74,6 +77,32 @@ class ApplicationComponentSpec extends GeneralComponentSpec implements IApplicat
 		return Collections.unmodifiableList( variants );
 	}
 
+	// -------------------------------------------------------------------------- //
+	// -------------------------------------------------------------------------- //
+
+	/**
+	 *
+	 * @return
+	 */
+	IConfigurationRequirement getConfiguration()
+	{
+		if( this.configuration == null )
+			this.configuration = this.createConfiguration();
+
+		return this.configuration;
+	}
+
+	/**
+	 *
+	 * @return
+	 */
+	protected IConfigurationRequirement createConfiguration()
+	{
+		return ;
+	}
+
+	// -------------------------------------------------------------------------- //
+	// -------------------------------------------------------------------------- //
 
 	/**
 	 *

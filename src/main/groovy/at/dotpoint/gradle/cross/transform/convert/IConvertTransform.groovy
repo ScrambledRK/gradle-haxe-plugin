@@ -7,7 +7,8 @@ import at.dotpoint.gradle.cross.variant.target.VariantCombination
 /**
 *  Created by RK on 02.07.2016.
 */
-public interface IConvertTransform extends ITaskTransform< ISourceSet, VariantCombination<IVariant> >
+public interface IConvertTransform
+		extends ITaskTransform<ISourceSet, VariantCombination<IVariant>>
 {
 
 }

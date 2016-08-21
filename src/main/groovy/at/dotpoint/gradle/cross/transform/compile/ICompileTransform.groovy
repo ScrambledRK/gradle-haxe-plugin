@@ -6,7 +6,8 @@ import at.dotpoint.gradle.cross.transform.ITaskTransform
 /**
  * Created by RK on 08.07.2016.
  */
-interface ICompileTransform extends ITaskTransform< IApplicationBinarySpec, List<ISourceSet> >
+interface ICompileTransform
+		extends ITaskTransform<IApplicationBinarySpec, List<ISourceSet>>
 {
 
 }

@@ -21,7 +21,7 @@ public class CrossSourceSet extends BaseLanguageSourceSet implements ISourceSetI
     private IPlatform platform;
     private PlatformRequirement platformRequirement;
 
-    private final DefaultDependencySpecContainer dependencies = new DefaultDependencySpecContainer();
+    private DefaultDependencySpecContainer dependencies;
 
     // --------------------------------------------------- //
     // --------------------------------------------------- //
@@ -83,6 +83,9 @@ public class CrossSourceSet extends BaseLanguageSourceSet implements ISourceSetI
     @Override
     public DependencySpecContainer getDependencies()
     {
+        if( this.dependencies == null )
+            this.dependencies = new DefaultDependencySpecContainer();
+
         return dependencies;
     }
 

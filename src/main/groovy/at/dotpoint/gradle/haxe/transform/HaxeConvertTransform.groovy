@@ -12,6 +12,9 @@ import at.dotpoint.gradle.haxe.task.ExecuteHXMLTask
 import at.dotpoint.gradle.haxe.task.GenerateHXMLTask
 import org.gradle.api.Task
 import org.gradle.api.tasks.TaskContainer
+import org.gradle.platform.base.DependencySpec
+import org.gradle.platform.base.ProjectDependencySpec
+
 /**
  * Created by RK on 27.02.16.
  */
@@ -63,6 +66,12 @@ class HaxeConvertTransform extends AConvertTransform
 			it.targetVariantCombination.flavor 	 = targetVariation.flavor;
 
 			it.sourceSet = sourceSet;
+
+			for( DependencySpec dependencySpec : sourceSet.dependencies.dependencies )
+			{
+				if( dependencySpec instanceof ProjectDependencySpec )
+					println(((ProjectDependencySpec)dependencySpec).projectPath);
+			}
 		};
 
 		//
