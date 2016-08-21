@@ -47,4 +47,13 @@ class DefaultVariant extends DefaultDisplayNamed implements IVariant
 	{
 		return new ConfigurationRequirement();
 	}
+
+	@Override
+	boolean equals( Object obj )
+	{
+		if( obj instanceof IVariant )
+			return this.name.equals( ((IVariant)obj).name );
+
+		return false;
+	}
 }

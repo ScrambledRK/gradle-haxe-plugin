@@ -1,6 +1,7 @@
 package at.dotpoint.gradle.haxe
 
 import at.dotpoint.gradle.cross.CrossPlugin
+import at.dotpoint.gradle.cross.dependency.resolver.LibraryBinaryResolver
 import at.dotpoint.gradle.cross.transform.convert.ConvertTransformationContainer
 import at.dotpoint.gradle.haxe.sourceset.HaxeSourceSet
 import at.dotpoint.gradle.haxe.sourceset.IHaxeSourceSet
@@ -12,7 +13,9 @@ import at.dotpoint.gradle.haxe.transform.HaxeConvertTransform
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.internal.file.FileResolver
+import org.gradle.api.internal.resolve.ProjectModelResolver
 import org.gradle.internal.reflect.Instantiator
+import org.gradle.internal.service.ServiceRegistry
 import org.gradle.model.Mutate
 import org.gradle.model.RuleSource
 import org.gradle.platform.base.ComponentType
@@ -89,9 +92,12 @@ class HaxePlugin implements Plugin<Project>
 		// -------------------------------------------------- //
 
 		@Mutate
-		void registerConvertTransform( ConvertTransformationContainer transforms )
+		void registerConvertTransform( ConvertTransformationContainer transforms, ServiceRegistry serviceRegistry )
 		{
-			transforms.add( new HaxeConvertTransform() );
+			ProjectModelResolver projectModelResolver = serviceRegistry.get( ProjectModelResolver.class );
+			LibraryBinaryResolver libraryBinaryResolver = new LibraryBinaryResolver( projectModelResolver );
+
+			transforms.add( new HaxeConvertTransform( libraryBinaryResolver ) );
 		}
 
 

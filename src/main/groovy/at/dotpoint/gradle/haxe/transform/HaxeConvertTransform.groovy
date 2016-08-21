@@ -2,7 +2,9 @@ package at.dotpoint.gradle.haxe.transform
 
 import at.dotpoint.gradle.cross.dependency.model.IDependencySpec
 import at.dotpoint.gradle.cross.dependency.model.ILibraryDependencySpec
+import at.dotpoint.gradle.cross.dependency.resolver.LibraryBinaryResolver
 import at.dotpoint.gradle.cross.sourceset.ISourceSet
+import at.dotpoint.gradle.cross.specification.IApplicationBinarySpec
 import at.dotpoint.gradle.cross.transform.convert.AConvertTransform
 import at.dotpoint.gradle.cross.util.NameUtil
 import at.dotpoint.gradle.cross.util.TaskUtil
@@ -14,11 +16,24 @@ import at.dotpoint.gradle.haxe.task.ExecuteHXMLTask
 import at.dotpoint.gradle.haxe.task.GenerateHXMLTask
 import org.gradle.api.Task
 import org.gradle.api.tasks.TaskContainer
+
 /**
  * Created by RK on 27.02.16.
  */
 class HaxeConvertTransform extends AConvertTransform
 {
+
+	//
+	private LibraryBinaryResolver libraryBinaryResolver;
+
+	//
+	HaxeConvertTransform( LibraryBinaryResolver libraryBinaryResolver )
+	{
+		this.libraryBinaryResolver = libraryBinaryResolver
+	}
+
+	// ---------------------------------------------------------------- //
+	// ---------------------------------------------------------------- //
 
 	/**
 	 * SourceSet to convert
@@ -69,7 +84,23 @@ class HaxeConvertTransform extends AConvertTransform
 			for( IDependencySpec dependencySpec : sourceSet.dependencies.dependencies )
 			{
 				if( dependencySpec instanceof ILibraryDependencySpec )
-					println(((ILibraryDependencySpec)dependencySpec).projectPath);
+				{
+					ILibraryDependencySpec libraryDependencySpec = (ILibraryDependencySpec)dependencySpec;
+					IApplicationBinarySpec applicationBinarySpec = this.libraryBinaryResolver.resolveBinary( libraryDependencySpec, targetVariation );
+
+					println( ">> " + applicationBinarySpec );
+
+					if( applicationBinarySpec != null )
+					{
+						applicationBinarySpec.sources.each {
+							println( "src: " + it );
+						}
+
+						applicationBinarySpec.application.sources.each {
+							println( "src: " + it );
+						}
+					}
+				}
 			}
 		};
 

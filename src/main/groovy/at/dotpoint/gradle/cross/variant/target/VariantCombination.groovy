@@ -103,7 +103,7 @@ class VariantCombination<TVariant> extends ArrayList<TVariant>
 		{
 			Class<TVariant> variantType = this.get(i).class;
 
-			if( this.getVariant( variantType ) != other.getVariant( variantType ) )
+			if( !this.getVariant( variantType ).equals( other.getVariant( variantType ) ) )
 				return false;
 		}
 
@@ -126,7 +126,7 @@ class VariantCombination<TVariant> extends ArrayList<TVariant>
 		{
 			Class<TVariant> variantType = other.get(i).class;
 
-			if( this.getVariant( variantType ) != other.getVariant( variantType ) )
+			if( !this.getVariant( variantType ).equals( other.getVariant( variantType ) ) )
 				return false;
 		}
 
