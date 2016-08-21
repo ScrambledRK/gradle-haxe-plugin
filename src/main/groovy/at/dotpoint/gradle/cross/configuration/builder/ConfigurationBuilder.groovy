@@ -6,7 +6,6 @@ import at.dotpoint.gradle.cross.configuration.requirement.IConfigurationRequirem
 import at.dotpoint.gradle.cross.configuration.requirement.command.IConfigurationCommand
 import at.dotpoint.gradle.cross.configuration.setting.ConfigurationSetting
 import at.dotpoint.gradle.cross.convention.ConventionUtil
-import at.dotpoint.gradle.cross.specification.IApplicationBinarySpec
 import at.dotpoint.gradle.cross.variant.model.IVariant
 import at.dotpoint.gradle.cross.variant.target.VariantCombination
 /**
@@ -34,22 +33,8 @@ class ConfigurationBuilder implements IConfigurationBuilder
 	 * @param variantCombination
 	 * @return
 	 */
-	IConfiguration build( IApplicationBinarySpec binarySpec )
+	IConfiguration build( Iterable<IConfigurationRequirementInternal> requirements )
 	{
-		VariantCombination<IVariant> variantCombination = binarySpec.getTargetVariantCombination();
-		ArrayList<IConfigurationRequirementInternal> requirements = new ArrayList<>();
-
-		for( Object variant : variantCombination )
-		{
-			if( variant instanceof IVariant )
-				requirements.add( variant.configuration as IConfigurationRequirementInternal );
-		}
-
-		if( binarySpec.application.configuration != null )
-			requirements.add( binarySpec.application.configuration as IConfigurationRequirementInternal );
-
-		// ------------------------------- //
-
 		IConfiguration configuration = new Configuration();
 
 		for( IConfigurationRequirementInternal requirement : requirements )

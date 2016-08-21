@@ -1,37 +1,35 @@
 package at.dotpoint.gradle.cross
 
 import at.dotpoint.gradle.cross.configuration.builder.ConfigurationBuilder
+import at.dotpoint.gradle.cross.configuration.model.Configuration
+import at.dotpoint.gradle.cross.configuration.requirement.IConfigurationRequirementInternal
 import at.dotpoint.gradle.cross.sourceset.CrossSourceSet
 import at.dotpoint.gradle.cross.sourceset.ISourceSet
 import at.dotpoint.gradle.cross.sourceset.ISourceSetInternal
 import at.dotpoint.gradle.cross.specification.*
-import at.dotpoint.gradle.cross.specification.executable.ExecutableComponentSpec
-import at.dotpoint.gradle.cross.specification.executable.IExecutableComponentSpec
-import at.dotpoint.gradle.cross.specification.executable.IExecutableComponentSpecInternal
-import at.dotpoint.gradle.cross.specification.library.ILibraryComponentSpec
-import at.dotpoint.gradle.cross.specification.library.ILibraryComponentSpecInternal
-import at.dotpoint.gradle.cross.specification.library.LibraryComponentSpec
 import at.dotpoint.gradle.cross.transform.compile.CompileTransformationContainer
 import at.dotpoint.gradle.cross.transform.convert.ConvertTransformationBuilder
 import at.dotpoint.gradle.cross.transform.convert.ConvertTransformationContainer
 import at.dotpoint.gradle.cross.util.NameUtil
+import at.dotpoint.gradle.cross.variant.container.buildtype.BuildTypeContainer
+import at.dotpoint.gradle.cross.variant.container.buildtype.IBuildTypeContainer
 import at.dotpoint.gradle.cross.variant.container.flavor.FlavorContainer
 import at.dotpoint.gradle.cross.variant.container.flavor.IFlavorContainer
-import at.dotpoint.gradle.cross.variant.factory.flavor.ExecutableFlavorFactory
-import at.dotpoint.gradle.cross.variant.factory.flavor.LibraryFlavorFactory
+import at.dotpoint.gradle.cross.variant.factory.buildtype.BuildTypeFactory
+import at.dotpoint.gradle.cross.variant.factory.flavor.FlavorFactory
 import at.dotpoint.gradle.cross.variant.factory.platform.PlatformFactory
 import at.dotpoint.gradle.cross.variant.iterator.VariantIterator
 import at.dotpoint.gradle.cross.variant.model.IVariant
-import at.dotpoint.gradle.cross.variant.model.flavor.executable.IExecutableFlavor
-import at.dotpoint.gradle.cross.variant.model.flavor.library.ILibraryFlavor
+import at.dotpoint.gradle.cross.variant.model.buildtype.IBuildType
+import at.dotpoint.gradle.cross.variant.model.flavor.IFlavor
 import at.dotpoint.gradle.cross.variant.model.platform.IPlatform
 import at.dotpoint.gradle.cross.variant.model.platform.Platform
 import at.dotpoint.gradle.cross.variant.requirement.IVariantRequirement
 import at.dotpoint.gradle.cross.variant.requirement.platform.PlatformRequirement
 import at.dotpoint.gradle.cross.variant.resolver.IVariantResolverRepository
 import at.dotpoint.gradle.cross.variant.resolver.VariantResolverRepository
-import at.dotpoint.gradle.cross.variant.resolver.flavor.executable.ExecutableFlavorResolver
-import at.dotpoint.gradle.cross.variant.resolver.flavor.library.LibraryFlavorResolver
+import at.dotpoint.gradle.cross.variant.resolver.buildtype.BuildTypeResolver
+import at.dotpoint.gradle.cross.variant.resolver.flavor.FlavorResolver
 import at.dotpoint.gradle.cross.variant.resolver.platform.PlatformResolver
 import at.dotpoint.gradle.cross.variant.target.VariantCombination
 import org.gradle.api.DefaultTask
@@ -80,11 +78,11 @@ class CrossPlugin implements Plugin<Project>
 	{
 		project.getPluginManager().apply( LanguageBasePlugin.class );
 
-		project.extensions.extraProperties.set( "LibraryComponentSpec", ILibraryComponentSpec );
-		project.extensions.extraProperties.set( "ExecutableComponentSpec", IExecutableComponentSpec );
-		project.extensions.extraProperties.set( "CrossSourceSet", ISourceSet );
-		project.extensions.extraProperties.set( "IPlatform", IPlatform );
-		project.extensions.extraProperties.set( "ILibraryFlavor", ILibraryFlavor );
+		project.extensions.extraProperties.set( "IApplicationComponent", IApplicationComponentSpec );
+		project.extensions.extraProperties.set( "ISourceSet",   ISourceSet );
+		project.extensions.extraProperties.set( "IPlatform",    IPlatform );
+		project.extensions.extraProperties.set( "IFlavor",      IFlavor );
+		project.extensions.extraProperties.set( "IBuildType",   IBuildType );
 	}
 
 	// ---------------------------------------------------------- //
@@ -108,23 +106,13 @@ class CrossPlugin implements Plugin<Project>
 		}
 
 		/**
-		 * ILibraryComponentSpec
+		 * IApplicationComponentSpec
 		 */
 		@ComponentType
-		void registerLibraryComponentSpec( TypeBuilder<ILibraryComponentSpec> builder )
+		void registerApplicationComponentSpec( TypeBuilder<IApplicationComponentSpec> builder )
 		{
-			builder.defaultImplementation( LibraryComponentSpec.class );
-			builder.internalView( ILibraryComponentSpecInternal.class );
-		}
-
-		/**
-		 * IExecutableComponentSpec
-		 */
-		@ComponentType
-		void registerExecutableComponentSpec( TypeBuilder<IExecutableComponentSpec> builder )
-		{
-			builder.defaultImplementation( ExecutableComponentSpec.class );
-			builder.internalView( IExecutableComponentSpecInternal.class );
+			builder.defaultImplementation( ApplicationComponentSpec.class );
+			builder.internalView( IApplicationComponentSpecInternal.class );
 		}
 
 		/**
@@ -235,7 +223,7 @@ class CrossPlugin implements Plugin<Project>
 			{
 				VariantCombination<IVariantRequirement> permutation = iterator.next();
 
-				builder.create( NameUtil.getVariationName( permutation ) ) {IApplicationBinarySpec binarySpec ->
+				builder.create( NameUtil.getVariationName( permutation ) ) { IApplicationBinarySpec binarySpec ->
 
 					IApplicationBinarySpecInternal binarySpecInternal = (IApplicationBinarySpecInternal) binarySpec;
 
@@ -249,11 +237,34 @@ class CrossPlugin implements Plugin<Project>
 					}
 
 					//
-					binarySpecInternal.setConfiguration( new ConfigurationBuilder( buildDir ).build( binarySpec ) )
+					Configuration configuration = this.generateConfigurationRequirement( binarySpecInternal,
+							applicationComponentSpecInternal, buildDir );
+
+					if( configuration != null )
+						binarySpecInternal.setConfiguration( configuration );
 				}
 			}
 		}
 
+		//
+		private Configuration generateConfigurationRequirement( IApplicationBinarySpecInternal binarySpec,
+		                                                        IApplicationComponentSpecInternal applicationComponentSpec,
+		                                                        File buildDir )
+		{
+			VariantCombination<IVariant> variantCombination = binarySpec.getTargetVariantCombination();
+			ArrayList<IConfigurationRequirementInternal> requirements = new ArrayList<>();
+
+			for( IVariant variant : variantCombination )
+			{
+				if( variant.configuration != null )
+					requirements.add( variant.configuration as IConfigurationRequirementInternal );
+			}
+
+			if( applicationComponentSpec.configuration != null )
+				requirements.add( applicationComponentSpec.configuration as IConfigurationRequirementInternal );
+
+			return new ConfigurationBuilder( buildDir ).build( requirements );
+		}
 	}
 
 	/**
@@ -278,12 +289,13 @@ class CrossPlugin implements Plugin<Project>
 		 */
 		@Mutate
 		void registerVariationResolver( IVariantResolverRepository variantResolver,
-										PlatformContainer platformContainer,
-										IFlavorContainer flavorContainer )
+		                                PlatformContainer platformContainer,
+		                                IFlavorContainer flavorContainer,
+		                                IBuildTypeContainer buildTypeContainer )
 		{
 			variantResolver.register( new PlatformResolver( platformContainer ) );
-			variantResolver.register( new ExecutableFlavorResolver( flavorContainer as Set<IExecutableFlavor> ) );
-			variantResolver.register( new LibraryFlavorResolver( flavorContainer as Set<ILibraryFlavor> ) );
+			variantResolver.register( new FlavorResolver( flavorContainer ) );
+			variantResolver.register( new BuildTypeResolver( buildTypeContainer ) );
 		}
 
 		// -------------------------------------------------- //
@@ -307,9 +319,32 @@ class CrossPlugin implements Plugin<Project>
 		@Mutate
 		void registerFlavorFactories( IFlavorContainer flavorContainer )
 		{
-			flavorContainer.registerFactory( ILibraryFlavor.class, new LibraryFlavorFactory() );
-			flavorContainer.registerFactory( IExecutableFlavor.class, new ExecutableFlavorFactory() );
-			}
+			flavorContainer.registerFactory( IFlavor.class, new FlavorFactory() );
+		}
+
+		// -------------------------------------------------- //
+		// -------------------------------------------------- //
+		// Variant:BuildType
+
+		/**
+		 * IBuildTypeContainer
+		 */
+		@SuppressWarnings("GroovyAssignabilityCheck")
+		//
+		@Model
+		IBuildTypeContainer buildTypes()
+		{
+			return new BuildTypeContainer()
+		}
+
+		/**
+		 * IBuildType Factories
+		 */
+		@Mutate
+		void registerBuildTypeFactories( IBuildTypeContainer buildTypeContainer )
+		{
+			buildTypeContainer.registerFactory( IBuildType.class, new BuildTypeFactory() );
+		}
 
 		// -------------------------------------------------- //
 		// -------------------------------------------------- //

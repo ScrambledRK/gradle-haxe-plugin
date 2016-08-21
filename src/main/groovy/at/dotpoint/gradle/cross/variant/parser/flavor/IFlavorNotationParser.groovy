@@ -6,7 +6,6 @@ import at.dotpoint.gradle.cross.variant.requirement.flavor.IFlavorRequirement
 /**
  * Created by RK on 20.03.16.
  */
-public interface IFlavorNotationParser<TFlavorRequirement extends IFlavorRequirement>
-		extends IVariantNotationParser<TFlavorRequirement> {
+public interface IFlavorNotationParser extends IVariantNotationParser<IFlavorRequirement> {
 
 }

@@ -1,11 +1,10 @@
 package at.dotpoint.gradle.haxe.task
 
-import at.dotpoint.gradle.cross.configuration.builder.ConfigurationBuilder
 import at.dotpoint.gradle.cross.configuration.model.IConfiguration
+import at.dotpoint.gradle.cross.configuration.setting.IConfigurationSetting
 import at.dotpoint.gradle.cross.sourceset.ISourceSet
 import at.dotpoint.gradle.cross.task.AConvertTask
 import at.dotpoint.gradle.cross.variant.model.flavor.IFlavor
-import at.dotpoint.gradle.cross.variant.model.flavor.library.ILibraryFlavor
 import at.dotpoint.gradle.cross.variant.model.platform.IPlatform
 import org.gradle.api.tasks.TaskAction
 import org.gradle.util.GFileUtils
@@ -16,7 +15,10 @@ class GenerateHXMLTask extends AConvertTask
 {
 
 	//
-	private  sourceSet;
+	private ISourceSet sourceSet;
+
+	//
+	private IConfiguration configuration
 
     //
 	private File hxmlFile;
@@ -56,6 +58,25 @@ class GenerateHXMLTask extends AConvertTask
 
 		this.inputs.files( this.source );
 		this.outputs.file( this.getHxmlFile() );
+	}
+
+	public ISourceSet getSourceSet()
+	{
+		return sourceSet
+	}
+
+	/**
+	 *
+	 * @return
+	 */
+	public IConfiguration getConfiguration()
+	{
+		return configuration
+	}
+
+	public void setConfiguration( IConfiguration configuration )
+	{
+		this.configuration = configuration
 	}
 
 	// ------------------------------------------------------------ //
@@ -100,6 +121,11 @@ class GenerateHXMLTask extends AConvertTask
 	 */
 	private String getClassPaths()
 	{
+		if( this.sourceSet == null )
+			return "";
+
+		// ------------- //
+
 		String cps = "";
 
 		this.sourceSet.source.getSrcDirs().each
@@ -116,15 +142,32 @@ class GenerateHXMLTask extends AConvertTask
 	 */
 	private String getConfigurations()
 	{
+		if( this.configuration == null )
+			return "";
+
+		// ------------- //
+
 		String configs = "";
 
-		IConfiguration configuration = new ConfigurationBuilder( this.project ).build( this.targetVariantCombination );
-
-		configuration.each {
-			configs += "\n" + it.name + " " + it.value;
+		this.configuration.each
+		{
+			configs += "\n" + this.getHxmlConfigValue( it );
 		}
 
 		return configs;
+	}
+
+	/**
+	 *
+	 * @param configurationSetting
+	 * @return
+	 */
+	private String getHxmlConfigValue( IConfigurationSetting configurationSetting )
+	{
+		if( configurationSetting.name == "hxml" )
+			return configurationSetting.value;
+
+		return "";
 	}
 
 	/**
@@ -139,7 +182,7 @@ class GenerateHXMLTask extends AConvertTask
 		IFlavor flavor = this.targetVariantCombination.flavor;
 
 		//
-		if( flavor instanceof ILibraryFlavor )
+		if( flavor != null && flavor.name == "library" )
 		{
 			switch( platform.name )
 			{

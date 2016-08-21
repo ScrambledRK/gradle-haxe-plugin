@@ -1,8 +1,6 @@
 package at.dotpoint.gradle.cross.util
 
 import org.gradle.api.Named
-
-
 /**
  * Created by RK on 11.03.16.
  */
@@ -16,7 +14,7 @@ public interface IDisplayNamed extends Named {
 
 }
 
-public class DefaultNamed implements Named
+public class DefaultNamed extends Object implements Named
 {
 	protected String name;
 
@@ -27,6 +25,13 @@ public class DefaultNamed implements Named
 	@Override
 	String getName() {
 		return this.name;
+	}
+
+
+	@Override
+	public String toString()
+	{
+		return "[" + this.getClass().simpleName + ";" + this.name + "]";
 	}
 }
 
@@ -48,8 +53,10 @@ public class DefaultDisplayNamed extends DefaultNamed implements IDisplayNamed
 		return this.displayName;
 	}
 
+
 	@Override
-	String toString() {
-		return "[" + getDisplayName() + "]";
+	public String toString()
+	{
+		return "[" + this.getClass().simpleName + ";" + this.name + ","+ this.displayName + "]";
 	}
 }

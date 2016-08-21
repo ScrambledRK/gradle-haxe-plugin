@@ -7,8 +7,7 @@ import at.dotpoint.gradle.cross.variant.resolver.IVariantResolver
 /**
  * Created by RK on 11.03.16.
  */
-public interface IFlavorResolver<TVariant extends IFlavor, TRequirement extends IFlavorRequirement>
-		extends IVariantResolver<TVariant,TRequirement>
+public interface IFlavorResolver extends IVariantResolver<IFlavor,IFlavorRequirement>
 {
 
 }

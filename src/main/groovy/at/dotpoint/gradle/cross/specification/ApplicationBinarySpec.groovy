@@ -2,22 +2,23 @@ package at.dotpoint.gradle.cross.specification
 
 import at.dotpoint.gradle.cross.configuration.model.IConfiguration
 import at.dotpoint.gradle.cross.variant.model.IVariant
+import at.dotpoint.gradle.cross.variant.model.buildtype.IBuildType
 import at.dotpoint.gradle.cross.variant.model.flavor.IFlavor
 import at.dotpoint.gradle.cross.variant.model.platform.IPlatform
 import at.dotpoint.gradle.cross.variant.target.VariantCombination
 import org.gradle.language.base.LanguageSourceSet
 import org.gradle.platform.base.TransformationFileType
 import org.gradle.platform.base.binary.BaseBinarySpec
+
 /**
  * Created by RK on 19.03.16.
  */
-// TODO: refactor to simplify IVariationsTargetInternal methods
-//
 class ApplicationBinarySpec extends BaseBinarySpec implements IApplicationBinarySpecInternal
 {
 
 	private IPlatform platform;
 	private IFlavor flavor;
+	private IBuildType buildType;
 
 	private IConfiguration configuration;
 
@@ -52,6 +53,9 @@ class ApplicationBinarySpec extends BaseBinarySpec implements IApplicationBinary
 
 		if( variant instanceof IFlavor )
 			this.setTargetFlavor( (IFlavor) variant );
+
+		if( variant instanceof IBuildType )
+			this.setTargetBuildType( (IBuildType) variant );
 	}
 
 	/**
@@ -67,6 +71,9 @@ class ApplicationBinarySpec extends BaseBinarySpec implements IApplicationBinary
 		if( this.flavor != null )
 			container.add( this.flavor );
 
+		if( this.buildType != null )
+			container.add( this.buildType );
+
 		return container;
 	}
 
@@ -77,6 +84,7 @@ class ApplicationBinarySpec extends BaseBinarySpec implements IApplicationBinary
 	{
 		this.setTargetPlatform( combination.getVariant( IPlatform.class ) );
 		this.setTargetFlavor( combination.getVariant( IFlavor.class ) );
+		this.setTargetBuildType( combination.getVariant( IBuildType.class ) );
 	}
 
 	// -------------------------------------- //
@@ -113,6 +121,24 @@ class ApplicationBinarySpec extends BaseBinarySpec implements IApplicationBinary
 	@Override
 	IFlavor getTargetFlavor() {
 		return this.flavor;
+	}
+
+	// -------------------------------------- //
+	// -------------------------------------- //
+	// IBuildType
+
+	/**
+	 *
+	 * @param flavor
+	 */
+	@Override
+	void setTargetBuildType(IBuildType buildType) {
+		this.buildType = buildType;
+	}
+
+	@Override
+	IBuildType getTargetBuildType() {
+		return this.buildType;
 	}
 
 	// -------------------------------------- //

@@ -2,11 +2,7 @@ package at.dotpoint.gradle.cross.variant.resolver
 
 import at.dotpoint.gradle.cross.variant.model.IVariant
 import at.dotpoint.gradle.cross.variant.requirement.IVariantRequirement
-import com.google.common.collect.Lists
 import org.gradle.api.InvalidUserDataException
-
-
-
 /**
  *
  */
@@ -29,16 +25,15 @@ public class VariantResolverRepository implements IVariantResolverRepository
 	{
 		for( IVariantResolver<?,?> variantResolver : this.variantResolvers )
 		{
-			if( variantResolver.getVariantType().equals(variantType) && variantResolver.getRequirementType() == variantRequirement.class )
+			if( variantResolver.getVariantType().isAssignableFrom(variantType) && variantResolver.getRequirementType().isAssignableFrom( variantRequirement.class ) )
 			{
 				@SuppressWarnings("unchecked")
 				  IVariantResolver<TVariant,TRequirement> vr = (IVariantResolver<TVariant,TRequirement>) variantResolver;
 
 				TVariant resolved = vr.resolve( variantRequirement );
 
-				if (resolved != null) {
+				if (resolved != null)
 					return resolved;
-				}
 			}
 		}
 

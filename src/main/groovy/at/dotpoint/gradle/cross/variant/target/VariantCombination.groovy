@@ -1,5 +1,6 @@
 package at.dotpoint.gradle.cross.variant.target
 
+import at.dotpoint.gradle.cross.variant.model.buildtype.IBuildType
 import at.dotpoint.gradle.cross.variant.model.flavor.IFlavor
 import at.dotpoint.gradle.cross.variant.model.platform.IPlatform
 /**
@@ -29,6 +30,17 @@ class VariantCombination<TVariant> extends ArrayList<TVariant>
 	public void setFlavor( IFlavor flavor )
 	{
 		this.setVariant( flavor, IFlavor.class );
+	}
+
+	//
+	public IBuildType getBuildType()
+	{
+		return this.getVariant( IBuildType.class );
+	}
+
+	public void setBuildType( IBuildType buildType )
+	{
+		this.setVariant( buildType, IBuildType.class );
 	}
 
 	// ---------------------------------------------------------- //

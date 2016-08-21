@@ -100,6 +100,5 @@ class HaxePlugin implements Plugin<Project>
 			transforms.add( new HaxeConvertTransform( libraryBinaryResolver ) );
 		}
 
-
 	}
 }

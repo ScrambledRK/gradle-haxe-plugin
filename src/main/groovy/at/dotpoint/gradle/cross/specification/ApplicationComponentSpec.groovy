@@ -1,10 +1,15 @@
 package at.dotpoint.gradle.cross.specification
 
+import at.dotpoint.gradle.cross.configuration.requirement.ConfigurationRequirement
 import at.dotpoint.gradle.cross.configuration.requirement.IConfigurationRequirement
+import at.dotpoint.gradle.cross.variant.parser.buildtype.BuildTypeNotationParser
+import at.dotpoint.gradle.cross.variant.parser.buildtype.IBuildTypeNotationParser
+import at.dotpoint.gradle.cross.variant.parser.flavor.FlavorNotationParser
 import at.dotpoint.gradle.cross.variant.parser.flavor.IFlavorNotationParser
 import at.dotpoint.gradle.cross.variant.parser.platform.IPlatformNotationParser
 import at.dotpoint.gradle.cross.variant.parser.platform.PlatformNotationParser
 import at.dotpoint.gradle.cross.variant.requirement.IVariantRequirement
+import at.dotpoint.gradle.cross.variant.requirement.buildtype.IBuildTypeRequirement
 import at.dotpoint.gradle.cross.variant.requirement.flavor.IFlavorRequirement
 import at.dotpoint.gradle.cross.variant.requirement.platform.PlatformRequirement
 /**
@@ -15,10 +20,12 @@ class ApplicationComponentSpec extends GeneralComponentSpec implements IApplicat
 	 //
     protected final ArrayList<PlatformRequirement> targetPlatformList;
     protected final ArrayList<IFlavorRequirement> targetFlavorList;
+    protected final ArrayList<IBuildTypeRequirement> targetBuildTypeList;
 
 	//
 	protected final IPlatformNotationParser platformNotationParser;
-	protected final IFlavorNotationParser<IFlavorRequirement> flavorNotationParser;
+	protected final IFlavorNotationParser flavorNotationParser;
+	protected final IBuildTypeNotationParser buildTypeNotationParser;
 
 	//
 	protected IConfigurationRequirement configuration;
@@ -31,13 +38,15 @@ class ApplicationComponentSpec extends GeneralComponentSpec implements IApplicat
 	 * @param flavorNotationParser
 	 * @param targetFlavorList
 	 */
-	ApplicationComponentSpec( IFlavorNotationParser<IFlavorRequirement> flavorNotationParser )
+	ApplicationComponentSpec()
 	{
 		this.targetPlatformList = new ArrayList<>();
 		this.targetFlavorList = new ArrayList<>();
+		this.targetBuildTypeList = new ArrayList<>();
 
 		this.platformNotationParser = PlatformNotationParser.getInstance();
-		this.flavorNotationParser = flavorNotationParser;
+		this.flavorNotationParser = FlavorNotationParser.getInstance();
+		this.buildTypeNotationParser = BuildTypeNotationParser.getInstance();
 	}
 
 	// --------------------------------------------- //
@@ -68,11 +77,22 @@ class ApplicationComponentSpec extends GeneralComponentSpec implements IApplicat
 	 * @return
 	 */
 	@Override
+	List<IBuildTypeRequirement> getTargetBuildTypes()
+	{
+		return Collections.unmodifiableList( this.targetBuildTypeList );
+	}
+
+	/**
+	 *
+	 * @return
+	 */
+	@Override
 	List<List<IVariantRequirement>> getVariantRequirements()
 	{
 		List<List<IVariantRequirement>> variants = new ArrayList<List<IVariantRequirement>>();
 		variants.add( this.getTargetPlatforms() );
 		variants.add( this.getTargetFlavors() );
+		variants.add( this.getTargetBuildTypes() );
 
 		return Collections.unmodifiableList( variants );
 	}
@@ -87,18 +107,9 @@ class ApplicationComponentSpec extends GeneralComponentSpec implements IApplicat
 	IConfigurationRequirement getConfiguration()
 	{
 		if( this.configuration == null )
-			this.configuration = this.createConfiguration();
+			this.configuration = new ConfigurationRequirement();
 
 		return this.configuration;
-	}
-
-	/**
-	 *
-	 * @return
-	 */
-	protected IConfigurationRequirement createConfiguration()
-	{
-		return ;
 	}
 
 	// -------------------------------------------------------------------------- //
@@ -160,5 +171,34 @@ class ApplicationComponentSpec extends GeneralComponentSpec implements IApplicat
 
 		if( requirement != null )
 			this.targetFlavorList.add( requirement );
+	}
+
+	/**
+	 *
+	 * @param buildTypeRequirements
+	 */
+	@Override
+	public void buildType( Iterable<Object> buildTypeRequirements )
+	{
+		Iterator<Object> iterator = buildTypeRequirements.iterator();
+
+		while( iterator.hasNext() )
+			this.buildType( iterator.next() );
+	}
+
+	@Override
+	public void buildType( Object[] buildTypeRequirements )
+	{
+		for (int i = 0; i < buildTypeRequirements.length; i++)
+			this.buildType( buildTypeRequirements[i] );
+	}
+
+	@Override
+	public void buildType( Object buildTypeRequirements )
+	{
+		IBuildTypeRequirement requirement = this.buildTypeNotationParser.parseNotation( buildTypeRequirements );
+
+		if( requirement != null )
+			this.targetBuildTypeList.add( requirement );
 	}
 }
