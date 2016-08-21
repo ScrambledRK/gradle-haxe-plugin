@@ -1,5 +1,7 @@
 package at.dotpoint.gradle.haxe.transform
 
+import at.dotpoint.gradle.cross.dependency.model.IDependencySpec
+import at.dotpoint.gradle.cross.dependency.model.ILibraryDependencySpec
 import at.dotpoint.gradle.cross.sourceset.ISourceSet
 import at.dotpoint.gradle.cross.transform.convert.AConvertTransform
 import at.dotpoint.gradle.cross.util.NameUtil
@@ -12,9 +14,6 @@ import at.dotpoint.gradle.haxe.task.ExecuteHXMLTask
 import at.dotpoint.gradle.haxe.task.GenerateHXMLTask
 import org.gradle.api.Task
 import org.gradle.api.tasks.TaskContainer
-import org.gradle.platform.base.DependencySpec
-import org.gradle.platform.base.ProjectDependencySpec
-
 /**
  * Created by RK on 27.02.16.
  */
@@ -67,10 +66,10 @@ class HaxeConvertTransform extends AConvertTransform
 
 			it.sourceSet = sourceSet;
 
-			for( DependencySpec dependencySpec : sourceSet.dependencies.dependencies )
+			for( IDependencySpec dependencySpec : sourceSet.dependencies.dependencies )
 			{
-				if( dependencySpec instanceof ProjectDependencySpec )
-					println(((ProjectDependencySpec)dependencySpec).projectPath);
+				if( dependencySpec instanceof ILibraryDependencySpec )
+					println(((ILibraryDependencySpec)dependencySpec).projectPath);
 			}
 		};
 
