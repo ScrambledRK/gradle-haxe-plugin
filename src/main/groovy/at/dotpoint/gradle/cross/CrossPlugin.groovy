@@ -7,10 +7,9 @@ import at.dotpoint.gradle.cross.sourceset.CrossSourceSet
 import at.dotpoint.gradle.cross.sourceset.ISourceSet
 import at.dotpoint.gradle.cross.sourceset.ISourceSetInternal
 import at.dotpoint.gradle.cross.specification.*
-import at.dotpoint.gradle.cross.transform.builder.CompileTransformationBuilder
-import at.dotpoint.gradle.cross.transform.builder.ConvertTransformationBuilder
-import at.dotpoint.gradle.cross.transform.container.CompileTransformationContainer
-import at.dotpoint.gradle.cross.transform.container.ConvertTransformationContainer
+import at.dotpoint.gradle.cross.transform.builder.ITransformBuilder
+import at.dotpoint.gradle.cross.transform.repository.ITransformBuilderRepository
+import at.dotpoint.gradle.cross.transform.repository.TransformBuilderRepository
 import at.dotpoint.gradle.cross.util.NameUtil
 import at.dotpoint.gradle.cross.variant.container.buildtype.BuildTypeContainer
 import at.dotpoint.gradle.cross.variant.container.buildtype.IBuildTypeContainer
@@ -146,54 +145,30 @@ class CrossPlugin implements Plugin<Project>
 	static class TransformRules extends RuleSource
 	{
 		/**
-		 * ConvertTransformationContainer
+		 * ITransformBuilderRepository
 		 */
 		@Hidden @Model
-		ConvertTransformationContainer convertTransforms()
+		ITransformBuilderRepository transformBuilderRepository()
 		{
-			return new ConvertTransformationContainer();
-		}
-
-		/**
-		 * CompileTransformationContainer
-		 */
-		@Hidden @Model
-		CompileTransformationContainer compileTransforms()
-		{
-			return new CompileTransformationContainer();
+			return new TransformBuilderRepository();
 		}
 
 		/**
 		 * create ConvertTransformTasks for BinarySpecs
 		 */
 		@Finalize
-		void createConvertTransformTasks(final TaskContainer taskContainer,
-		                                 @Path("binaries") final ModelMap<BinarySpecInternal> binaries,
-										 ConvertTransformationContainer convertTransforms )
+		void createTransformTasks( final TaskContainer taskContainer,
+		                           @Path("binaries") final ModelMap<BinarySpecInternal> binaries,
+		                           ITransformBuilderRepository transformBuilderRepository )
 		{
-			ConvertTransformationBuilder builder = new ConvertTransformationBuilder( convertTransforms, taskContainer );
 
 			for( BinarySpecInternal binarySpec : binaries )
 			{
-				if( binarySpec instanceof  IApplicationBinarySpecInternal )
-					builder.createTransformationTasks( (IApplicationBinarySpecInternal) binarySpec )
-			}
-		}
+				if( !(binarySpec instanceof IApplicationBinarySpecInternal ) )
+					continue;
 
-		/**
-		 * create ConvertTransformTasks for BinarySpecs
-		 */
-		@Finalize
-		void createCompileTransformTasks(final TaskContainer taskContainer,
-		                                 @Path("binaries") final ModelMap<BinarySpecInternal> binaries,
-		                                 CompileTransformationContainer compileTransforms )
-		{
-			CompileTransformationBuilder builder = new CompileTransformationBuilder( compileTransforms, taskContainer );
-
-			for( BinarySpecInternal binarySpec : binaries )
-			{
-				if( binarySpec instanceof  IApplicationBinarySpecInternal )
-					builder.createTransformationTasks( (IApplicationBinarySpecInternal) binarySpec )
+				for( ITransformBuilder builder : transformBuilderRepository )
+					builder.createTransformationTasks( (IApplicationBinarySpecInternal) binarySpec, taskContainer );
 			}
 		}
 	}

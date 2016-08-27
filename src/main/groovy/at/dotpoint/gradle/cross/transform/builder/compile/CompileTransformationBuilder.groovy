@@ -1,10 +1,13 @@
-package at.dotpoint.gradle.cross.transform.builder
+package at.dotpoint.gradle.cross.transform.builder.compile
 
 import at.dotpoint.gradle.cross.CrossPlugin
 import at.dotpoint.gradle.cross.sourceset.ISourceSet
 import at.dotpoint.gradle.cross.specification.IApplicationBinarySpec
 import at.dotpoint.gradle.cross.specification.IApplicationBinarySpecInternal
+import at.dotpoint.gradle.cross.transform.builder.ATransformationBuilder
+import at.dotpoint.gradle.cross.transform.builder.AssignedTransform
 import at.dotpoint.gradle.cross.transform.container.CompileTransformationContainer
+import at.dotpoint.gradle.cross.util.BinarySpecUtil
 import com.google.common.collect.Lists
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
@@ -26,9 +29,9 @@ class CompileTransformationBuilder extends ATransformationBuilder<IApplicationBi
 	 * @param compileTransformationContainer
 	 * @param taskContainer
 	 */
-	CompileTransformationBuilder( CompileTransformationContainer compileTransformationContainer, TaskContainer taskContainer )
+	CompileTransformationBuilder( CompileTransformationContainer compileTransformationContainer )
 	{
-		super( Lists.newArrayList( compileTransformationContainer ), taskContainer );
+		super( Lists.newArrayList( compileTransformationContainer ) );
 	}
 
 	// ------------------------------------------------- //
@@ -38,16 +41,13 @@ class CompileTransformationBuilder extends ATransformationBuilder<IApplicationBi
 	 *
 	 * @param binarySpec
 	 */
-	public void createTransformationTasks( IApplicationBinarySpecInternal binarySpec )
+	public void createTransformationTasks( IApplicationBinarySpecInternal binarySpec, TaskContainer taskContainer )
 	{
-		ArrayList<ISourceSet> sourceSets = new ArrayList<>();
-
-		this.populateInputSourceSets( binarySpec.sources.iterator(), sourceSets );
-		this.populateInputSourceSets( binarySpec.application.sources.iterator(), sourceSets );
+		ArrayList<ISourceSet> sourceSets = BinarySpecUtil.getSourceSetList( binarySpec );
 
 		// ------------- //
 
-		this.createCompileTransformations( binarySpec, sourceSets );
+		this.createCompileTransformations( binarySpec, sourceSets, taskContainer );
 	}
 
 	/**
@@ -55,7 +55,8 @@ class CompileTransformationBuilder extends ATransformationBuilder<IApplicationBi
 	 * @param sourceSets
 	 * @param input
 	 */
-	private void populateInputSourceSets( Iterator<LanguageSourceSet> input, ArrayList<ISourceSet> sourceSets )
+	private void populateInputSourceSets( Iterator<LanguageSourceSet> input,
+	                                      ArrayList<ISourceSet> sourceSets )
 	{
 		while( input.hasNext() )
 		{
@@ -76,7 +77,7 @@ class CompileTransformationBuilder extends ATransformationBuilder<IApplicationBi
 	 * @param binarySpec
 	 */
 	private void createCompileTransformations( IApplicationBinarySpecInternal binarySpec,
-	                                           ArrayList<ISourceSet> sourceSets )
+	                                           ArrayList<ISourceSet> sourceSets, TaskContainer taskContainer )
 	{
 		// --------------------- //
 		// already assigned?
@@ -103,10 +104,8 @@ class CompileTransformationBuilder extends ATransformationBuilder<IApplicationBi
 		// --------------------- //
 		// transform
 
-		this.performTaskCreation( result );
+		this.performTaskCreation( result, taskContainer );
 		this.performLifeCycle( result, binarySpec, CrossPlugin.NAME_COMPILE_SOURCE );
-
-		this.assignedTransforms.add( result );
 	}
 
 

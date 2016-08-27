@@ -1,8 +1,10 @@
-package at.dotpoint.gradle.cross.transform.builder
+package at.dotpoint.gradle.cross.transform.builder.convert
 
 import at.dotpoint.gradle.cross.CrossPlugin
 import at.dotpoint.gradle.cross.sourceset.ISourceSet
 import at.dotpoint.gradle.cross.specification.IApplicationBinarySpecInternal
+import at.dotpoint.gradle.cross.transform.builder.ATransformationBuilder
+import at.dotpoint.gradle.cross.transform.builder.AssignedTransform
 import at.dotpoint.gradle.cross.transform.container.ConvertTransformationContainer
 import at.dotpoint.gradle.cross.variant.model.IVariant
 import at.dotpoint.gradle.cross.variant.target.VariantCombination
@@ -27,9 +29,9 @@ class ConvertTransformationBuilder extends ATransformationBuilder<ISourceSet,Var
 	 * @param convertTransformationContainer
 	 * @param taskContainer
 	 */
-	ConvertTransformationBuilder( ConvertTransformationContainer convertTransformationContainer, TaskContainer taskContainer)
+	ConvertTransformationBuilder( ConvertTransformationContainer convertTransformationContainer )
 	{
-		super( Lists.newArrayList( convertTransformationContainer ), taskContainer );
+		super( Lists.newArrayList( convertTransformationContainer ) );
 	}
 
 	// ------------------------------------------------- //
@@ -39,10 +41,10 @@ class ConvertTransformationBuilder extends ATransformationBuilder<ISourceSet,Var
 	 *
 	 * @param binarySpec
 	 */
-	public void createTransformationTasks( IApplicationBinarySpecInternal binarySpec )
+	public void createTransformationTasks( IApplicationBinarySpecInternal binarySpec, TaskContainer taskContainer )
 	{
-		this.createSourceSetTransformations( binarySpec.sources.iterator(), binarySpec );
-		this.createSourceSetTransformations( binarySpec.application.sources.iterator(), binarySpec );
+		this.createSourceSetTransformations( binarySpec.sources.iterator(), binarySpec, taskContainer );
+		this.createSourceSetTransformations( binarySpec.application.sources.iterator(), binarySpec, taskContainer );
 	}
 
 	/**
@@ -51,7 +53,8 @@ class ConvertTransformationBuilder extends ATransformationBuilder<ISourceSet,Var
 	 * @param binarySpec
 	 */
 	private void createSourceSetTransformations( Iterator<LanguageSourceSet> iterator,
-	                                             IApplicationBinarySpecInternal binarySpec )
+	                                             IApplicationBinarySpecInternal binarySpec,
+	                                             TaskContainer taskContainer )
 	{
 		while( iterator.hasNext() )
 		{
@@ -93,7 +96,7 @@ class ConvertTransformationBuilder extends ATransformationBuilder<ISourceSet,Var
 			// --------------------- //
 			// transform
 
-			this.performTaskCreation( result );
+			this.performTaskCreation( result, taskContainer );
 			this.performLifeCycle( result, binarySpec, CrossPlugin.NAME_CONVERT_SOURCE );
 		}
 	}

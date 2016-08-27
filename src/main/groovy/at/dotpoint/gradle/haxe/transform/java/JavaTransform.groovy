@@ -5,7 +5,10 @@ import at.dotpoint.gradle.cross.dependency.model.ILibraryDependencySpec
 import at.dotpoint.gradle.cross.dependency.resolver.LibraryBinaryResolver
 import at.dotpoint.gradle.cross.sourceset.ISourceSet
 import at.dotpoint.gradle.cross.specification.IApplicationBinarySpec
-import at.dotpoint.gradle.cross.transform.model.compile.ACompileTransform
+import at.dotpoint.gradle.cross.transform.model.lifecycle.ALifeCycleTransform
+import at.dotpoint.gradle.cross.transform.model.lifecycle.ALifeCycleTransformData
+import at.dotpoint.gradle.cross.transform.model.lifecycle.ILifeCycleTransformData
+import at.dotpoint.gradle.cross.util.BinarySpecUtil
 import at.dotpoint.gradle.cross.util.TaskUtil
 import at.dotpoint.gradle.cross.variant.model.IVariant
 import at.dotpoint.gradle.cross.variant.target.VariantCombination
@@ -13,19 +16,33 @@ import at.dotpoint.gradle.haxe.task.ExecuteHXMLTask
 import at.dotpoint.gradle.haxe.task.GenerateHXMLTask
 import org.gradle.api.Task
 import org.gradle.api.tasks.TaskContainer
+import org.gradle.language.base.LanguageSourceSet
 /**
  * Created by RK on 27.02.16.
  */
-class JavaCompileTransform extends ACompileTransform
+class JavaTransform extends ALifeCycleTransform
 {
 
 	//
 	private LibraryBinaryResolver libraryBinaryResolver;
 
 	//
-	JavaCompileTransform( LibraryBinaryResolver libraryBinaryResolver )
+	JavaTransform( LibraryBinaryResolver libraryBinaryResolver )
 	{
 		this.libraryBinaryResolver = libraryBinaryResolver
+	}
+
+	// ---------------------------------------------------------------- //
+	// ---------------------------------------------------------------- //
+
+	/**
+	 *
+	 * @return
+	 */
+	@Override
+	ILifeCycleTransformData createTransformData()
+	{
+		return new ALifeCycleTransformData();
 	}
 
 	// ---------------------------------------------------------------- //
@@ -39,20 +56,30 @@ class JavaCompileTransform extends ACompileTransform
 	{
 		VariantCombination<IVariant> targetVariation = binarySpec.targetVariantCombination;
 
-		if( targetVariation.platform.name == "java" )
-			return true;
+		if( targetVariation.platform.name != "java" )
+			return false;
 
-		return false;
+		if( !this.isValidSourceSets( binarySpec.sources.iterator() ) )
+			return false;
+
+		if( !this.isValidSourceSets( binarySpec.application.sources.iterator() ) )
+			return false;
+
+		return true;
 	}
 
 	/**
-	 * target VariantCombination to transform the target SourceSet to
-     */
-	@Override
-	protected boolean isValidTransformInput( List<ISourceSet> sources )
+	 *
+	 * @param sourceSets
+	 * @return
+	 */
+	private boolean isValidSourceSets( Iterator<LanguageSourceSet> sourceSets )
 	{
-		for( ISourceSet sourceSet : sources )
+		for( LanguageSourceSet sourceSet : sourceSets )
 		{
+			if( !(sourceSet instanceof ISourceSet) )
+				return false;
+
 			if( sourceSet.sourcePlatform.name != "haxe" )
 				return false;
 		}
@@ -60,28 +87,44 @@ class JavaCompileTransform extends ACompileTransform
 		return true;
 	}
 
+	// ---------------------------------------------------------------- //
+	// ---------------------------------------------------------------- //
 	/**
-	 * actually creates all required tasks to convert a given SourceSet to the requested target variations. these
-	 * tasks are not necessarily unique for each BinarySpec but are in combination of SourceSet and target variations.
 	 *
-	 * @param sourceSet SourceSet to cross convert to another SourceSet for a different Platform
-	 * @param targetVariation IPlatform, IBuildType, IFlavor target specification for the transformation
-	 * @param taskContainer container to create the tasks in, beware of naming
-	 * @return top-level task to depend the conversion LifeCycle step on
+	 * @param binarySpec
+	 * @param input
+	 * @param taskContainer
 	 */
 	@Override
-	Task createTransformTask( IApplicationBinarySpec binarySpec, List<ISourceSet> sources, TaskContainer taskContainer )
+	protected Task createConvertTransformation( IApplicationBinarySpec binarySpec,
+	                                            ILifeCycleTransformData input,
+	                                            TaskContainer taskContainer )
+	{
+		return null
+	}
+
+	/**
+	 *
+	 * @param binarySpec
+	 * @param input
+	 * @param taskContainer
+	 */
+	@Override
+	protected Task createCompileTransformation( IApplicationBinarySpec binarySpec,
+	                                            ILifeCycleTransformData input,
+	                                            TaskContainer taskContainer )
 	{
 		VariantCombination<IVariant> targetVariation = binarySpec.targetVariantCombination;
+		List<ISourceSet> sourceSets = BinarySpecUtil.getSourceSetList( binarySpec );
 
 		//
 		Task generateTask = TaskUtil.createTaskContainerTask( taskContainer, GenerateHXMLTask.class,
 				binarySpec.tasks.taskName( "generateHxml" ) )
 		{
 			it.targetVariantCombination = binarySpec.targetVariantCombination.clone();
-			it.sourceSets = sources;
+			it.sourceSets = sourceSets;
 
-			for( ISourceSet set : sources )
+			for( ISourceSet set : sourceSets )
 				this.getDependencies( set, targetVariation );
 		};
 
@@ -94,10 +137,25 @@ class JavaCompileTransform extends ACompileTransform
 
 		executeTask.dependsOn generateTask;
 
-		// -------- //
-
 		return executeTask;
 	}
+
+	/**
+	 *
+	 * @param binarySpec
+	 * @param input
+	 * @param taskContainer
+	 */
+	@Override
+	protected Task createTestTransformation( IApplicationBinarySpec binarySpec,
+	                                         ILifeCycleTransformData input,
+	                                         TaskContainer taskContainer )
+	{
+		return null
+	}
+
+	// ---------------------------------------------------------------- //
+	// ---------------------------------------------------------------- //
 
 	/**
 	 *

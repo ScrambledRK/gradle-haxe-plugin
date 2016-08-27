@@ -5,12 +5,13 @@ import at.dotpoint.gradle.cross.transform.model.ITaskTransform
 import at.dotpoint.gradle.cross.util.TaskUtil
 import org.gradle.api.Task
 import org.gradle.api.tasks.TaskContainer
+
 /**
  *
  * @param <TTarget>
  * @param <TInput>
  */
-abstract class ATransformationBuilder<TTarget,TInput>
+abstract class ATransformationBuilder<TTarget,TInput> implements ITransformBuilder
 {
 	/**
 	 *
@@ -22,11 +23,6 @@ abstract class ATransformationBuilder<TTarget,TInput>
 	 */
 	protected ArrayList<AssignedTransform<TTarget,TInput>> assignedTransforms;
 
-	/**
-	 *
-	 */
-	protected TaskContainer taskContainer;
-
 	// ------------------------------------ //
 	// ------------------------------------ //
 
@@ -35,12 +31,10 @@ abstract class ATransformationBuilder<TTarget,TInput>
 	 * @param transformList
 	 * @param taskContainer
 	 */
-	ATransformationBuilder( ArrayList<ITaskTransform<TTarget, TInput>> transformList, TaskContainer taskContainer )
+	ATransformationBuilder( ArrayList<ITaskTransform<TTarget, TInput>> transformList )
 	{
 		this.assignedTransforms = new ArrayList<>();
-
 		this.transformList = transformList;
-		this.taskContainer = taskContainer;
 	}
 
 	// ------------------------------------ //
@@ -50,7 +44,8 @@ abstract class ATransformationBuilder<TTarget,TInput>
 	 *
 	 * @param binarySpec
 	 */
-	abstract public void createTransformationTasks( IApplicationBinarySpecInternal binarySpec );
+	abstract public void createTransformationTasks( IApplicationBinarySpecInternal binarySpec,
+	                                                TaskContainer taskContainer );
 
 	/**
 	 *
@@ -61,9 +56,25 @@ abstract class ATransformationBuilder<TTarget,TInput>
 	protected AssignedTransform<TTarget,TInput> getAssignedTransform( TTarget target,
 	                                                                  TInput input )
 	{
+		AssignedTransform<TTarget,TInput> assignedTransform = this.getAssignedTransform( target );
+
+		if( assignedTransform != null && assignedTransform.input.equals( input ) )
+			return assignedTransform;
+
+		return null;
+	}
+
+	/**
+	 *
+	 * @param target
+	 * @param input
+	 * @return
+	 */
+	protected AssignedTransform<TTarget,TInput> getAssignedTransform( TTarget target )
+	{
 		for( AssignedTransform<TTarget,TInput> transform : this.assignedTransforms )
 		{
-			if( transform.target.equals( target ) && transform.input.equals( input ) )
+			if( transform.target.equals( target )  )
 				return transform;
 		}
 
@@ -82,18 +93,30 @@ abstract class ATransformationBuilder<TTarget,TInput>
 		for( ITaskTransform<TTarget,TInput> transform : this.transformList )
 		{
 			if( transform.canTransform( target, input ) )
-			{
-				AssignedTransform<TTarget,TInput> assignedTransform = new AssignedTransform<>( target,
-						input, transform );
-
-				// for what ever reason it might go wrong ...
-				boolean success = this.assignedTransforms.add( assignedTransform );
-
-				if( success )
-					return assignedTransform;
-			}
-
+				return this.createAssignedTransform( target, input, transform );
 		}
+
+		return null;
+	}
+
+	/**
+	 *
+	 * @param target
+	 * @param input
+	 * @param transform
+	 * @return
+	 */
+	protected AssignedTransform<TTarget,TInput> createAssignedTransform( TTarget target,
+	                                                                     TInput input,
+	                                                                     ITaskTransform<TTarget,TInput> transform )
+	{
+		AssignedTransform<TTarget,TInput> assignedTransform = new AssignedTransform<>( target, input, transform );
+
+		// for what ever reason it might go wrong ...
+		boolean success = this.assignedTransforms.add( assignedTransform );
+
+		if( success )
+			return assignedTransform;
 
 		return null;
 	}
@@ -102,10 +125,10 @@ abstract class ATransformationBuilder<TTarget,TInput>
 	 *
 	 * @param assigned
 	 */
-	protected void performTaskCreation( AssignedTransform<TTarget,TInput> assigned )
+	protected void performTaskCreation( AssignedTransform<TTarget,TInput> assigned,
+	                                    TaskContainer taskContainer )
 	{
-		assigned.task = assigned.transform.createTransformTask( assigned.target, assigned.input,
-				this.taskContainer );
+		assigned.task = assigned.transform.createTransformTask( assigned.target, assigned.input, taskContainer );
 	}
 
 	/**

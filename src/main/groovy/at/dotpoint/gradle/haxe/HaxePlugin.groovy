@@ -2,16 +2,18 @@ package at.dotpoint.gradle.haxe
 
 import at.dotpoint.gradle.cross.CrossPlugin
 import at.dotpoint.gradle.cross.dependency.resolver.LibraryBinaryResolver
-import at.dotpoint.gradle.cross.transform.container.CompileTransformationContainer
-import at.dotpoint.gradle.cross.transform.container.ConvertTransformationContainer
+import at.dotpoint.gradle.cross.transform.builder.ITransformBuilder
+import at.dotpoint.gradle.cross.transform.builder.lifecycle.LifeCycleTransformationBuilder
+import at.dotpoint.gradle.cross.transform.container.LifeCycleTransformationContainer
+import at.dotpoint.gradle.cross.transform.model.lifecycle.ILifeCycleTransform
+import at.dotpoint.gradle.cross.transform.repository.ITransformBuilderRepository
 import at.dotpoint.gradle.haxe.sourceset.HaxeSourceSet
 import at.dotpoint.gradle.haxe.sourceset.IHaxeSourceSet
 import at.dotpoint.gradle.haxe.sourceset.IHaxeSourceSetInternal
 import at.dotpoint.gradle.haxe.specification.HaxeBinarySpec
 import at.dotpoint.gradle.haxe.specification.IHaxeBinarySpec
 import at.dotpoint.gradle.haxe.specification.IHaxeBinarySpecInternal
-import at.dotpoint.gradle.haxe.transform.java.JavaCompileTransform
-import at.dotpoint.gradle.haxe.transform.HaxeConvertTransform
+import at.dotpoint.gradle.haxe.transform.java.JavaTransform
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.internal.file.FileResolver
@@ -94,21 +96,38 @@ class HaxePlugin implements Plugin<Project>
 		// -------------------------------------------------- //
 
 		@Mutate
-		void registerConvertTransform( ConvertTransformationContainer transforms, ServiceRegistry serviceRegistry )
+		void registerTransformBuilder( final ITransformBuilderRepository transforms,
+		                               ServiceRegistry serviceRegistry )
 		{
-			ProjectModelResolver projectModelResolver = serviceRegistry.get( ProjectModelResolver.class );
-			LibraryBinaryResolver libraryBinaryResolver = new LibraryBinaryResolver( projectModelResolver );
-
-			transforms.add( new HaxeConvertTransform( libraryBinaryResolver ) );
+			transforms.add( this.createLifeCycleTransformBuilder( serviceRegistry ) );
 		}
 
-		@Mutate
-		void registerCompileTransform( CompileTransformationContainer transforms, ServiceRegistry serviceRegistry )
+		/**
+		 *
+		 * @param libraryBinaryResolver
+		 * @return
+		 */
+		private ITransformBuilder createLifeCycleTransformBuilder( ServiceRegistry serviceRegistry )
+		{
+			LifeCycleTransformationContainer container = new LifeCycleTransformationContainer();
+
+			container.add( this.createJavaTransform( serviceRegistry ) );
+
+			return new LifeCycleTransformationBuilder( container );
+		}
+
+		/**
+		 *
+		 * @param serviceRegistry
+		 * @param taskContainer
+		 * @return
+		 */
+		private ILifeCycleTransform createJavaTransform( ServiceRegistry serviceRegistry )
 		{
 			ProjectModelResolver projectModelResolver = serviceRegistry.get( ProjectModelResolver.class );
 			LibraryBinaryResolver libraryBinaryResolver = new LibraryBinaryResolver( projectModelResolver );
 
-			transforms.add( new JavaCompileTransform( libraryBinaryResolver ) );
+			return new JavaTransform( libraryBinaryResolver );
 		}
 
 	}
