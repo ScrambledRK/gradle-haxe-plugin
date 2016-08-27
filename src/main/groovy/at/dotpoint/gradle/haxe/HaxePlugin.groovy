@@ -2,7 +2,7 @@ package at.dotpoint.gradle.haxe
 
 import at.dotpoint.gradle.cross.CrossPlugin
 import at.dotpoint.gradle.cross.dependency.resolver.LibraryBinaryResolver
-import at.dotpoint.gradle.cross.transform.convert.ConvertTransformationContainer
+import at.dotpoint.gradle.cross.transform.container.ConvertTransformationContainer
 import at.dotpoint.gradle.haxe.sourceset.HaxeSourceSet
 import at.dotpoint.gradle.haxe.sourceset.IHaxeSourceSet
 import at.dotpoint.gradle.haxe.sourceset.IHaxeSourceSetInternal

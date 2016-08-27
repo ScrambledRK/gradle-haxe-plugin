@@ -7,9 +7,10 @@ import at.dotpoint.gradle.cross.sourceset.CrossSourceSet
 import at.dotpoint.gradle.cross.sourceset.ISourceSet
 import at.dotpoint.gradle.cross.sourceset.ISourceSetInternal
 import at.dotpoint.gradle.cross.specification.*
-import at.dotpoint.gradle.cross.transform.compile.CompileTransformationContainer
-import at.dotpoint.gradle.cross.transform.convert.ConvertTransformationBuilder
-import at.dotpoint.gradle.cross.transform.convert.ConvertTransformationContainer
+import at.dotpoint.gradle.cross.transform.builder.CompileTransformationBuilder
+import at.dotpoint.gradle.cross.transform.container.CompileTransformationContainer
+import at.dotpoint.gradle.cross.transform.builder.ConvertTransformationBuilder
+import at.dotpoint.gradle.cross.transform.container.ConvertTransformationContainer
 import at.dotpoint.gradle.cross.util.NameUtil
 import at.dotpoint.gradle.cross.variant.container.buildtype.BuildTypeContainer
 import at.dotpoint.gradle.cross.variant.container.buildtype.IBuildTypeContainer
@@ -161,20 +162,37 @@ class CrossPlugin implements Plugin<Project>
 			return new CompileTransformationContainer();
 		}
 
-
 		/**
 		 * create ConvertTransformTasks for BinarySpecs
 		 */
 		@Finalize
-		void createTransformTasks(final TaskContainer taskContainer, @Path("binaries") final ModelMap<BinarySpecInternal> binaries,
-										ConvertTransformationContainer convertTransforms )
+		void createConvertTransformTasks(final TaskContainer taskContainer,
+		                                 @Path("binaries") final ModelMap<BinarySpecInternal> binaries,
+										 ConvertTransformationContainer convertTransforms )
 		{
 			ConvertTransformationBuilder builder = new ConvertTransformationBuilder( convertTransforms, taskContainer );
 
 			for( BinarySpecInternal binarySpec : binaries )
 			{
 				if( binarySpec instanceof  IApplicationBinarySpecInternal )
-					builder.createConvertTransformationTasks( (IApplicationBinarySpecInternal) binarySpec )
+					builder.createTransformationTasks( (IApplicationBinarySpecInternal) binarySpec )
+			}
+		}
+
+		/**
+		 * create ConvertTransformTasks for BinarySpecs
+		 */
+		@Finalize
+		void createCompileTransformTasks(final TaskContainer taskContainer,
+		                                 @Path("binaries") final ModelMap<BinarySpecInternal> binaries,
+		                                 CompileTransformationContainer compileTransforms )
+		{
+			CompileTransformationBuilder builder = new CompileTransformationBuilder( compileTransforms, taskContainer );
+
+			for( BinarySpecInternal binarySpec : binaries )
+			{
+				if( binarySpec instanceof  IApplicationBinarySpecInternal )
+					builder.createTransformationTasks( (IApplicationBinarySpecInternal) binarySpec )
 			}
 		}
 	}

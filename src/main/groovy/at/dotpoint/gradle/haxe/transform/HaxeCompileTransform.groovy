@@ -2,11 +2,9 @@ package at.dotpoint.gradle.haxe.transform
 
 import at.dotpoint.gradle.cross.sourceset.ISourceSet
 import at.dotpoint.gradle.cross.specification.IApplicationBinarySpec
-import at.dotpoint.gradle.cross.transform.compile.ACompileTransform
+import at.dotpoint.gradle.cross.transform.model.compile.ACompileTransform
 import at.dotpoint.gradle.cross.util.NameUtil
 import at.dotpoint.gradle.cross.util.TaskUtil
-import at.dotpoint.gradle.cross.variant.model.IVariant
-import at.dotpoint.gradle.cross.variant.model.platform.IPlatform
 import at.dotpoint.gradle.haxe.task.ExecuteHXMLTask
 import at.dotpoint.gradle.haxe.task.GenerateHXMLTask
 import org.gradle.api.Task
@@ -33,12 +31,6 @@ class HaxeCompileTransform extends ACompileTransform
 	protected boolean isValidTransformInput( List<ISourceSet> sources )
 	{
 		return true;
-	}
-
-	@Override
-	protected boolean isValidVariant( IVariant variant )
-	{
-		return variant instanceof IPlatform;
 	}
 
 	/**

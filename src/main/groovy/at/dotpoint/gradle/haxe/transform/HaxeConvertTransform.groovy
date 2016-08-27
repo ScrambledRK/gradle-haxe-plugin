@@ -5,13 +5,10 @@ import at.dotpoint.gradle.cross.dependency.model.ILibraryDependencySpec
 import at.dotpoint.gradle.cross.dependency.resolver.LibraryBinaryResolver
 import at.dotpoint.gradle.cross.sourceset.ISourceSet
 import at.dotpoint.gradle.cross.specification.IApplicationBinarySpec
-import at.dotpoint.gradle.cross.transform.convert.AConvertTransform
+import at.dotpoint.gradle.cross.transform.model.convert.AConvertTransform
 import at.dotpoint.gradle.cross.util.NameUtil
 import at.dotpoint.gradle.cross.util.TaskUtil
 import at.dotpoint.gradle.cross.variant.model.IVariant
-import at.dotpoint.gradle.cross.variant.model.buildtype.IBuildType
-import at.dotpoint.gradle.cross.variant.model.flavor.IFlavor
-import at.dotpoint.gradle.cross.variant.model.platform.IPlatform
 import at.dotpoint.gradle.cross.variant.target.VariantCombination
 import at.dotpoint.gradle.haxe.task.ExecuteHXMLTask
 import at.dotpoint.gradle.haxe.task.GenerateHXMLTask
@@ -42,7 +39,7 @@ class HaxeConvertTransform extends AConvertTransform
 	@Override
 	protected boolean isValidTransformTarget( ISourceSet iSourceSet )
 	{
-		return true
+		return false;
 	}
 
 	/**
@@ -51,13 +48,7 @@ class HaxeConvertTransform extends AConvertTransform
 	@Override
 	protected boolean isValidTransformInput( VariantCombination<IVariant> target )
 	{
-		return true;
-	}
-
-	@Override
-	protected boolean isValidVariant( IVariant variant )
-	{
-		return variant instanceof IPlatform || variant instanceof IFlavor || variant instanceof IBuildType;
+		return false;
 	}
 
 	/**

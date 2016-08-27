@@ -1,5 +1,6 @@
-package at.dotpoint.gradle.cross.transform.compile
+package at.dotpoint.gradle.cross.transform.container
 
+import at.dotpoint.gradle.cross.transform.model.compile.ICompileTransform
 import org.gradle.api.internal.DefaultDomainObjectSet
 /**
  * Created by RK on 03.07.2016.

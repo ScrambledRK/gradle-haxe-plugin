@@ -1,7 +1,5 @@
-package at.dotpoint.gradle.cross.transform
+package at.dotpoint.gradle.cross.transform.model
 
-import at.dotpoint.gradle.cross.variant.model.IVariant
-import at.dotpoint.gradle.cross.variant.target.VariantCombination
 import org.gradle.api.Task
 import org.gradle.api.tasks.TaskContainer
 /**
@@ -12,7 +10,7 @@ interface ITaskTransform<TTarget,TInput>
 	/**
 	 *
 	 */
-	VariantCombination<IVariant> canTransform( TTarget target, TInput input );
+	boolean canTransform( TTarget target, TInput input );
 
 	/**
 	 *

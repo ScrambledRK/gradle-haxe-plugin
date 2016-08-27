@@ -1,10 +1,11 @@
-package at.dotpoint.gradle.cross.transform
+package at.dotpoint.gradle.cross.transform.model
 
 import at.dotpoint.gradle.cross.variant.model.IVariant
 import at.dotpoint.gradle.cross.variant.target.IVariationsTarget
 import at.dotpoint.gradle.cross.variant.target.VariantCombination
 import org.gradle.api.Task
 import org.gradle.api.tasks.TaskContainer
+
 /**
  * Created by RK on 08.07.2016.
  */
@@ -18,13 +19,39 @@ abstract class ATaskTransform<TTarget, TInput>
 	 * @param input
 	 * @return
 	 */
-	VariantCombination<IVariant> canTransform( TTarget target, TInput input )
+	boolean canTransform( TTarget target, TInput input )
 	{
-		if( !this.isValidTransformTarget( target ) || !this.isValidTransformInput( input ) )
-			return new VariantCombination<IVariant>();
+		if( this.isValidTransformTarget( target ) && this.isValidTransformInput( input ) )
+			return true;
 
-		return this.getApplicableVariations( input );
+		return false;
 	}
+
+	/**
+	 *
+	 * @param target
+	 * @return
+	 */
+	abstract protected boolean isValidTransformTarget( TTarget target );
+
+	/**
+	 *
+	 * @param target
+	 * @return
+	 */
+	abstract protected boolean isValidTransformInput( TInput target );
+
+	/**
+	 *
+	 * @param target
+	 * @param input
+	 * @param taskContainer
+	 * @return
+	 */
+	abstract Task createTransformTask( TTarget target, TInput input, TaskContainer taskContainer );
+
+	// ---------------------------------------------------------- //
+	// ---------------------------------------------------------- //
 
 	/**
 	 *
@@ -54,21 +81,14 @@ abstract class ATaskTransform<TTarget, TInput>
 		return new VariantCombination<IVariant>();
 	}
 
-	//
-	abstract protected boolean isValidTransformTarget( TTarget target );
-
-	//
-	abstract protected boolean isValidTransformInput( TInput target );
-
-	//
-	abstract protected boolean isValidVariant( IVariant variant );
-
 	/**
 	 *
-	 * @param target
-	 * @param input
-	 * @param taskContainer
+	 * @param variant
 	 * @return
 	 */
-	abstract Task createTransformTask( TTarget target, TInput input, TaskContainer taskContainer );
+	protected boolean isValidVariant( IVariant variant )
+	{
+		return false;
+	}
+
 }
