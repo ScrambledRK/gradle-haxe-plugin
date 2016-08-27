@@ -96,7 +96,7 @@ class CompileTransformationBuilder extends ATransformationBuilder<IApplicationBi
 
 		if( result == null )
 		{
-			LOGGER.error( "cannot assign CompileTransformation", binarySpec, sourceSets );
+			//LOGGER.error( "cannot assign CompileTransformation", binarySpec, sourceSets );
 			return;
 		}
 

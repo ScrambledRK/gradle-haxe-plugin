@@ -59,6 +59,7 @@ class CrossPlugin implements Plugin<Project>
 	 */
 	public static final String NAME_CONVERT_SOURCE 	= "convert"
 	public static final String NAME_COMPILE_SOURCE 	= "compile"
+	public static final String NAME_TEST_SOURCE 	= "test"
 	public static final String NAME_ASSEMBLE 		= LifecycleBasePlugin.ASSEMBLE_TASK_NAME;
 
 	public final Instantiator instantiator;
@@ -426,7 +427,17 @@ class CrossPlugin implements Plugin<Project>
 				it.description = "compiles native sources to a native target binary"
 			}
 
+			tasks.create( NAME_TEST_SOURCE, DefaultTask.class )
+			{
+				it.group = LifecycleBasePlugin.BUILD_GROUP;
+				it.description = "tests native sources after they've been compiled"
+			}
+
 			tasks.getByName(NAME_COMPILE_SOURCE).dependsOn NAME_CONVERT_SOURCE;
+			tasks.getByName(NAME_TEST_SOURCE).dependsOn NAME_COMPILE_SOURCE;
+
+			tasks.getByName(NAME_ASSEMBLE).dependsOn NAME_COMPILE_SOURCE;
+			tasks.getByName(NAME_ASSEMBLE).dependsOn NAME_TEST_SOURCE;
 		}
 
 		/**
@@ -450,6 +461,7 @@ class CrossPlugin implements Plugin<Project>
 		{
 			Task taskConvert 	= null;
 			Task taskCompile 	= null;
+			Task taskTest 	    = null;
 			Task taskAssemble 	= null;
 
 			//
@@ -465,6 +477,12 @@ class CrossPlugin implements Plugin<Project>
 			}
 
 			//
+			binary.tasks.create( binary.tasks.taskName( NAME_TEST_SOURCE ), DefaultTask.class )
+			{
+				taskTest = it;
+			}
+
+			//
 			binary.tasks.create( binary.tasks.taskName( NAME_ASSEMBLE ), DefaultTask.class )
 			{
 				taskAssemble = it;
@@ -473,7 +491,10 @@ class CrossPlugin implements Plugin<Project>
 			// --------- //
 
 			taskCompile.dependsOn taskConvert;
+			taskTest.dependsOn taskCompile;
+
 			taskAssemble.dependsOn taskCompile;
+			taskAssemble.dependsOn taskTest;
 
 			binary.setBuildTask( taskAssemble );
 		}
@@ -485,6 +506,7 @@ class CrossPlugin implements Plugin<Project>
 		{
 			Task convertLifeCycleTask = tasks.getByName(NAME_CONVERT_SOURCE);
 			Task compileLifeCycleTask = tasks.getByName(NAME_COMPILE_SOURCE);
+			Task testLifeCycleTask = tasks.getByName(NAME_TEST_SOURCE);
 
 			for( BinarySpec binary : binaries )
 			{
@@ -495,6 +517,9 @@ class CrossPlugin implements Plugin<Project>
 
 					if( task.name.startsWith(NAME_COMPILE_SOURCE) )
 						compileLifeCycleTask.dependsOn task;
+
+					if( task.name.startsWith(NAME_TEST_SOURCE) )
+						testLifeCycleTask.dependsOn task;
 				}
 			}
 		}
@@ -535,6 +560,7 @@ class CrossPlugin implements Plugin<Project>
 			}
 
 			assemble.dependsOn NAME_COMPILE_SOURCE;
+			assemble.dependsOn NAME_TEST_SOURCE;
 		}
 
 	}
