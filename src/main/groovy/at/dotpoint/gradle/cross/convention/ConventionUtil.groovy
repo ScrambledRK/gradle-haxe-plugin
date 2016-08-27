@@ -1,5 +1,6 @@
 package at.dotpoint.gradle.cross.convention
 
+import at.dotpoint.gradle.cross.util.NameUtil
 import at.dotpoint.gradle.cross.variant.model.IVariant
 import at.dotpoint.gradle.cross.variant.target.VariantCombination
 /**
@@ -14,9 +15,6 @@ class ConventionUtil
 	 */
 	public static File getVariationBuildDir( File buildDir, VariantCombination<IVariant> variant )
 	{
-		String platform = variant.platform != null 	? variant.platform.displayName 	: "default";
-		String flavor 	= variant.flavor != null 	? variant.flavor.displayName 	: "default";
-
-		return new File( buildDir, platform + "/" + flavor );
+		return new File( buildDir, NameUtil.getVariationName( variant ) );
 	}
 }

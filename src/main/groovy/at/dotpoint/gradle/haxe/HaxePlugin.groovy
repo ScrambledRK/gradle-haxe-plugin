@@ -10,7 +10,7 @@ import at.dotpoint.gradle.haxe.sourceset.IHaxeSourceSetInternal
 import at.dotpoint.gradle.haxe.specification.HaxeBinarySpec
 import at.dotpoint.gradle.haxe.specification.IHaxeBinarySpec
 import at.dotpoint.gradle.haxe.specification.IHaxeBinarySpecInternal
-import at.dotpoint.gradle.haxe.transform.HaxeCompileTransform
+import at.dotpoint.gradle.haxe.transform.java.JavaCompileTransform
 import at.dotpoint.gradle.haxe.transform.HaxeConvertTransform
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -108,7 +108,7 @@ class HaxePlugin implements Plugin<Project>
 			ProjectModelResolver projectModelResolver = serviceRegistry.get( ProjectModelResolver.class );
 			LibraryBinaryResolver libraryBinaryResolver = new LibraryBinaryResolver( projectModelResolver );
 
-			transforms.add( new HaxeCompileTransform( libraryBinaryResolver ) );
+			transforms.add( new JavaCompileTransform( libraryBinaryResolver ) );
 		}
 
 	}

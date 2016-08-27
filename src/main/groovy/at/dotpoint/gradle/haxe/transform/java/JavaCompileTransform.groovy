@@ -1,4 +1,4 @@
-package at.dotpoint.gradle.haxe.transform
+package at.dotpoint.gradle.haxe.transform.java
 
 import at.dotpoint.gradle.cross.dependency.model.IDependencySpec
 import at.dotpoint.gradle.cross.dependency.model.ILibraryDependencySpec
@@ -6,7 +6,6 @@ import at.dotpoint.gradle.cross.dependency.resolver.LibraryBinaryResolver
 import at.dotpoint.gradle.cross.sourceset.ISourceSet
 import at.dotpoint.gradle.cross.specification.IApplicationBinarySpec
 import at.dotpoint.gradle.cross.transform.model.compile.ACompileTransform
-import at.dotpoint.gradle.cross.util.NameUtil
 import at.dotpoint.gradle.cross.util.TaskUtil
 import at.dotpoint.gradle.cross.variant.model.IVariant
 import at.dotpoint.gradle.cross.variant.target.VariantCombination
@@ -17,14 +16,14 @@ import org.gradle.api.tasks.TaskContainer
 /**
  * Created by RK on 27.02.16.
  */
-class HaxeCompileTransform extends ACompileTransform
+class JavaCompileTransform extends ACompileTransform
 {
 
 	//
 	private LibraryBinaryResolver libraryBinaryResolver;
 
 	//
-	HaxeCompileTransform( LibraryBinaryResolver libraryBinaryResolver )
+	JavaCompileTransform( LibraryBinaryResolver libraryBinaryResolver )
 	{
 		this.libraryBinaryResolver = libraryBinaryResolver
 	}
@@ -38,7 +37,12 @@ class HaxeCompileTransform extends ACompileTransform
 	@Override
 	protected boolean isValidTransformTarget( IApplicationBinarySpec binarySpec )
 	{
-		return true
+		VariantCombination<IVariant> targetVariation = binarySpec.targetVariantCombination;
+
+		if( targetVariation.platform.name == "java" )
+			return true;
+
+		return false;
 	}
 
 	/**
@@ -47,6 +51,12 @@ class HaxeCompileTransform extends ACompileTransform
 	@Override
 	protected boolean isValidTransformInput( List<ISourceSet> sources )
 	{
+		for( ISourceSet sourceSet : sources )
+		{
+			if( sourceSet.sourcePlatform.name != "haxe" )
+				return false;
+		}
+
 		return true;
 	}
 
@@ -66,7 +76,7 @@ class HaxeCompileTransform extends ACompileTransform
 
 		//
 		Task generateTask = TaskUtil.createTaskContainerTask( taskContainer, GenerateHXMLTask.class,
-				NameUtil.generateTransformTaskName( "generateHxml", binarySpec, targetVariation ) )
+				binarySpec.tasks.taskName( "generateHxml" ) )
 		{
 			it.targetVariantCombination = binarySpec.targetVariantCombination.clone();
 			it.sourceSets = sources;
@@ -77,7 +87,7 @@ class HaxeCompileTransform extends ACompileTransform
 
 		//
 		Task executeTask = TaskUtil.createTaskContainerTask( taskContainer, ExecuteHXMLTask.class,
-				NameUtil.generateTransformTaskName( "executeHxml", binarySpec, targetVariation ) )
+				binarySpec.tasks.taskName( "executeHxml" ) )
 		{
 			it.hxmlFile = (generateTask as GenerateHXMLTask).hxmlFile;
 		};

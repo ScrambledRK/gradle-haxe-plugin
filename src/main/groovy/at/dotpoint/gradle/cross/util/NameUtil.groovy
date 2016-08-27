@@ -25,10 +25,10 @@ class NameUtil
 
 	/**
 	 *
-	 * @param prefix verb describing the tasks action
-	 * @param sourceSet SourceSet to cross convert to another SourceSet for a different Platform
-	 * @param targetVariation IPlatform, IBuildType, IFlavor target specification for the transformation
-	 * @return unique name for the task
+	 * @param prefix
+	 * @param namedObject
+	 * @param targetVariation
+	 * @return
 	 */
 	public static String generateTransformTaskName( String prefix, Named namedObject, VariantCombination<IVariant> targetVariation )
 	{
@@ -37,12 +37,23 @@ class NameUtil
 
 	/**
 	 *
-	 * @param prefix verb describing the tasks action
-	 * @param targetVariation IPlatform, IBuildType, IFlavor target specification for the transformation
-	 * @return unique name for the task
+	 * @param prefix
+	 * @param targetVariation
+	 * @return
 	 */
 	public static String generateTransformTaskName( String prefix, VariantCombination<IVariant> targetVariation )
 	{
 		return StringUtil.toCamelCase( prefix, getVariationName( targetVariation ) );
+	}
+
+	/**
+	 *
+	 * @param prefix
+	 * @param namedObject
+	 * @return
+	 */
+	public static String generateTransformTaskName( String prefix, Named namedObject )
+	{
+		return StringUtil.toCamelCase( prefix, namedObject.name );
 	}
 }
