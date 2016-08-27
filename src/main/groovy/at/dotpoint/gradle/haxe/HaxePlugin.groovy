@@ -2,6 +2,7 @@ package at.dotpoint.gradle.haxe
 
 import at.dotpoint.gradle.cross.CrossPlugin
 import at.dotpoint.gradle.cross.dependency.resolver.LibraryBinaryResolver
+import at.dotpoint.gradle.cross.transform.container.CompileTransformationContainer
 import at.dotpoint.gradle.cross.transform.container.ConvertTransformationContainer
 import at.dotpoint.gradle.haxe.sourceset.HaxeSourceSet
 import at.dotpoint.gradle.haxe.sourceset.IHaxeSourceSet
@@ -9,6 +10,7 @@ import at.dotpoint.gradle.haxe.sourceset.IHaxeSourceSetInternal
 import at.dotpoint.gradle.haxe.specification.HaxeBinarySpec
 import at.dotpoint.gradle.haxe.specification.IHaxeBinarySpec
 import at.dotpoint.gradle.haxe.specification.IHaxeBinarySpecInternal
+import at.dotpoint.gradle.haxe.transform.HaxeCompileTransform
 import at.dotpoint.gradle.haxe.transform.HaxeConvertTransform
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -98,6 +100,15 @@ class HaxePlugin implements Plugin<Project>
 			LibraryBinaryResolver libraryBinaryResolver = new LibraryBinaryResolver( projectModelResolver );
 
 			transforms.add( new HaxeConvertTransform( libraryBinaryResolver ) );
+		}
+
+		@Mutate
+		void registerCompileTransform( CompileTransformationContainer transforms, ServiceRegistry serviceRegistry )
+		{
+			ProjectModelResolver projectModelResolver = serviceRegistry.get( ProjectModelResolver.class );
+			LibraryBinaryResolver libraryBinaryResolver = new LibraryBinaryResolver( projectModelResolver );
+
+			transforms.add( new HaxeCompileTransform( libraryBinaryResolver ) );
 		}
 
 	}

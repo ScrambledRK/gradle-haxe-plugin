@@ -149,8 +149,8 @@ class VariantCombination<TVariant> extends ArrayList<TVariant>
 	// ---------------------------------------------------------- //
 
 	@Override
-	Object clone()
+	VariantCombination<TVariant> clone()
 	{
-		return super.clone()
+		return (VariantCombination<TVariant>)(super.clone());
 	}
 }

@@ -3,19 +3,20 @@ package at.dotpoint.gradle.haxe.task
 import at.dotpoint.gradle.cross.configuration.model.IConfiguration
 import at.dotpoint.gradle.cross.configuration.setting.IConfigurationSetting
 import at.dotpoint.gradle.cross.sourceset.ISourceSet
-import at.dotpoint.gradle.cross.task.AConvertTask
+import at.dotpoint.gradle.cross.task.ACrossSourceTask
 import at.dotpoint.gradle.cross.variant.model.flavor.IFlavor
 import at.dotpoint.gradle.cross.variant.model.platform.IPlatform
 import org.gradle.api.tasks.TaskAction
+import org.gradle.language.base.LanguageSourceSet
 import org.gradle.util.GFileUtils
 /**
  * Created by RK on 21.05.2016.
  */
-class GenerateHXMLTask extends AConvertTask
+class GenerateHXMLTask extends ACrossSourceTask
 {
 
 	//
-	private ISourceSet sourceSet;
+	private List<ISourceSet> sourceSets;
 
 	//
 	private IConfiguration configuration
@@ -33,7 +34,7 @@ class GenerateHXMLTask extends AConvertTask
 	public File getHxmlFile()
 	{
 		if( this.hxmlFile == null )
-			this.hxmlFile = new File( this.getOutputDir(), "convert.hxml" );
+			this.setHxmlFile( new File( this.getOutputDir(), "build.hxml" ) );
 
 		return this.hxmlFile
 	}
@@ -44,25 +45,28 @@ class GenerateHXMLTask extends AConvertTask
 	 */
 	public void setHxmlFile( File hxmlFile )
 	{
-		this.hxmlFile = hxmlFile
+		this.hxmlFile = hxmlFile;
+		this.outputs.file( this.getHxmlFile() );
 	}
 
 	/**
 	 *
 	 * @param sourceSet
 	 */
-	public void setSourceSet( ISourceSet sourceSet )
+	public void setSourceSets( List<ISourceSet>  sourceSets )
 	{
-		this.sourceSet = sourceSet;
-		this.source = sourceSet.source;
+		this.sourceSets = sourceSets;
+
+		for( LanguageSourceSet set : this.sourceSets )
+			this.source( set.source );
 
 		this.inputs.files( this.source );
-		this.outputs.file( this.getHxmlFile() );
+
 	}
 
-	public ISourceSet getSourceSet()
+	public List<ISourceSet> getSourceSets()
 	{
-		return sourceSet
+		return this.sourceSets;
 	}
 
 	/**
@@ -121,16 +125,19 @@ class GenerateHXMLTask extends AConvertTask
 	 */
 	private String getClassPaths()
 	{
-		if( this.sourceSet == null )
+		if( this.sourceSets == null || this.sourceSets.size() == 0 )
 			return "";
 
 		// ------------- //
 
 		String cps = "";
 
-		this.sourceSet.source.getSrcDirs().each
+		for( ISourceSet set : this.sourceSets )
 		{
-			cps += "\n" + "-cp " + GFileUtils.relativePath( this.project.projectDir, it.absoluteFile );
+			set.source.getSrcDirs().each
+			{
+				cps += "\n" + "-cp " + GFileUtils.relativePath( this.project.projectDir, it.absoluteFile );
+			}
 		}
 
 		return cps;
@@ -176,7 +183,7 @@ class GenerateHXMLTask extends AConvertTask
 	 */
 	private String getOutput()
 	{
-		String outputPath = new File( this.getOutputDir(), project.rootProject.name ).path;
+		String outputPath = new File( this.getOutputDir(), project.name ).path;
 
 		IPlatform platform = this.targetVariantCombination.platform;
 		IFlavor flavor = this.targetVariantCombination.flavor;
@@ -186,8 +193,8 @@ class GenerateHXMLTask extends AConvertTask
 		{
 			switch( platform.name )
 			{
-				case "java": 	return "-java " + outputPath;
-				case "flash": 	return "-as3 " + outputPath;
+				case "java": 	return "\n-java " + outputPath;
+				case "flash": 	return "\n-as3 " + outputPath;
 			}
 		}
 

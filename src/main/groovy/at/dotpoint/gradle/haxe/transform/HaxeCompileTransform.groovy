@@ -1,10 +1,15 @@
 package at.dotpoint.gradle.haxe.transform
 
+import at.dotpoint.gradle.cross.dependency.model.IDependencySpec
+import at.dotpoint.gradle.cross.dependency.model.ILibraryDependencySpec
+import at.dotpoint.gradle.cross.dependency.resolver.LibraryBinaryResolver
 import at.dotpoint.gradle.cross.sourceset.ISourceSet
 import at.dotpoint.gradle.cross.specification.IApplicationBinarySpec
 import at.dotpoint.gradle.cross.transform.model.compile.ACompileTransform
 import at.dotpoint.gradle.cross.util.NameUtil
 import at.dotpoint.gradle.cross.util.TaskUtil
+import at.dotpoint.gradle.cross.variant.model.IVariant
+import at.dotpoint.gradle.cross.variant.target.VariantCombination
 import at.dotpoint.gradle.haxe.task.ExecuteHXMLTask
 import at.dotpoint.gradle.haxe.task.GenerateHXMLTask
 import org.gradle.api.Task
@@ -14,6 +19,18 @@ import org.gradle.api.tasks.TaskContainer
  */
 class HaxeCompileTransform extends ACompileTransform
 {
+
+	//
+	private LibraryBinaryResolver libraryBinaryResolver;
+
+	//
+	HaxeCompileTransform( LibraryBinaryResolver libraryBinaryResolver )
+	{
+		this.libraryBinaryResolver = libraryBinaryResolver
+	}
+
+	// ---------------------------------------------------------------- //
+	// ---------------------------------------------------------------- //
 
 	/**
 	 * SourceSet to convert
@@ -45,18 +62,24 @@ class HaxeCompileTransform extends ACompileTransform
 	@Override
 	Task createTransformTask( IApplicationBinarySpec binarySpec, List<ISourceSet> sources, TaskContainer taskContainer )
 	{
-		//
-		Task generateTask = TaskUtil.createBinaryTask( binarySpec, GenerateHXMLTask.class,
-				NameUtil.generateTransformTaskName( "generateCompileHxml", binarySpec.targetVariantCombination ) )
-		{
+		VariantCombination<IVariant> targetVariation = binarySpec.targetVariantCombination;
 
+		//
+		Task generateTask = TaskUtil.createTaskContainerTask( taskContainer, GenerateHXMLTask.class,
+				NameUtil.generateTransformTaskName( "generateHxml", binarySpec, targetVariation ) )
+		{
+			it.targetVariantCombination = binarySpec.targetVariantCombination.clone();
+			it.sourceSets = sources;
+
+			for( ISourceSet set : sources )
+				this.getDependencies( set, targetVariation );
 		};
 
 		//
-		Task executeTask = TaskUtil.createBinaryTask( binarySpec, ExecuteHXMLTask.class,
-				NameUtil.generateTransformTaskName( "executeCompileHxml", binarySpec.targetVariantCombination ) )
+		Task executeTask = TaskUtil.createTaskContainerTask( taskContainer, ExecuteHXMLTask.class,
+				NameUtil.generateTransformTaskName( "executeHxml", binarySpec, targetVariation ) )
 		{
-
+			it.hxmlFile = (generateTask as GenerateHXMLTask).hxmlFile;
 		};
 
 		executeTask.dependsOn generateTask;
@@ -64,5 +87,35 @@ class HaxeCompileTransform extends ACompileTransform
 		// -------- //
 
 		return executeTask;
+	}
+
+	/**
+	 *
+	 * @param sourceSet
+	 * @param targetVariation
+	 */
+	private void getDependencies( ISourceSet sourceSet, VariantCombination<IVariant> targetVariation )
+	{
+		for( IDependencySpec dependencySpec : sourceSet.dependencies.dependencies )
+		{
+			if( dependencySpec instanceof ILibraryDependencySpec )
+			{
+				ILibraryDependencySpec libraryDependencySpec = (ILibraryDependencySpec)dependencySpec;
+				IApplicationBinarySpec applicationBinarySpec = this.libraryBinaryResolver.resolveBinary( libraryDependencySpec, targetVariation );
+
+				println( "\n>> " + applicationBinarySpec );
+
+				if( applicationBinarySpec != null )
+				{
+					applicationBinarySpec.sources.each {
+						println( "src: " + it );
+					}
+
+					applicationBinarySpec.application.sources.each {
+						println( "src: " + it );
+					}
+				}
+			}
+		}
 	}
 }

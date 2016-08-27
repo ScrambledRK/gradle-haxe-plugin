@@ -46,6 +46,8 @@ class CompileTransformationBuilder extends ATransformationBuilder<IApplicationBi
 		this.populateInputSourceSets( binarySpec.application.sources.iterator(), sourceSets );
 
 		// ------------- //
+
+		this.createCompileTransformations( binarySpec, sourceSets );
 	}
 
 	/**

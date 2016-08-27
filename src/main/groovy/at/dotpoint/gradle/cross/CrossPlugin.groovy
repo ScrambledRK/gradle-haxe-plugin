@@ -8,8 +8,8 @@ import at.dotpoint.gradle.cross.sourceset.ISourceSet
 import at.dotpoint.gradle.cross.sourceset.ISourceSetInternal
 import at.dotpoint.gradle.cross.specification.*
 import at.dotpoint.gradle.cross.transform.builder.CompileTransformationBuilder
-import at.dotpoint.gradle.cross.transform.container.CompileTransformationContainer
 import at.dotpoint.gradle.cross.transform.builder.ConvertTransformationBuilder
+import at.dotpoint.gradle.cross.transform.container.CompileTransformationContainer
 import at.dotpoint.gradle.cross.transform.container.ConvertTransformationContainer
 import at.dotpoint.gradle.cross.util.NameUtil
 import at.dotpoint.gradle.cross.variant.container.buildtype.BuildTypeContainer

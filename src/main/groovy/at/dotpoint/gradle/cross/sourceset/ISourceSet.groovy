@@ -16,6 +16,7 @@ import org.gradle.platform.base.TransformationFileType
 //
 public interface ISourceSet extends LanguageSourceSet, TransformationFileType, IVariationsSource
 {
+	//
 	IDependencySpecContainer getDependencies();
 
 	//

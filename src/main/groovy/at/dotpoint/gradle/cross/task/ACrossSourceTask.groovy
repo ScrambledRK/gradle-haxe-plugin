@@ -7,7 +7,7 @@ import org.gradle.api.tasks.SourceTask
 /**
  * Created by RK on 09.07.2016.
  */
-class AConvertTask extends SourceTask implements IConvertTask
+class ACrossSourceTask extends SourceTask implements ICrossSourceTask
 {
 
 	//
@@ -22,7 +22,7 @@ class AConvertTask extends SourceTask implements IConvertTask
 	/**
 	 *
 	 */
-	public AConvertTask()
+	public ACrossSourceTask()
 	{
 		super();
 	}

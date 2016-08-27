@@ -7,7 +7,7 @@ import org.gradle.api.Task
 /**
  * Created by RK on 09.07.2016.
  */
-interface IConvertTask extends Task, IVariationsSourceInternal, IVariationsTargetInternal
+interface ICrossSourceTask extends Task, IVariationsSourceInternal, IVariationsTargetInternal
 {
 
 }

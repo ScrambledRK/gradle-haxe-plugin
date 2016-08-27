@@ -59,7 +59,7 @@ class ConvertTransformationBuilder extends ATransformationBuilder<ISourceSet,Var
 
 			if( !(languageSourceSet instanceof ISourceSet) )
 			{
-				LOGGER.warn( "cannot create ConvertTransformationTask for LanguageSourceSet", languageSourceSet );
+				//LOGGER.warn( "cannot create ConvertTransformationTask for LanguageSourceSet", languageSourceSet );
 				continue;
 			}
 
@@ -86,7 +86,7 @@ class ConvertTransformationBuilder extends ATransformationBuilder<ISourceSet,Var
 
 			if( result == null )
 			{
-				LOGGER.error( "cannot assign ConvertTransformation", sourceSet, targetVariation );
+				//LOGGER.error( "cannot assign ConvertTransformation", sourceSet, targetVariation );
 				continue;
 			}
 
