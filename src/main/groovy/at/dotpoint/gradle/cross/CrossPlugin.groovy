@@ -59,11 +59,12 @@ class CrossPlugin implements Plugin<Project>
 	 */
 	public static final String NAME_CONVERT_SOURCE 	= "convert"
 	public static final String NAME_COMPILE_SOURCE 	= "compile"
-	public static final String NAME_TEST_SOURCE 	= "test"
+	public static final String NAME_TEST_SOURCE 	= LifecycleBasePlugin.CHECK_TASK_NAME
 	public static final String NAME_PACKAGE_SOURCE 	= "package"
 	public static final String NAME_INSTALL_SOURCE 	= "install"
 	public static final String NAME_EXECUTE_SOURCE 	= "execute"
 	public static final String NAME_ASSEMBLE 		= LifecycleBasePlugin.ASSEMBLE_TASK_NAME;
+	public static final String NAME_BUILD 		    = LifecycleBasePlugin.BUILD_TASK_NAME;
 
 	public static final String GROUP_NAME_BUILD 	    = LifecycleBasePlugin.BUILD_GROUP;
 	public static final String GROUP_NAME_TEST 	        = LifecycleBasePlugin.VERIFICATION_GROUP;
@@ -517,11 +518,11 @@ class CrossPlugin implements Plugin<Project>
 				it.description = "compiles native sources to a native target binary"
 			}
 
-			tasks.create( NAME_TEST_SOURCE, DefaultTask.class )
-			{
-				it.group = GROUP_NAME_TEST;
-				it.description = "tests native sources after they've been compiled"
-			}
+//			tasks.create( NAME_TEST_SOURCE, DefaultTask.class )
+//			{
+//				it.group = GROUP_NAME_TEST;
+//				it.description = "tests native sources after they've been compiled"
+//			}
 
 			// -------------------- //
 
@@ -549,11 +550,11 @@ class CrossPlugin implements Plugin<Project>
 			tasks.getByName(NAME_TEST_SOURCE).dependsOn NAME_COMPILE_SOURCE;
 
 			tasks.getByName(NAME_ASSEMBLE).dependsOn NAME_COMPILE_SOURCE;
-			tasks.getByName(NAME_ASSEMBLE).dependsOn NAME_TEST_SOURCE;
+			tasks.getByName(NAME_ASSEMBLE).dependsOn NAME_PACKAGE_SOURCE;
 
 			// -------------------- //
 
-			tasks.getByName(NAME_PACKAGE_SOURCE).dependsOn NAME_ASSEMBLE;
+			tasks.getByName(NAME_PACKAGE_SOURCE).dependsOn NAME_COMPILE_SOURCE;
 			tasks.getByName(NAME_INSTALL_SOURCE).dependsOn NAME_PACKAGE_SOURCE;
 			tasks.getByName(NAME_EXECUTE_SOURCE).dependsOn NAME_INSTALL_SOURCE;
 		}
@@ -586,6 +587,8 @@ class CrossPlugin implements Plugin<Project>
 			Task taskInstall 	= null;
 			Task taskExecute 	= null;
 
+			Task taskBuild 	= null;
+
 			//
 			binary.tasks.create( binary.tasks.taskName( NAME_CONVERT_SOURCE ), DefaultTask.class )
 			{
@@ -599,9 +602,12 @@ class CrossPlugin implements Plugin<Project>
 			}
 
 			//
-			binary.tasks.create( binary.tasks.taskName( NAME_TEST_SOURCE ), DefaultTask.class )
+			if( !binary.name.endsWith( "Test" ) )
 			{
-				taskTest = it;
+				binary.tasks.create( binary.tasks.taskName( NAME_TEST_SOURCE ), DefaultTask.class )
+				{
+					taskTest = it;
+				}
 			}
 
 			//
@@ -632,11 +638,21 @@ class CrossPlugin implements Plugin<Project>
 
 			// --------- //
 
+			//
+			binary.tasks.create( binary.tasks.taskName( NAME_BUILD ), DefaultTask.class )
+			{
+				taskBuild = it;
+			}
+
+			// --------- //
+
 			taskCompile.dependsOn taskConvert;
-			taskTest.dependsOn taskCompile;
+
+			if( taskTest != null )
+				taskTest.dependsOn taskCompile;
 
 			taskAssemble.dependsOn taskCompile;
-			taskAssemble.dependsOn taskTest;
+			taskAssemble.dependsOn taskPackage;
 
 			binary.setBuildTask( taskAssemble );
 
@@ -645,6 +661,13 @@ class CrossPlugin implements Plugin<Project>
 			taskPackage.dependsOn taskAssemble;
 			taskInstall.dependsOn taskPackage;
 			taskExecute.dependsOn taskInstall;
+
+			// --------- //
+
+			taskBuild.dependsOn taskAssemble;
+
+			if( taskTest != null )
+				taskBuild.dependsOn taskTest;
 		}
 
 		/**
@@ -654,11 +677,13 @@ class CrossPlugin implements Plugin<Project>
 		{
 			Task convertLifeCycleTask = tasks.getByName(NAME_CONVERT_SOURCE);
 			Task compileLifeCycleTask = tasks.getByName(NAME_COMPILE_SOURCE);
-			Task testLifeCycleTask = tasks.getByName(NAME_TEST_SOURCE);
+			Task testLifeCycleTask    = tasks.getByName(NAME_TEST_SOURCE);
 
 			Task packageLifeCycleTask = tasks.getByName(NAME_PACKAGE_SOURCE);
 			Task installLifeCycleTask = tasks.getByName(NAME_INSTALL_SOURCE);
 			Task executeLifeCycleTask = tasks.getByName(NAME_EXECUTE_SOURCE);
+
+			Task buildLifeCycleTask = tasks.getByName(NAME_BUILD);
 
 			for( BinarySpec binary : binaries )
 			{
@@ -683,6 +708,11 @@ class CrossPlugin implements Plugin<Project>
 
 					if( task.name.startsWith(NAME_EXECUTE_SOURCE) )
 						executeLifeCycleTask.dependsOn task;
+
+					// --------- //
+
+					if( task.name.startsWith(NAME_BUILD) )
+						buildLifeCycleTask.dependsOn task;
 				}
 			}
 		}
@@ -723,7 +753,7 @@ class CrossPlugin implements Plugin<Project>
 			}
 
 			assemble.dependsOn NAME_COMPILE_SOURCE;
-			assemble.dependsOn NAME_TEST_SOURCE;
+			assemble.dependsOn NAME_PACKAGE_SOURCE;
 		}
 
 	}
