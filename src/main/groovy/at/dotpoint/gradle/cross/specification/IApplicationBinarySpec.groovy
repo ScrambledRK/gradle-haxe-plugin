@@ -37,6 +37,12 @@ public interface IApplicationBinarySpec extends ApplicationBinarySpec, HasInterm
 	//
 	@Override
 	IApplicationComponentSpec getApplication();
+
+	//
+	IApplicationBinarySpec getTestBinarySpecTarget();
+	IApplicationBinarySpec getTestBinarySpecSource();
+
+	boolean isTestBinarySpec();
 }
 
 /**
@@ -59,5 +65,9 @@ public interface IApplicationBinarySpecInternal extends IApplicationBinarySpec, 
 
 	//
 	void setConfiguration( IConfiguration configuration );
+
+	//
+	void setTestBinarySpecTarget( IApplicationBinarySpec target );
+	void setTestBinarySpecSource( IApplicationBinarySpec source );
 }
 

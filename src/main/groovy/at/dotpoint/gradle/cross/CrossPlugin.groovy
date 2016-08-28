@@ -242,12 +242,15 @@ class CrossPlugin implements Plugin<Project>
 				VariantCombination<IVariantRequirement> permutation = iterator.next();
 
 				//
-				this.createBinarySpec( builder, applicationComponentSpecInternal, permutation,
-						variantResolver, buildDir );
+				IApplicationBinarySpecInternal binaryComp = this.createBinarySpec( builder,
+						applicationComponentSpecInternal, permutation, variantResolver, buildDir );
 
 				//
-				this.createBinarySpecTest( builder, applicationComponentSpecInternal, permutation,
-						variantResolver, buildDir );
+				IApplicationBinarySpecInternal binaryTest = this.createBinarySpecTest( builder,
+						applicationComponentSpecInternal, permutation,	variantResolver, buildDir );
+
+				binaryComp.testBinarySpecTarget = binaryTest;
+				binaryTest.testBinarySpecSource = binaryComp;
 			}
 		}
 
@@ -264,19 +267,18 @@ class CrossPlugin implements Plugin<Project>
 													IVariantResolverRepository variantResolver,
 													File buildDir )
 		{
-			IApplicationBinarySpecInternal binarySpecInternal = null;
 			String variationName = StringUtil.toCamelCase( NameUtil.getVariationName( permutation ), "test" );
 
 			//
 			builder.create( variationName ) { IApplicationBinarySpec binarySpec ->
 
-				binarySpecInternal = (IApplicationBinarySpecInternal) binarySpec;
+				IApplicationBinarySpecInternal binarySpecInternal = (IApplicationBinarySpecInternal) binarySpec;
 
 				this.setTargetVariant( binarySpecInternal, permutation, variantResolver );
 				this.setConfiguration( binarySpecInternal, applicationComponentSpec, buildDir );
 			}
 
-			return binarySpecInternal;
+			return (IApplicationBinarySpecInternal) builder.get( variationName );
 		}
 
 		/**
@@ -292,19 +294,18 @@ class CrossPlugin implements Plugin<Project>
 													IVariantResolverRepository variantResolver,
 													File buildDir )
 		{
-			IApplicationBinarySpecInternal binarySpecInternal = null;
 			String variationName = NameUtil.getVariationName( permutation );
 
 			//
 			builder.create( variationName ) { IApplicationBinarySpec binarySpec ->
 
-				binarySpecInternal = (IApplicationBinarySpecInternal) binarySpec;
+				IApplicationBinarySpecInternal binarySpecInternal = (IApplicationBinarySpecInternal) binarySpec;
 
 				this.setTargetVariant( binarySpecInternal, permutation, variantResolver );
 				this.setConfiguration( binarySpecInternal, applicationComponentSpec, buildDir );
 			}
 
-			return binarySpecInternal;
+			return (IApplicationBinarySpecInternal) builder.get( variationName );
 		}
 
 		/**
@@ -518,8 +519,8 @@ class CrossPlugin implements Plugin<Project>
 				it.description = "compiles native sources to a native target binary"
 			}
 
-//			tasks.create( NAME_TEST_SOURCE, DefaultTask.class )
-//			{
+//			tasks.create( NAME_TEST_SOURCE, DefaultTask.class )         // "check" task already provided
+//			{                                                           // just like "assemble" or "build" is
 //				it.group = GROUP_NAME_TEST;
 //				it.description = "tests native sources after they've been compiled"
 //			}
@@ -602,7 +603,7 @@ class CrossPlugin implements Plugin<Project>
 			}
 
 			//
-			if( !binary.name.endsWith( "Test" ) )
+			if( !(binary instanceof IApplicationBinarySpec) || !binary.isTestBinarySpec() )
 			{
 				binary.tasks.create( binary.tasks.taskName( NAME_TEST_SOURCE ), DefaultTask.class )
 				{

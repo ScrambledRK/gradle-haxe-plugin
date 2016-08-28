@@ -9,7 +9,6 @@ import at.dotpoint.gradle.cross.variant.target.VariantCombination
 import org.gradle.language.base.LanguageSourceSet
 import org.gradle.platform.base.TransformationFileType
 import org.gradle.platform.base.binary.BaseBinarySpec
-
 /**
  * Created by RK on 19.03.16.
  */
@@ -21,6 +20,9 @@ class ApplicationBinarySpec extends BaseBinarySpec implements IApplicationBinary
 	private IBuildType buildType;
 
 	private IConfiguration configuration;
+
+	private IApplicationBinarySpec testBinarySpecTarget;
+	private IApplicationBinarySpec testBinarySpecSource;
 
 	// ------------------------------------------------------------------ //
 	// ------------------------------------------------------------------ //
@@ -142,6 +144,38 @@ class ApplicationBinarySpec extends BaseBinarySpec implements IApplicationBinary
 	}
 
 	// -------------------------------------- //
+	// -------------------------------------- //
+
+	@Override
+	void setTestBinarySpecTarget( IApplicationBinarySpec target )
+	{
+		this.testBinarySpecTarget = target;
+	}
+
+	@Override
+	IApplicationBinarySpec getTestBinarySpecTarget()
+	{
+		return this.testBinarySpecTarget;
+	}
+
+	@Override
+	void setTestBinarySpecSource( IApplicationBinarySpec source )
+	{
+		this.testBinarySpecSource = source;
+	}
+
+	@Override
+	IApplicationBinarySpec getTestBinarySpecSource()
+	{
+		return this.testBinarySpecSource;
+	}
+
+	@Override
+	boolean isTestBinarySpec()
+	{
+		return this.testBinarySpecSource != null && this.testBinarySpecTarget == null;
+	}
+// -------------------------------------- //
 	// -------------------------------------- //
 
 	/**
