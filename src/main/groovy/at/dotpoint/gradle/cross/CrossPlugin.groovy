@@ -11,6 +11,7 @@ import at.dotpoint.gradle.cross.transform.builder.ITransformBuilder
 import at.dotpoint.gradle.cross.transform.repository.ITransformBuilderRepository
 import at.dotpoint.gradle.cross.transform.repository.TransformBuilderRepository
 import at.dotpoint.gradle.cross.util.NameUtil
+import at.dotpoint.gradle.cross.util.StringUtil
 import at.dotpoint.gradle.cross.variant.container.buildtype.BuildTypeContainer
 import at.dotpoint.gradle.cross.variant.container.buildtype.IBuildTypeContainer
 import at.dotpoint.gradle.cross.variant.container.flavor.FlavorContainer
@@ -59,7 +60,15 @@ class CrossPlugin implements Plugin<Project>
 	public static final String NAME_CONVERT_SOURCE 	= "convert"
 	public static final String NAME_COMPILE_SOURCE 	= "compile"
 	public static final String NAME_TEST_SOURCE 	= "test"
+	public static final String NAME_PACKAGE_SOURCE 	= "package"
+	public static final String NAME_INSTALL_SOURCE 	= "install"
+	public static final String NAME_EXECUTE_SOURCE 	= "execute"
 	public static final String NAME_ASSEMBLE 		= LifecycleBasePlugin.ASSEMBLE_TASK_NAME;
+
+	public static final String GROUP_NAME_BUILD 	    = LifecycleBasePlugin.BUILD_GROUP;
+	public static final String GROUP_NAME_TEST 	        = LifecycleBasePlugin.VERIFICATION_GROUP;
+	public static final String GROUP_NAME_DISTRIBUTE    = "distribute";
+	public static final String GROUP_NAME_EXECUTE       = "execute";
 
 	public final Instantiator instantiator;
 	public final FileResolver fileResolver;
@@ -86,8 +95,8 @@ class CrossPlugin implements Plugin<Project>
 		project.extensions.extraProperties.set( "IBuildType",   IBuildType );
 	}
 
-	// ---------------------------------------------------------- //
-	// ---------------------------------------------------------- //
+	// ********************************************************************************************** //
+	// ********************************************************************************************** //
 
 	/**
 	 * ComponentSpecs, SourceSets
@@ -137,6 +146,9 @@ class CrossPlugin implements Plugin<Project>
 		}
 	}
 
+	// ********************************************************************************************** //
+	// ********************************************************************************************** //
+
 	/**
 	 * ConvertTransform, CompileTransform
 	 */
@@ -173,6 +185,9 @@ class CrossPlugin implements Plugin<Project>
 		}
 	}
 
+	// ********************************************************************************************** //
+	// ********************************************************************************************** //
+
 	/**
 	 * BinarySpecs, LanguageSourceSets
 	 */
@@ -207,40 +222,135 @@ class CrossPlugin implements Plugin<Project>
 		 * generate BinarySpec permutations (Platform,BuildType,Flavor)
 		 */
 		@ComponentBinaries
-		void generateApplicationBinaries( ModelMap<IApplicationBinarySpec> builder, IApplicationComponentSpec applicationComponentSpec,
-										  IVariantResolverRepository variantResolver, @Path('buildDir') File buildDir )
+		void generateApplicationBinaries( ModelMap<IApplicationBinarySpec> builder,
+		                                  IApplicationComponentSpec applicationComponentSpec,
+										  IVariantResolverRepository variantResolver,
+										  @Path('buildDir') File buildDir )
 		{
-			IApplicationComponentSpecInternal applicationComponentSpecInternal = (IApplicationComponentSpecInternal) applicationComponentSpec;
-			VariantIterator<IVariantRequirement> iterator = new VariantIterator<>( applicationComponentSpecInternal.getVariantRequirements() );
+			IApplicationComponentSpecInternal applicationComponentSpecInternal =
+					(IApplicationComponentSpecInternal) applicationComponentSpec;
+
+			VariantIterator<IVariantRequirement> iterator = new VariantIterator<>(
+					applicationComponentSpecInternal.getVariantRequirements() );
+
+			// ----------------------------- //
+			// create binary permutations according to ApplicationComponent variants
 
 			while( iterator.hasNext() )
 			{
 				VariantCombination<IVariantRequirement> permutation = iterator.next();
 
-				builder.create( NameUtil.getVariationName( permutation ) ) { IApplicationBinarySpec binarySpec ->
+				//
+				this.createBinarySpec( builder, applicationComponentSpecInternal, permutation,
+						variantResolver, buildDir );
 
-					IApplicationBinarySpecInternal binarySpecInternal = (IApplicationBinarySpecInternal) binarySpec;
-
-					//
-					for( IVariantRequirement requirement : permutation )
-					{
-						IVariantRequirement variantRequirement = (IVariantRequirement) permutation.getVariant( requirement.getClass() );
-						IVariant variant = variantResolver.resolve( variantRequirement.getVariantType(), variantRequirement );
-
-						binarySpecInternal.setTargetVariant( variant );
-					}
-
-					//
-					Configuration configuration = this.generateConfigurationRequirement( binarySpecInternal,
-							applicationComponentSpecInternal, buildDir );
-
-					if( configuration != null )
-						binarySpecInternal.setConfiguration( configuration );
-				}
+				//
+				this.createBinarySpecTest( builder, applicationComponentSpecInternal, permutation,
+						variantResolver, buildDir );
 			}
 		}
 
-		//
+		/**
+		 *
+		 * @param applicationComponentSpecInternal
+		 * @param permutation
+		 * @return
+		 */
+		private IApplicationBinarySpecInternal createBinarySpecTest(
+													ModelMap<IApplicationBinarySpec> builder,
+													IApplicationComponentSpecInternal applicationComponentSpec,
+													VariantCombination<IVariantRequirement> permutation,
+													IVariantResolverRepository variantResolver,
+													File buildDir )
+		{
+			IApplicationBinarySpecInternal binarySpecInternal = null;
+			String variationName = StringUtil.toCamelCase( NameUtil.getVariationName( permutation ), "test" );
+
+			//
+			builder.create( variationName ) { IApplicationBinarySpec binarySpec ->
+
+				binarySpecInternal = (IApplicationBinarySpecInternal) binarySpec;
+
+				this.setTargetVariant( binarySpecInternal, permutation, variantResolver );
+				this.setConfiguration( binarySpecInternal, applicationComponentSpec, buildDir );
+			}
+
+			return binarySpecInternal;
+		}
+
+		/**
+		 *
+		 * @param applicationComponentSpecInternal
+		 * @param permutation
+		 * @return
+		 */
+		private IApplicationBinarySpecInternal createBinarySpec(
+													ModelMap<IApplicationBinarySpec> builder,
+													IApplicationComponentSpecInternal applicationComponentSpec,
+													VariantCombination<IVariantRequirement> permutation,
+													IVariantResolverRepository variantResolver,
+													File buildDir )
+		{
+			IApplicationBinarySpecInternal binarySpecInternal = null;
+			String variationName = NameUtil.getVariationName( permutation );
+
+			//
+			builder.create( variationName ) { IApplicationBinarySpec binarySpec ->
+
+				binarySpecInternal = (IApplicationBinarySpecInternal) binarySpec;
+
+				this.setTargetVariant( binarySpecInternal, permutation, variantResolver );
+				this.setConfiguration( binarySpecInternal, applicationComponentSpec, buildDir );
+			}
+
+			return binarySpecInternal;
+		}
+
+		/**
+		 *
+		 * @param binarySpec
+		 * @param permutation
+		 */
+		private void setTargetVariant( IApplicationBinarySpecInternal binarySpec,
+		                               VariantCombination<IVariantRequirement> permutation,
+		                               IVariantResolverRepository variantResolver )
+		{
+			for( IVariantRequirement requirement : permutation )
+			{
+				IVariantRequirement variantRequirement = (IVariantRequirement) permutation.getVariant(
+						requirement.getClass() );
+
+				IVariant variant = variantResolver.resolve( variantRequirement.getVariantType(),
+						variantRequirement );
+
+				binarySpec.setTargetVariant( variant );
+			}
+		}
+
+		/**
+		 *
+		 * @param binarySpec
+		 * @param applicationComponentSpec
+		 * @param buildDir
+		 */
+		private void setConfiguration( IApplicationBinarySpecInternal binarySpec,
+				                       IApplicationComponentSpecInternal applicationComponentSpec,
+				                       File buildDir )
+		{
+			Configuration configuration = this.generateConfigurationRequirement( binarySpec,
+					applicationComponentSpec, buildDir );
+
+			if( configuration != null )
+				binarySpec.setConfiguration( configuration );
+		}
+
+		/**
+		 *
+		 * @param binarySpec
+		 * @param applicationComponentSpec
+		 * @param buildDir
+		 * @return
+		 */
 		private Configuration generateConfigurationRequirement( IApplicationBinarySpecInternal binarySpec,
 		                                                        IApplicationComponentSpecInternal applicationComponentSpec,
 		                                                        File buildDir )
@@ -260,6 +370,9 @@ class CrossPlugin implements Plugin<Project>
 			return new ConfigurationBuilder( buildDir ).build( requirements );
 		}
 	}
+
+	// ********************************************************************************************** //
+	// ********************************************************************************************** //
 
 	/**
 	 * Variations: Platform, BuildType, Flavor for BinarySpecs
@@ -355,6 +468,8 @@ class CrossPlugin implements Plugin<Project>
 
 	}
 
+	// ********************************************************************************************** //
+	// ********************************************************************************************** //
 
 	/**
 	 * LifeCycle: assemble, compile, convert; check, build
@@ -392,27 +507,55 @@ class CrossPlugin implements Plugin<Project>
 		{
 			tasks.create( NAME_CONVERT_SOURCE, DefaultTask.class )
 			{
-				it.group = LifecycleBasePlugin.BUILD_GROUP;
+				it.group = GROUP_NAME_BUILD;
 				it.description = "converts non-native sources to the native target language of a binary"
 			}
 
 			tasks.create( NAME_COMPILE_SOURCE, DefaultTask.class )
 			{
-				it.group = LifecycleBasePlugin.BUILD_GROUP;
+				it.group = GROUP_NAME_BUILD;
 				it.description = "compiles native sources to a native target binary"
 			}
 
 			tasks.create( NAME_TEST_SOURCE, DefaultTask.class )
 			{
-				it.group = LifecycleBasePlugin.BUILD_GROUP;
+				it.group = GROUP_NAME_TEST;
 				it.description = "tests native sources after they've been compiled"
 			}
+
+			// -------------------- //
+
+			tasks.create( NAME_PACKAGE_SOURCE, DefaultTask.class )
+			{
+				it.group = GROUP_NAME_DISTRIBUTE;
+				it.description = "packs an assembled product into a distribution form (zip etc.)"
+			}
+
+			tasks.create( NAME_INSTALL_SOURCE, DefaultTask.class )
+			{
+				it.group = GROUP_NAME_EXECUTE;
+				it.description = "unpacks installs a packaged product into an executable form"
+			}
+
+			tasks.create( NAME_EXECUTE_SOURCE, DefaultTask.class )
+			{
+				it.group = GROUP_NAME_EXECUTE;
+				it.description = "runs/executes an installed product"
+			}
+
+			// -------------------- //
 
 			tasks.getByName(NAME_COMPILE_SOURCE).dependsOn NAME_CONVERT_SOURCE;
 			tasks.getByName(NAME_TEST_SOURCE).dependsOn NAME_COMPILE_SOURCE;
 
 			tasks.getByName(NAME_ASSEMBLE).dependsOn NAME_COMPILE_SOURCE;
 			tasks.getByName(NAME_ASSEMBLE).dependsOn NAME_TEST_SOURCE;
+
+			// -------------------- //
+
+			tasks.getByName(NAME_PACKAGE_SOURCE).dependsOn NAME_ASSEMBLE;
+			tasks.getByName(NAME_INSTALL_SOURCE).dependsOn NAME_PACKAGE_SOURCE;
+			tasks.getByName(NAME_EXECUTE_SOURCE).dependsOn NAME_INSTALL_SOURCE;
 		}
 
 		/**
@@ -438,6 +581,10 @@ class CrossPlugin implements Plugin<Project>
 			Task taskCompile 	= null;
 			Task taskTest 	    = null;
 			Task taskAssemble 	= null;
+
+			Task taskPackage 	= null;
+			Task taskInstall 	= null;
+			Task taskExecute 	= null;
 
 			//
 			binary.tasks.create( binary.tasks.taskName( NAME_CONVERT_SOURCE ), DefaultTask.class )
@@ -465,6 +612,26 @@ class CrossPlugin implements Plugin<Project>
 
 			// --------- //
 
+			//
+			binary.tasks.create( binary.tasks.taskName( NAME_PACKAGE_SOURCE ), DefaultTask.class )
+			{
+				taskPackage = it;
+			}
+
+			//
+			binary.tasks.create( binary.tasks.taskName( NAME_INSTALL_SOURCE ), DefaultTask.class )
+			{
+				taskInstall = it;
+			}
+
+			//
+			binary.tasks.create( binary.tasks.taskName( NAME_EXECUTE_SOURCE ), DefaultTask.class )
+			{
+				taskExecute = it;
+			}
+
+			// --------- //
+
 			taskCompile.dependsOn taskConvert;
 			taskTest.dependsOn taskCompile;
 
@@ -472,6 +639,12 @@ class CrossPlugin implements Plugin<Project>
 			taskAssemble.dependsOn taskTest;
 
 			binary.setBuildTask( taskAssemble );
+
+			// --------- //
+
+			taskPackage.dependsOn taskAssemble;
+			taskInstall.dependsOn taskPackage;
+			taskExecute.dependsOn taskInstall;
 		}
 
 		/**
@@ -482,6 +655,10 @@ class CrossPlugin implements Plugin<Project>
 			Task convertLifeCycleTask = tasks.getByName(NAME_CONVERT_SOURCE);
 			Task compileLifeCycleTask = tasks.getByName(NAME_COMPILE_SOURCE);
 			Task testLifeCycleTask = tasks.getByName(NAME_TEST_SOURCE);
+
+			Task packageLifeCycleTask = tasks.getByName(NAME_PACKAGE_SOURCE);
+			Task installLifeCycleTask = tasks.getByName(NAME_INSTALL_SOURCE);
+			Task executeLifeCycleTask = tasks.getByName(NAME_EXECUTE_SOURCE);
 
 			for( BinarySpec binary : binaries )
 			{
@@ -495,6 +672,17 @@ class CrossPlugin implements Plugin<Project>
 
 					if( task.name.startsWith(NAME_TEST_SOURCE) )
 						testLifeCycleTask.dependsOn task;
+
+					// --------- //
+
+					if( task.name.startsWith(NAME_PACKAGE_SOURCE) )
+						packageLifeCycleTask.dependsOn task;
+
+					if( task.name.startsWith(NAME_INSTALL_SOURCE) )
+						installLifeCycleTask.dependsOn task;
+
+					if( task.name.startsWith(NAME_EXECUTE_SOURCE) )
+						executeLifeCycleTask.dependsOn task;
 				}
 			}
 		}
