@@ -49,7 +49,7 @@ class LibraryBinaryResolver
 			if( binarySpec instanceof IApplicationBinarySpec )
 				applicationBinarySpec = (IApplicationBinarySpec) binarySpec;
 
-			if( applicationBinarySpec == null )
+			if( applicationBinarySpec == null || applicationBinarySpec.isTestBinarySpec() )
 				continue;
 
 			if( applicationBinarySpec.targetVariantCombination.contains( variants ) )

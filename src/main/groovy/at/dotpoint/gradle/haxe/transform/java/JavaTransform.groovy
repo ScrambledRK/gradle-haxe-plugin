@@ -115,7 +115,9 @@ class JavaTransform extends ALifeCycleTransform
 	                                            TaskContainer taskContainer )
 	{
 		VariantCombination<IVariant> targetVariation = binarySpec.targetVariantCombination;
-		List<ISourceSet> sourceSets = BinarySpecUtil.getSourceSetList( binarySpec );
+		List<ISourceSet> sourceSets = this.getAllSourceSets( binarySpec, targetVariation );
+
+		// ------------------------------------------- //
 
 		//
 		Task generateTask = TaskUtil.createTaskContainerTask( taskContainer, GenerateHXMLTask.class,
@@ -123,9 +125,6 @@ class JavaTransform extends ALifeCycleTransform
 		{
 			it.targetVariantCombination = binarySpec.targetVariantCombination.clone();
 			it.sourceSets = sourceSets;
-
-			for( ISourceSet set : sourceSets )
-				this.getDependencies( set, targetVariation );
 		};
 
 		//
@@ -135,6 +134,18 @@ class JavaTransform extends ALifeCycleTransform
 			it.hxmlFile = (generateTask as GenerateHXMLTask).hxmlFile;
 		};
 
+		// ------------------------------------------- //
+
+		for( ISourceSet set : sourceSets )
+		{
+			List<IApplicationBinarySpec> dependencies = this.getLibraryDependencies( set, targetVariation );
+
+			dependencies.each { println( it ) }
+
+			for( IApplicationBinarySpec dependency : dependencies )
+				generateTask.dependsOn dependency.buildTask;
+		}
+
 		executeTask.dependsOn generateTask;
 
 		return executeTask;
@@ -142,14 +153,15 @@ class JavaTransform extends ALifeCycleTransform
 
 	/**
 	 *
-	 * @param binarySpec
+	 * @param testBinary binary testing the sourceBinary
 	 * @param input
 	 * @param taskContainer
+	 * @return
 	 */
 	@Override
-	protected Task createTestTransformation( IApplicationBinarySpec binarySpec,
-	                                         ILifeCycleTransformData input,
-	                                         TaskContainer taskContainer )
+	protected Task createTestTransformation( IApplicationBinarySpec testBinary,
+                                             ILifeCycleTransformData input,
+                                             TaskContainer taskContainer )
 	{
 		return null
 	}
@@ -159,31 +171,55 @@ class JavaTransform extends ALifeCycleTransform
 
 	/**
 	 *
+	 * @param binarySpec
+	 * @return
+	 */
+	private List<ISourceSet> getAllSourceSets( IApplicationBinarySpec binarySpec,
+	                                           VariantCombination<IVariant> targetVariation )
+	{
+		List<ISourceSet> directSourceSets = BinarySpecUtil.getSourceSetList( binarySpec );
+		List<ISourceSet> allSourceSets = new ArrayList<ISourceSet>( directSourceSets );
+
+		for( ISourceSet set : directSourceSets )
+		{
+			List<IApplicationBinarySpec> dependencies = this.getLibraryDependencies( set, targetVariation );
+
+			for( IApplicationBinarySpec dependency : dependencies )
+			{
+				for( LanguageSourceSet depSet : dependency.sources.iterator() )
+				{
+					if( depSet instanceof ISourceSet )
+						allSourceSets.add( depSet );
+				}
+			}
+		}
+
+		return allSourceSets;
+	}
+
+	/**
+	 *
 	 * @param sourceSet
 	 * @param targetVariation
 	 */
-	private void getDependencies( ISourceSet sourceSet, VariantCombination<IVariant> targetVariation )
+	private List<IApplicationBinarySpec> getLibraryDependencies( ISourceSet sourceSet,
+	                                                             VariantCombination<IVariant> targetVariation )
 	{
+		List<IApplicationBinarySpec> dependencies = new ArrayList<>();
+
 		for( IDependencySpec dependencySpec : sourceSet.dependencies.dependencies )
 		{
 			if( dependencySpec instanceof ILibraryDependencySpec )
 			{
 				ILibraryDependencySpec libraryDependencySpec = (ILibraryDependencySpec)dependencySpec;
-				IApplicationBinarySpec applicationBinarySpec = this.libraryBinaryResolver.resolveBinary( libraryDependencySpec, targetVariation );
-
-				println( "\n>> " + applicationBinarySpec );
+				IApplicationBinarySpec applicationBinarySpec = this.libraryBinaryResolver.resolveBinary(
+						libraryDependencySpec, targetVariation );
 
 				if( applicationBinarySpec != null )
-				{
-					applicationBinarySpec.sources.each {
-						println( "src: " + it );
-					}
-
-					applicationBinarySpec.application.sources.each {
-						println( "src: " + it );
-					}
-				}
+					dependencies.add( applicationBinarySpec );
 			}
 		}
+
+		return dependencies;
 	}
 }

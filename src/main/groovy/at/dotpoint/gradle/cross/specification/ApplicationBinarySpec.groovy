@@ -175,7 +175,8 @@ class ApplicationBinarySpec extends BaseBinarySpec implements IApplicationBinary
 	{
 		return this.testBinarySpecSource != null && this.testBinarySpecTarget == null;
 	}
-// -------------------------------------- //
+
+	// -------------------------------------- //
 	// -------------------------------------- //
 
 	/**
@@ -201,4 +202,17 @@ class ApplicationBinarySpec extends BaseBinarySpec implements IApplicationBinary
 		return true; //super.hasCodependentSources()
 	}
 
+	// -------------------------------------- //
+	// -------------------------------------- //
+
+	@Override
+	String getDisplayName()
+	{
+		IApplicationComponentSpec applicationComponentSpec = this.getApplication();
+
+		if( applicationComponentSpec == null )
+			return super.getDisplayName();
+
+		return super.getTypeName() + " '" + applicationComponentSpec.projectPath + ":" + super.identifier.getPath()  + "'";
+	}
 }

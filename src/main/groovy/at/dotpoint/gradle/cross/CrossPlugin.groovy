@@ -659,7 +659,7 @@ class CrossPlugin implements Plugin<Project>
 
 			// --------- //
 
-			taskPackage.dependsOn taskAssemble;
+			taskPackage.dependsOn taskCompile;
 			taskInstall.dependsOn taskPackage;
 			taskExecute.dependsOn taskInstall;
 

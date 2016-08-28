@@ -44,12 +44,14 @@ class LifeCycleTransformationBuilder extends ATransformationBuilder<IApplication
 	public void createTransformationTasks( IApplicationBinarySpecInternal binarySpec,
 	                                       TaskContainer taskContainer )
 	{
+		println "createTransformationTasks. " + binarySpec;
+
 		// --------------------- //
 		// already assigned?
 
 		AssignedTransform assigned = this.getAssignedTransform( binarySpec );
 
-		if( assigned != null )
+		if( assigned != null )  // this might actually happen due to subproject dependencies!
 			throw new RuntimeException("LifeCycleTransformation already set for: " + binarySpec );
 
 		// --------------------- //
