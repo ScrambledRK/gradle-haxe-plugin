@@ -6,21 +6,19 @@ import at.dotpoint.gradle.cross.dependency.resolver.LibraryBinaryResolver
 import at.dotpoint.gradle.cross.sourceset.ISourceSet
 import at.dotpoint.gradle.cross.specification.IApplicationBinarySpec
 import at.dotpoint.gradle.cross.transform.model.lifecycle.ALifeCycleTransform
-import at.dotpoint.gradle.cross.transform.model.lifecycle.ALifeCycleTransformData
-import at.dotpoint.gradle.cross.transform.model.lifecycle.ILifeCycleTransformData
 import at.dotpoint.gradle.cross.util.BinarySpecUtil
+import at.dotpoint.gradle.cross.util.StringUtil
 import at.dotpoint.gradle.cross.util.TaskUtil
 import at.dotpoint.gradle.cross.variant.model.IVariant
 import at.dotpoint.gradle.cross.variant.target.VariantCombination
 import at.dotpoint.gradle.haxe.task.ExecuteHXMLTask
 import at.dotpoint.gradle.haxe.task.GenerateHXMLTask
 import org.gradle.api.Task
-import org.gradle.api.tasks.TaskContainer
 import org.gradle.language.base.LanguageSourceSet
 /**
  * Created by RK on 27.02.16.
  */
-class JavaTransform extends ALifeCycleTransform
+class JavaTransform extends ALifeCycleTransform<JavaTransformData>
 {
 
 	//
@@ -40,9 +38,9 @@ class JavaTransform extends ALifeCycleTransform
 	 * @return
 	 */
 	@Override
-	ILifeCycleTransformData createTransformData()
+	JavaTransformData createTransformData()
 	{
-		return new ALifeCycleTransformData();
+		return new JavaTransformData();
 	}
 
 	// ---------------------------------------------------------------- //
@@ -97,8 +95,7 @@ class JavaTransform extends ALifeCycleTransform
 	 */
 	@Override
 	protected Task createConvertTransformation( IApplicationBinarySpec binarySpec,
-	                                            ILifeCycleTransformData input,
-	                                            TaskContainer taskContainer )
+	                                            JavaTransformData input )
 	{
 		return null
 	}
@@ -111,30 +108,57 @@ class JavaTransform extends ALifeCycleTransform
 	 */
 	@Override
 	protected Task createCompileTransformation( IApplicationBinarySpec binarySpec,
-	                                            ILifeCycleTransformData input,
-	                                            TaskContainer taskContainer )
+	                                            JavaTransformData input )
+	{
+		return this.createCompile( binarySpec, input, "compile" );
+	}
+
+	/**
+	 *
+	 * @param testBinary binary testing the sourceBinary
+	 * @param input
+	 * @param taskContainer
+	 * @return
+	 */
+	@Override
+	protected Task createTestTransformation( IApplicationBinarySpec binarySpec,
+	                                         JavaTransformData input )
+	{
+		return null
+	}
+
+	// ---------------------------------------------------------------- //
+	// ---------------------------------------------------------------- //
+
+	/**
+	 *
+	 * @return
+	 */
+	private Task createCompile( IApplicationBinarySpec binarySpec, JavaTransformData input, String sourceSetName )
 	{
 		VariantCombination<IVariant> targetVariation = binarySpec.targetVariantCombination;
-		List<ISourceSet> sourceSets = this.getAllSourceSets( binarySpec, targetVariation );
+		List<ISourceSet> sourceSets = this.getSourceSets( binarySpec, sourceSetName );
 
 		// ------------------------------------------- //
+		// hxml:
 
 		//
-		Task generateTask = TaskUtil.createTaskContainerTask( taskContainer, GenerateHXMLTask.class,
-				binarySpec.tasks.taskName( "generateHxml" ) )
+		Task generateTask = TaskUtil.createBinaryTask( binarySpec, GenerateHXMLTask.class,
+				StringUtil.toCamelCase( binarySpec.tasks.taskName( "generateHxml" ), sourceSetName ) )
 		{
 			it.targetVariantCombination = binarySpec.targetVariantCombination.clone();
 			it.sourceSets = sourceSets;
 		};
 
 		//
-		Task executeTask = TaskUtil.createTaskContainerTask( taskContainer, ExecuteHXMLTask.class,
-				binarySpec.tasks.taskName( "executeHxml" ) )
+		Task executeTask = TaskUtil.createBinaryTask( binarySpec, ExecuteHXMLTask.class,
+				StringUtil.toCamelCase( binarySpec.tasks.taskName( "executeHxml" ), sourceSetName ) )
 		{
 			it.hxmlFile = (generateTask as GenerateHXMLTask).hxmlFile;
 		};
 
 		// ------------------------------------------- //
+		// dependencies:
 
 		for( ISourceSet set : sourceSets )
 		{
@@ -146,24 +170,11 @@ class JavaTransform extends ALifeCycleTransform
 				generateTask.dependsOn dependency.buildTask;
 		}
 
+		// ------------------------------------------- //
+
 		executeTask.dependsOn generateTask;
 
 		return executeTask;
-	}
-
-	/**
-	 *
-	 * @param testBinary binary testing the sourceBinary
-	 * @param input
-	 * @param taskContainer
-	 * @return
-	 */
-	@Override
-	protected Task createTestTransformation( IApplicationBinarySpec testBinary,
-                                             ILifeCycleTransformData input,
-                                             TaskContainer taskContainer )
-	{
-		return null
 	}
 
 	// ---------------------------------------------------------------- //
@@ -174,27 +185,19 @@ class JavaTransform extends ALifeCycleTransform
 	 * @param binarySpec
 	 * @return
 	 */
-	private List<ISourceSet> getAllSourceSets( IApplicationBinarySpec binarySpec,
-	                                           VariantCombination<IVariant> targetVariation )
+	private List<ISourceSet> getSourceSets( IApplicationBinarySpec binarySpec,
+	                                        String name )
 	{
 		List<ISourceSet> directSourceSets = BinarySpecUtil.getSourceSetList( binarySpec );
-		List<ISourceSet> allSourceSets = new ArrayList<ISourceSet>( directSourceSets );
+		List<ISourceSet> specificSourceSets = new ArrayList<ISourceSet>();
 
 		for( ISourceSet set : directSourceSets )
 		{
-			List<IApplicationBinarySpec> dependencies = this.getLibraryDependencies( set, targetVariation );
-
-			for( IApplicationBinarySpec dependency : dependencies )
-			{
-				for( LanguageSourceSet depSet : dependency.sources.iterator() )
-				{
-					if( depSet instanceof ISourceSet )
-						allSourceSets.add( depSet );
-				}
-			}
+			if( set.name == name )
+				specificSourceSets.add( set );
 		}
 
-		return allSourceSets;
+		return specificSourceSets;
 	}
 
 	/**

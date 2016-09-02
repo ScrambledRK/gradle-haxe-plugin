@@ -11,7 +11,6 @@ import at.dotpoint.gradle.cross.transform.builder.ITransformBuilder
 import at.dotpoint.gradle.cross.transform.repository.ITransformBuilderRepository
 import at.dotpoint.gradle.cross.transform.repository.TransformBuilderRepository
 import at.dotpoint.gradle.cross.util.NameUtil
-import at.dotpoint.gradle.cross.util.StringUtil
 import at.dotpoint.gradle.cross.variant.container.buildtype.BuildTypeContainer
 import at.dotpoint.gradle.cross.variant.container.buildtype.IBuildTypeContainer
 import at.dotpoint.gradle.cross.variant.container.flavor.FlavorContainer
@@ -181,7 +180,7 @@ class CrossPlugin implements Plugin<Project>
 					continue;
 
 				for( ITransformBuilder builder : transformBuilderRepository )
-					builder.createTransformationTasks( (IApplicationBinarySpecInternal) binarySpec, taskContainer );
+					builder.createTransformationTasks( (IApplicationBinarySpecInternal) binarySpec );
 			}
 		}
 	}
@@ -242,43 +241,9 @@ class CrossPlugin implements Plugin<Project>
 				VariantCombination<IVariantRequirement> permutation = iterator.next();
 
 				//
-				IApplicationBinarySpecInternal binaryComp = this.createBinarySpec( builder,
-						applicationComponentSpecInternal, permutation, variantResolver, buildDir );
-
-				//
-				IApplicationBinarySpecInternal binaryTest = this.createBinarySpecTest( builder,
-						applicationComponentSpecInternal, permutation,	variantResolver, buildDir );
-
-				binaryComp.testBinarySpecTarget = binaryTest;
-				binaryTest.testBinarySpecSource = binaryComp;
+				this.createBinarySpec( builder, applicationComponentSpecInternal, permutation,
+						variantResolver, buildDir );
 			}
-		}
-
-		/**
-		 *
-		 * @param applicationComponentSpecInternal
-		 * @param permutation
-		 * @return
-		 */
-		private IApplicationBinarySpecInternal createBinarySpecTest(
-													ModelMap<IApplicationBinarySpec> builder,
-													IApplicationComponentSpecInternal applicationComponentSpec,
-													VariantCombination<IVariantRequirement> permutation,
-													IVariantResolverRepository variantResolver,
-													File buildDir )
-		{
-			String variationName = StringUtil.toCamelCase( NameUtil.getVariationName( permutation ), "test" );
-
-			//
-			builder.create( variationName ) { IApplicationBinarySpec binarySpec ->
-
-				IApplicationBinarySpecInternal binarySpecInternal = (IApplicationBinarySpecInternal) binarySpec;
-
-				this.setTargetVariant( binarySpecInternal, permutation, variantResolver );
-				this.setConfiguration( binarySpecInternal, applicationComponentSpec, buildDir );
-			}
-
-			return (IApplicationBinarySpecInternal) builder.get( variationName );
 		}
 
 		/**
@@ -603,12 +568,9 @@ class CrossPlugin implements Plugin<Project>
 			}
 
 			//
-			if( !(binary instanceof IApplicationBinarySpec) || !binary.isTestBinarySpec() )
+			binary.tasks.create( binary.tasks.taskName( NAME_TEST_SOURCE ), DefaultTask.class )
 			{
-				binary.tasks.create( binary.tasks.taskName( NAME_TEST_SOURCE ), DefaultTask.class )
-				{
-					taskTest = it;
-				}
+				taskTest = it;
 			}
 
 			//
@@ -648,9 +610,7 @@ class CrossPlugin implements Plugin<Project>
 			// --------- //
 
 			taskCompile.dependsOn taskConvert;
-
-			if( taskTest != null )
-				taskTest.dependsOn taskCompile;
+			taskTest.dependsOn taskCompile;
 
 			taskAssemble.dependsOn taskCompile;
 			taskAssemble.dependsOn taskPackage;
@@ -686,6 +646,7 @@ class CrossPlugin implements Plugin<Project>
 
 			Task buildLifeCycleTask = tasks.getByName(NAME_BUILD);
 
+			//
 			for( BinarySpec binary : binaries )
 			{
 				for( Task task in binary.getTasks() )

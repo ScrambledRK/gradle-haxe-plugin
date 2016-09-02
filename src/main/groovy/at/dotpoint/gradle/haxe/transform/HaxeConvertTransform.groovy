@@ -6,7 +6,6 @@ import at.dotpoint.gradle.cross.transform.model.convert.AConvertTransform
 import at.dotpoint.gradle.cross.variant.model.IVariant
 import at.dotpoint.gradle.cross.variant.target.VariantCombination
 import org.gradle.api.Task
-import org.gradle.api.tasks.TaskContainer
 /**
  * Created by RK on 27.02.16.
  */
@@ -53,7 +52,7 @@ class HaxeConvertTransform extends AConvertTransform
 	 * @return top-level task to depend the conversion LifeCycle step on
 	 */
 	@Override
-	Task createTransformTask( ISourceSet sourceSet, VariantCombination<IVariant> targetVariation, TaskContainer taskContainer )
+	Task createTransformTask( ISourceSet sourceSet, VariantCombination<IVariant> targetVariation )
 	{
 		return null;
 	}

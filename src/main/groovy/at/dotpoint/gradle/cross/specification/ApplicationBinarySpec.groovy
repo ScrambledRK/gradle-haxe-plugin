@@ -146,39 +146,6 @@ class ApplicationBinarySpec extends BaseBinarySpec implements IApplicationBinary
 	// -------------------------------------- //
 	// -------------------------------------- //
 
-	@Override
-	void setTestBinarySpecTarget( IApplicationBinarySpec target )
-	{
-		this.testBinarySpecTarget = target;
-	}
-
-	@Override
-	IApplicationBinarySpec getTestBinarySpecTarget()
-	{
-		return this.testBinarySpecTarget;
-	}
-
-	@Override
-	void setTestBinarySpecSource( IApplicationBinarySpec source )
-	{
-		this.testBinarySpecSource = source;
-	}
-
-	@Override
-	IApplicationBinarySpec getTestBinarySpecSource()
-	{
-		return this.testBinarySpecSource;
-	}
-
-	@Override
-	boolean isTestBinarySpec()
-	{
-		return this.testBinarySpecSource != null && this.testBinarySpecTarget == null;
-	}
-
-	// -------------------------------------- //
-	// -------------------------------------- //
-
 	/**
 	 *
 	 * @return

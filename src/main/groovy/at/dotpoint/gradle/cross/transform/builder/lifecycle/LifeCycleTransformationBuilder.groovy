@@ -11,12 +11,11 @@ import at.dotpoint.gradle.cross.transform.model.lifecycle.ILifeCycleTransformDat
 import com.google.common.collect.Lists
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
-import org.gradle.api.tasks.TaskContainer
-
 /**
  * Created by RK on 03.07.2016.
  */
-class LifeCycleTransformationBuilder extends ATransformationBuilder<IApplicationBinarySpec,ILifeCycleTransformData>
+class LifeCycleTransformationBuilder
+		extends ATransformationBuilder<IApplicationBinarySpec,ILifeCycleTransformData>
 {
 	//
 	private static final Logger LOGGER = Logging.getLogger(LifeCycleTransformationBuilder.class)
@@ -41,8 +40,7 @@ class LifeCycleTransformationBuilder extends ATransformationBuilder<IApplication
 	 *
 	 * @param binarySpec
 	 */
-	public void createTransformationTasks( IApplicationBinarySpecInternal binarySpec,
-	                                       TaskContainer taskContainer )
+	public void createTransformationTasks( IApplicationBinarySpecInternal binarySpec )
 	{
 		println "createTransformationTasks. " + binarySpec;
 
@@ -68,7 +66,7 @@ class LifeCycleTransformationBuilder extends ATransformationBuilder<IApplication
 		// --------------------- //
 		// transform
 
-		this.performTaskCreation( result, taskContainer );
+		this.performTaskCreation( result );
 	}
 
 /**

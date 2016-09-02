@@ -4,8 +4,6 @@ import at.dotpoint.gradle.cross.specification.IApplicationBinarySpecInternal
 import at.dotpoint.gradle.cross.transform.model.ITaskTransform
 import at.dotpoint.gradle.cross.util.TaskUtil
 import org.gradle.api.Task
-import org.gradle.api.tasks.TaskContainer
-
 /**
  *
  * @param <TTarget>
@@ -44,8 +42,7 @@ abstract class ATransformationBuilder<TTarget,TInput> implements ITransformBuild
 	 *
 	 * @param binarySpec
 	 */
-	abstract public void createTransformationTasks( IApplicationBinarySpecInternal binarySpec,
-	                                                TaskContainer taskContainer );
+	abstract public void createTransformationTasks( IApplicationBinarySpecInternal binarySpec );
 
 	/**
 	 *
@@ -125,10 +122,9 @@ abstract class ATransformationBuilder<TTarget,TInput> implements ITransformBuild
 	 *
 	 * @param assigned
 	 */
-	protected void performTaskCreation( AssignedTransform<TTarget,TInput> assigned,
-	                                    TaskContainer taskContainer )
+	protected void performTaskCreation( AssignedTransform<TTarget,TInput> assigned )
 	{
-		assigned.task = assigned.transform.createTransformTask( assigned.target, assigned.input, taskContainer );
+		assigned.task = assigned.transform.createTransformTask( assigned.target, assigned.input );
 	}
 
 	/**

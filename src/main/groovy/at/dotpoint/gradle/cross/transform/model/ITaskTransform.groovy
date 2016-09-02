@@ -1,7 +1,6 @@
 package at.dotpoint.gradle.cross.transform.model
 
 import org.gradle.api.Task
-import org.gradle.api.tasks.TaskContainer
 /**
  * Created by RK on 08.07.2016.
  */
@@ -15,5 +14,5 @@ interface ITaskTransform<TTarget,TInput>
 	/**
 	 *
 	 */
-	Task createTransformTask( TTarget target, TInput input, TaskContainer taskContainer );
+	Task createTransformTask( TTarget target, TInput input );
 }

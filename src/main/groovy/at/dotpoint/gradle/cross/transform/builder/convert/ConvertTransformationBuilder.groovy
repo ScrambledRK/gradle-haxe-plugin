@@ -11,7 +11,6 @@ import at.dotpoint.gradle.cross.variant.target.VariantCombination
 import com.google.common.collect.Lists
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
-import org.gradle.api.tasks.TaskContainer
 import org.gradle.language.base.LanguageSourceSet
 /**
  * Created by RK on 03.07.2016.
@@ -41,10 +40,10 @@ class ConvertTransformationBuilder extends ATransformationBuilder<ISourceSet,Var
 	 *
 	 * @param binarySpec
 	 */
-	public void createTransformationTasks( IApplicationBinarySpecInternal binarySpec, TaskContainer taskContainer )
+	public void createTransformationTasks( IApplicationBinarySpecInternal binarySpec )
 	{
-		this.createSourceSetTransformations( binarySpec.sources.iterator(), binarySpec, taskContainer );
-		this.createSourceSetTransformations( binarySpec.application.sources.iterator(), binarySpec, taskContainer );
+		this.createSourceSetTransformations( binarySpec.sources.iterator(), binarySpec );
+		this.createSourceSetTransformations( binarySpec.application.sources.iterator(), binarySpec );
 	}
 
 	/**
@@ -53,8 +52,7 @@ class ConvertTransformationBuilder extends ATransformationBuilder<ISourceSet,Var
 	 * @param binarySpec
 	 */
 	private void createSourceSetTransformations( Iterator<LanguageSourceSet> iterator,
-	                                             IApplicationBinarySpecInternal binarySpec,
-	                                             TaskContainer taskContainer )
+	                                             IApplicationBinarySpecInternal binarySpec )
 	{
 		while( iterator.hasNext() )
 		{
@@ -96,7 +94,7 @@ class ConvertTransformationBuilder extends ATransformationBuilder<ISourceSet,Var
 			// --------------------- //
 			// transform
 
-			this.performTaskCreation( result, taskContainer );
+			this.performTaskCreation( result );
 			this.performLifeCycle( result, binarySpec, CrossPlugin.NAME_CONVERT_SOURCE );
 		}
 	}

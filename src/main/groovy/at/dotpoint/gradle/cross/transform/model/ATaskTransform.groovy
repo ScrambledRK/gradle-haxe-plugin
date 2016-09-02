@@ -4,8 +4,6 @@ import at.dotpoint.gradle.cross.variant.model.IVariant
 import at.dotpoint.gradle.cross.variant.target.IVariationsTarget
 import at.dotpoint.gradle.cross.variant.target.VariantCombination
 import org.gradle.api.Task
-import org.gradle.api.tasks.TaskContainer
-
 /**
  * Created by RK on 08.07.2016.
  */
@@ -48,7 +46,7 @@ abstract class ATaskTransform<TTarget, TInput>
 	 * @param taskContainer
 	 * @return
 	 */
-	abstract Task createTransformTask( TTarget target, TInput input, TaskContainer taskContainer );
+	abstract Task createTransformTask( TTarget target, TInput input );
 
 	// ---------------------------------------------------------- //
 	// ---------------------------------------------------------- //
