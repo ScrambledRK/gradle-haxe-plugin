@@ -16,6 +16,9 @@ class ACrossSourceTask extends SourceTask implements ICrossSourceTask
 	//
 	private VariantCombination<IVariant> targetVariantCombination;
 
+	//
+	private File outputDir;
+
 	// ------------------------------------------------------------------- //
 	// ------------------------------------------------------------------- //
 
@@ -79,8 +82,16 @@ class ACrossSourceTask extends SourceTask implements ICrossSourceTask
 	 *
 	 * @return
 	 */
-	protected File getOutputDir()
+	public File getOutputDir()
 	{
-		return ConventionUtil.getVariationBuildDir( this.project.buildDir, this.targetVariantCombination );
+		if( this.outputDir == null )
+			this.outputDir = ConventionUtil.getVariationBuildDir( this.project.buildDir, this.targetVariantCombination );
+
+		return this.outputDir;
+	}
+
+	public void setOutputDir( File outputDir )
+	{
+		this.outputDir = outputDir;
 	}
 }

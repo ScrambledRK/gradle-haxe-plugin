@@ -147,7 +147,11 @@ class JavaTransform extends ALifeCycleTransform<JavaTransformData>
 				StringUtil.toCamelCase( binarySpec.tasks.taskName( "generateHxml" ), sourceSetName ) )
 		{
 			it.targetVariantCombination = binarySpec.targetVariantCombination.clone();
+
+			it.configuration = binarySpec.configuration;
 			it.sourceSets = sourceSets;
+
+			it.outputDir = new File( it.project.buildDir, binarySpec.tasks.taskName( sourceSetName ) );
 		};
 
 		//

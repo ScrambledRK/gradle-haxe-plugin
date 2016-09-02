@@ -46,4 +46,7 @@ public interface IApplicationComponentSpecInternal extends IApplicationComponent
 
 	//
 	List<List<IVariantRequirement>> getVariantRequirements();
+
+	//
+	void setConfiguration( IConfigurationRequirement configuration );
 }

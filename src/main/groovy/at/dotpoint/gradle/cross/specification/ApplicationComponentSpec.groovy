@@ -112,6 +112,12 @@ class ApplicationComponentSpec extends GeneralComponentSpec implements IApplicat
 		return this.configuration;
 	}
 
+	@Override
+	void setConfiguration( IConfigurationRequirement configuration )
+	{
+		this.configuration = configuration;
+	}
+
 	// -------------------------------------------------------------------------- //
 	// -------------------------------------------------------------------------- //
 

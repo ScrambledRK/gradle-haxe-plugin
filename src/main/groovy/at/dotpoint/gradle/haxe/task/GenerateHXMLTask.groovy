@@ -24,8 +24,8 @@ class GenerateHXMLTask extends ACrossSourceTask
     //
 	private File hxmlFile;
 
-	// ------------------------------------------------------------ //
-	// ------------------------------------------------------------ //
+	// ********************************************************************************************** //
+	// ********************************************************************************************** //
 
 	/**
 	 *
@@ -83,8 +83,8 @@ class GenerateHXMLTask extends ACrossSourceTask
 		this.configuration = configuration
 	}
 
-	// ------------------------------------------------------------ //
-	// ------------------------------------------------------------ //
+	// ********************************************************************************************** //
+	// ********************************************************************************************** //
 
 	/**
 	 *
@@ -99,69 +99,104 @@ class GenerateHXMLTask extends ACrossSourceTask
 		}
 
 		// -------------- //
+	    // classpath:
 
-		String content = "##";
+	    String classpath = "";
 
-		content += "\n## generated via gradle task:";
-		content += "\n## " + this.name;
+        for( String value : this.getClassPaths() )
+	        classpath += "\n" + "-cp " + value;
 
-		content += "\n\n## classpaths:"
-		content += this.getClassPaths();
+	    // -------------- //
+	    // configuration:
 
-		content += "\n\n## configurations:"
-		content += this.getConfigurations();
+	    String configuration = "";
 
-		content += "\n\n## output:"
-		content += this.getOutput();
+        for( String value : this.getConfigurations() )
+	        configuration += "\n" + value;
+
+		// -------------- //
+		// total:
+
+		String total = "##";
+
+		total += "\n## generated via gradle task:";
+		total += "\n## " + this.name;
+
+		total += "\n\n## classpath:"
+		total += classpath;
+
+		total += "\n\n## configurations:"
+		total += configuration;
+
+		total += "\n\n## output:"
+		total += this.getOutput();
 
 		// -------------- //
 
-		hxmlFile.text = content;
+		hxmlFile.text = total;
     }
+
+	// ------------------------------------------------------------ //
+	// ------------------------------------------------------------ //
+	// classpath:
 
 	/**
 	 *
 	 * @return
 	 */
-	private String getClassPaths()
+	private ArrayList<String> getClassPaths()
 	{
+		ArrayList<String> list = new ArrayList<>();
+
 		if( this.sourceSets == null || this.sourceSets.size() == 0 )
-			return "";
+			return list;
 
 		// ------------- //
-
-		String cps = "";
 
 		for( ISourceSet set : this.sourceSets )
 		{
 			set.source.getSrcDirs().each
 			{
-				cps += "\n" + "-cp " + GFileUtils.relativePath( this.project.projectDir, it.absoluteFile );
+				String value = GFileUtils.relativePath( this.project.projectDir, it.absoluteFile );
+
+				if( value != null && !list.contains( value ) )
+					list.add( value );
 			}
 		}
 
-		return cps;
+		// ------------- //
+
+		return list;
 	}
+
+	// ------------------------------------------------------------ //
+	// ------------------------------------------------------------ //
+	// configuration:
 
 	/**
 	 *
 	 * @return
 	 */
-	private String getConfigurations()
+	private ArrayList<String> getConfigurations()
 	{
+		ArrayList<String> list = new ArrayList<>();
+
 		if( this.configuration == null )
-			return "";
+			return list;
 
 		// ------------- //
 
-		String configs = "";
-
-		this.configuration.each
+		for( IConfigurationSetting setting : this.configuration )
 		{
-			configs += "\n" + this.getHxmlConfigValue( it );
+			String value = this.getHxmlConfigValue( setting );
+
+			if( value != null && !list.contains( value ) )
+				list.add( value );
 		}
 
-		return configs;
+		// ------------- //
+
+		return list;
 	}
 
 	/**
@@ -171,11 +206,19 @@ class GenerateHXMLTask extends ACrossSourceTask
 	 */
 	private String getHxmlConfigValue( IConfigurationSetting configurationSetting )
 	{
-		if( configurationSetting.name == "hxml" )
-			return configurationSetting.value;
+		switch( configurationSetting.name )
+		{
+			case "hxml":
+				return configurationSetting.value;
 
-		return "";
+			default:
+				return null;
+		}
 	}
+
+	// ------------------------------------------------------------ //
+	// ------------------------------------------------------------ //
+	// output:
 
 	/**
 	 *
