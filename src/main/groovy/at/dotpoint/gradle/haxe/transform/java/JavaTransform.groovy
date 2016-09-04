@@ -13,6 +13,8 @@ import at.dotpoint.gradle.cross.variant.model.IVariant
 import at.dotpoint.gradle.cross.variant.target.VariantCombination
 import at.dotpoint.gradle.haxe.task.ExecuteHXMLTask
 import at.dotpoint.gradle.haxe.task.GenerateHXMLTask
+import at.dotpoint.gradle.haxe.task.java.ExecuteGradleTask
+import at.dotpoint.gradle.haxe.task.java.GenerateGradleTask
 import org.gradle.api.Task
 import org.gradle.language.base.LanguageSourceSet
 /**
@@ -110,7 +112,7 @@ class JavaTransform extends ALifeCycleTransform<JavaTransformData>
 	protected Task createCompileTransformation( IApplicationBinarySpec binarySpec,
 	                                            JavaTransformData input )
 	{
-		return null;
+		return this.createGradle( binarySpec, input, "compile" );
 	}
 
 	/**
@@ -173,6 +175,36 @@ class JavaTransform extends ALifeCycleTransform<JavaTransformData>
 			for( IApplicationBinarySpec dependency : dependencies )
 				generateTask.dependsOn dependency.buildTask;
 		}
+
+		// ------------------------------------------- //
+
+		executeTask.dependsOn generateTask;
+
+		return executeTask;
+	}
+
+	/**
+	 *
+	 * @return
+	 */
+	private Task createGradle( IApplicationBinarySpec binarySpec, JavaTransformData input, String sourceSetName )
+	{
+		//
+		Task generateTask = TaskUtil.createBinaryTask( binarySpec, GenerateGradleTask.class,
+				StringUtil.toCamelCase( binarySpec.tasks.taskName( "generateGradleProject" ), sourceSetName ) )
+		{
+			it.outputDir = new File( it.project.buildDir, binarySpec.tasks.taskName( sourceSetName ) );
+
+			it.getGradleFile();
+			it.getSettingsFile();
+		};
+
+		//
+		Task executeTask = TaskUtil.createBinaryTask( binarySpec, ExecuteGradleTask.class,
+				StringUtil.toCamelCase( binarySpec.tasks.taskName( "executeGradleProject" ), sourceSetName ) )
+		{
+			it.gradleFile = (generateTask as GenerateGradleTask).gradleFile;
+		};
 
 		// ------------------------------------------- //
 

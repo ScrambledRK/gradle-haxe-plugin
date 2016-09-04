@@ -1,0 +1,92 @@
+apply plugin: 'java';
+apply plugin: 'maven-publish'
+apply plugin: 'idea'
+
+//
+group = "%GROUP%";
+version = "%VERSION%";
+
+// ------------------- //
+
+//
+repositories
+{
+	mavenLocal()
+	mavenCentral()
+
+	flatDir
+	{
+		if( file("lib").exists() )
+			dirs 'lib'
+	}
+}
+
+//
+sourceSets {
+    main {
+        java {
+            srcDirs = ['src']
+			include "**/*.java"
+        }
+        resources {
+            srcDirs = ['src']
+			exclude "**/*.java"
+        }
+    }
+}
+
+jar {
+	if( file("manifest").exists() )
+		manifest.from "manifest";
+}
+
+dependencies
+{
+	if( file("lib").exists() )
+	{
+		file("lib").eachFileRecurse (groovy.io.FileType.FILES) { file ->
+			compile files( file.path );
+		}
+	}
+}
+
+
+// ------------------- //
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+// ------------------- //
+
+artifacts {
+    archives sourcesJar
+    archives javadocJar
+}
+
+// ------------------- //
+
+publishing
+{
+    publications
+	{
+        plugin( MavenPublication )
+		{
+			from components.java
+
+            artifact(sourcesJar) {
+                classifier "sources"
+            }
+
+			artifact(javadocJar) {
+                classifier "javadoc"
+            }
+        }
+    }
+}

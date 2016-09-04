@@ -250,7 +250,7 @@ class GenerateHXMLTask extends ACrossSourceTask
 	 */
 	private String getOutput()
 	{
-		String outputPath = new File( this.getOutputDir(), project.name ).path;
+		String outputPath = this.getOutputDir(); // new File( this.getOutputDir(), project.name ).path;
 
 		//
 		switch( this.targetVariantCombination.platform.name )
