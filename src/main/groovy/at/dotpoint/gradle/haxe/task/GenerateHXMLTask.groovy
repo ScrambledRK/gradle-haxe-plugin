@@ -4,8 +4,6 @@ import at.dotpoint.gradle.cross.configuration.model.IConfiguration
 import at.dotpoint.gradle.cross.configuration.setting.IConfigurationSetting
 import at.dotpoint.gradle.cross.sourceset.ISourceSet
 import at.dotpoint.gradle.cross.task.ACrossSourceTask
-import at.dotpoint.gradle.cross.variant.model.flavor.IFlavor
-import at.dotpoint.gradle.cross.variant.model.platform.IPlatform
 import at.dotpoint.gradle.haxe.configuration.ConfigurationConstant
 import org.gradle.api.tasks.TaskAction
 import org.gradle.language.base.LanguageSourceSet
@@ -254,20 +252,15 @@ class GenerateHXMLTask extends ACrossSourceTask
 	{
 		String outputPath = new File( this.getOutputDir(), project.name ).path;
 
-		IPlatform platform = this.targetVariantCombination.platform;
-		IFlavor flavor = this.targetVariantCombination.flavor;
-
 		//
-		if( flavor != null && flavor.name == "library" )
+		switch( this.targetVariantCombination.platform.name )
 		{
-			switch( platform.name )
-			{
-				case "java": 	return "\n-java " + outputPath;
-				case "flash": 	return "\n-as3 " + outputPath;
-			}
-		}
+			case "java": 	return "\n-java " + outputPath;
+			case "flash": 	return "\n-as3 " + outputPath;
 
-		return "";
+			default:
+				return "";
+		}
 	}
 
 }

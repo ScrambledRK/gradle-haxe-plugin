@@ -97,7 +97,7 @@ class JavaTransform extends ALifeCycleTransform<JavaTransformData>
 	protected Task createConvertTransformation( IApplicationBinarySpec binarySpec,
 	                                            JavaTransformData input )
 	{
-		return null
+		return this.createHXML( binarySpec, input, "compile" );
 	}
 
 	/**
@@ -110,7 +110,7 @@ class JavaTransform extends ALifeCycleTransform<JavaTransformData>
 	protected Task createCompileTransformation( IApplicationBinarySpec binarySpec,
 	                                            JavaTransformData input )
 	{
-		return this.createCompile( binarySpec, input, "compile" );
+		return null;
 	}
 
 	/**
@@ -134,7 +134,7 @@ class JavaTransform extends ALifeCycleTransform<JavaTransformData>
 	 *
 	 * @return
 	 */
-	private Task createCompile( IApplicationBinarySpec binarySpec, JavaTransformData input, String sourceSetName )
+	private Task createHXML( IApplicationBinarySpec binarySpec, JavaTransformData input, String sourceSetName )
 	{
 		VariantCombination<IVariant> targetVariation = binarySpec.targetVariantCombination;
 		List<ISourceSet> sourceSets = this.getSourceSets( binarySpec, sourceSetName );
