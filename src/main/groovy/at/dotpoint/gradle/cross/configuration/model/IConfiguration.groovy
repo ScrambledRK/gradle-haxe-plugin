@@ -7,5 +7,5 @@ import at.dotpoint.gradle.cross.configuration.setting.IConfigurationSetting
  */
 interface IConfiguration extends List<IConfigurationSetting>, RandomAccess, Cloneable
 {
-
+	public IConfigurationSetting getSettingByName( String name );
 }

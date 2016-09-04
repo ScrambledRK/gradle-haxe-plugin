@@ -6,6 +6,7 @@ import at.dotpoint.gradle.cross.sourceset.ISourceSet
 import at.dotpoint.gradle.cross.task.ACrossSourceTask
 import at.dotpoint.gradle.cross.variant.model.flavor.IFlavor
 import at.dotpoint.gradle.cross.variant.model.platform.IPlatform
+import at.dotpoint.gradle.haxe.configuration.ConfigurationConstant
 import org.gradle.api.tasks.TaskAction
 import org.gradle.language.base.LanguageSourceSet
 import org.gradle.util.GFileUtils
@@ -23,6 +24,9 @@ class GenerateHXMLTask extends ACrossSourceTask
 
     //
 	private File hxmlFile;
+
+	//
+	private String mainClassPath;
 
 	// ********************************************************************************************** //
 	// ********************************************************************************************** //
@@ -75,12 +79,34 @@ class GenerateHXMLTask extends ACrossSourceTask
 	 */
 	public IConfiguration getConfiguration()
 	{
-		return configuration
+		return configuration;
 	}
 
 	public void setConfiguration( IConfiguration configuration )
 	{
-		this.configuration = configuration
+		this.configuration = configuration;
+	}
+
+	/**
+	 *
+	 * @return
+	 */
+	String getMainClassPath()
+	{
+		if( this.mainClassPath == null && this.configuration != null )
+		{
+			IConfigurationSetting setting = this.configuration.getSettingByName( ConfigurationConstant.KEY_MAIN );
+
+			if( setting != null && setting.value instanceof String )
+				this.setMainClassPath( mainClassPath );
+		}
+
+		return mainClassPath;
+	}
+
+	void setMainClassPath( String mainClassPath )
+	{
+		this.mainClassPath = mainClassPath;
 	}
 
 	// ********************************************************************************************** //
@@ -208,7 +234,7 @@ class GenerateHXMLTask extends ACrossSourceTask
 	{
 		switch( configurationSetting.name )
 		{
-			case "hxml":
+			case ConfigurationConstant.KEY_HXML:
 				return configurationSetting.value;
 
 			default:

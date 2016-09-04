@@ -7,4 +7,12 @@ import at.dotpoint.gradle.cross.configuration.setting.IConfigurationSetting
  */
 class Configuration extends ArrayList<IConfigurationSetting> implements IConfiguration
 {
+	@Override
+	IConfigurationSetting getSettingByName( String name )
+	{
+		for( IConfigurationSetting setting : this )
+			if( setting.name == name ) return setting;
+
+		return null;
+	}
 }
