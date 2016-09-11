@@ -1,15 +1,15 @@
 package at.dotpoint.gradle.cross.variant.model
 
 import at.dotpoint.gradle.cross.util.DefaultDisplayNamed
-import at.dotpoint.gradle.cross.configuration.requirement.ConfigurationRequirement
-import at.dotpoint.gradle.cross.configuration.requirement.IConfigurationRequirement
+import at.dotpoint.gradle.cross.options.requirement.OptionsRequirement
+import at.dotpoint.gradle.cross.options.requirement.IOptionsRequirement
 /**
  * Created by RK on 16.05.2016.
  */
 class DefaultVariant extends DefaultDisplayNamed implements IVariant
 {
 	//
-	private IConfigurationRequirement configuration;
+	private IOptionsRequirement configuration;
 
 	// --------------------- //
 	// --------------------- //
@@ -31,7 +31,7 @@ class DefaultVariant extends DefaultDisplayNamed implements IVariant
 	 *
 	 * @return
 	 */
-	IConfigurationRequirement getConfiguration()
+	IOptionsRequirement getConfiguration()
 	{
 		if( this.configuration == null )
 			this.configuration = this.createConfiguration();
@@ -43,9 +43,9 @@ class DefaultVariant extends DefaultDisplayNamed implements IVariant
 	 *
 	 * @return
 	 */
-	protected IConfigurationRequirement createConfiguration()
+	protected IOptionsRequirement createConfiguration()
 	{
-		return new ConfigurationRequirement();
+		return new OptionsRequirement();
 	}
 
 	@Override

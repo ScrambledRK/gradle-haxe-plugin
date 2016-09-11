@@ -2,6 +2,7 @@ package at.dotpoint.gradle.haxe.transform.java
 
 import at.dotpoint.gradle.cross.dependency.model.IDependencySpec
 import at.dotpoint.gradle.cross.dependency.model.ILibraryDependencySpec
+import at.dotpoint.gradle.cross.dependency.model.IModuleDependencySpec
 import at.dotpoint.gradle.cross.dependency.resolver.LibraryBinaryResolver
 import at.dotpoint.gradle.cross.sourceset.ISourceSet
 import at.dotpoint.gradle.cross.specification.IApplicationBinarySpec
@@ -15,7 +16,15 @@ import at.dotpoint.gradle.haxe.task.ExecuteHXMLTask
 import at.dotpoint.gradle.haxe.task.GenerateHXMLTask
 import at.dotpoint.gradle.haxe.task.java.ExecuteGradleTask
 import at.dotpoint.gradle.haxe.task.java.GenerateGradleTask
+import org.gradle.api.Project
 import org.gradle.api.Task
+import org.gradle.api.artifacts.Configuration
+import org.gradle.api.artifacts.ConfigurationContainer
+import org.gradle.api.artifacts.Dependency
+import org.gradle.api.artifacts.dsl.DependencyHandler
+import org.gradle.api.artifacts.dsl.RepositoryHandler
+import org.gradle.api.internal.artifacts.ArtifactDependencyResolver
+import org.gradle.api.internal.artifacts.dsl.dependencies.ProjectFinder
 import org.gradle.language.base.LanguageSourceSet
 /**
  * Created by RK on 27.02.16.
@@ -27,8 +36,23 @@ class JavaTransform extends ALifeCycleTransform<JavaTransformData>
 	private LibraryBinaryResolver libraryBinaryResolver;
 
 	//
-	JavaTransform( LibraryBinaryResolver libraryBinaryResolver )
+	private ArtifactDependencyResolver artifactDependencyResolver;
+
+	//
+	private RepositoryHandler repositoryHandler;
+
+	//
+	private ProjectFinder projectFinder;
+
+	//
+	private DependencyHandler dependencyHandler;
+
+	//
+	JavaTransform( ProjectFinder projectFinder, DependencyHandler dependencyHandler,
+			       LibraryBinaryResolver libraryBinaryResolver )
 	{
+		this.projectFinder = projectFinder;
+		this.dependencyHandler = dependencyHandler;
 		this.libraryBinaryResolver = libraryBinaryResolver
 	}
 
@@ -150,7 +174,7 @@ class JavaTransform extends ALifeCycleTransform<JavaTransformData>
 		{
 			it.targetVariantCombination = binarySpec.targetVariantCombination.clone();
 
-			it.configuration = binarySpec.configuration;
+			it.options = binarySpec.options;
 			it.sourceSets = sourceSets;
 
 			it.outputDir = new File( it.project.buildDir, binarySpec.tasks.taskName( sourceSetName ) );
@@ -168,12 +192,17 @@ class JavaTransform extends ALifeCycleTransform<JavaTransformData>
 
 		for( ISourceSet set : sourceSets )
 		{
-			List<IApplicationBinarySpec> dependencies = this.getLibraryDependencies( set, targetVariation );
+			List<IApplicationBinarySpec> libraries = this.getLibraryDependencies( set, targetVariation );
+			List<Configuration> artifacts = this.getArtifactDependencies( binarySpec, set );
 
-			dependencies.each { println( it ) }
-
-			for( IApplicationBinarySpec dependency : dependencies )
+			for( IApplicationBinarySpec dependency : libraries )
 				generateTask.dependsOn dependency.buildTask;
+
+			for( Configuration configuration : artifacts )
+			{
+				Set<File> files = configuration.resolve();
+				(generateTask as GenerateHXMLTask).dependencies = files;
+			}
 		}
 
 		// ------------------------------------------- //
@@ -261,4 +290,45 @@ class JavaTransform extends ALifeCycleTransform<JavaTransformData>
 
 		return dependencies;
 	}
+
+	/**
+	 *
+	 * @param sourceSet
+	 * @return
+	 */
+	private List<Configuration> getArtifactDependencies( IApplicationBinarySpec binarySpec, ISourceSet sourceSet )
+	{
+		Iterable<IDependencySpec> dependencies = sourceSet.dependencies.dependencies;
+		List<Configuration> configurationList = new ArrayList<>();
+
+		for( IDependencySpec dependencySpec : dependencies )
+		{
+			if( !(dependencySpec instanceof IModuleDependencySpec) )
+				continue;
+
+			Project project = this.projectFinder.findProject( binarySpec.getProjectPath() );
+			Dependency dependency = this.dependencyHandler.create( dependencySpec.getDisplayName() );
+
+			ConfigurationContainer configurationContainer = project.getConfigurations()
+			Configuration configuration = configurationContainer.detachedConfiguration( dependency );
+
+			configurationList.add( configuration );
+		}
+
+		return configurationList;
+	}
+
+	//
+//	private List<ResolutionAwareRepository> getResolutionAwareRepositories()
+//	{
+//		List<ResolutionAwareRepository> resolutionAwareRepositories = new ArrayList<>();
+//
+//		for( ArtifactRepository repository : this.repositoryHandler.collect() )
+//		{
+//			if( repository instanceof ResolutionAwareRepository )
+//				resolutionAwareRepositories.add( repository );
+//		}
+//
+//		return resolutionAwareRepositories;
+//	}
 }

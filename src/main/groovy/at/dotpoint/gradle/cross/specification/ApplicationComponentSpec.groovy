@@ -1,7 +1,7 @@
 package at.dotpoint.gradle.cross.specification
 
-import at.dotpoint.gradle.cross.configuration.requirement.ConfigurationRequirement
-import at.dotpoint.gradle.cross.configuration.requirement.IConfigurationRequirement
+import at.dotpoint.gradle.cross.options.requirement.OptionsRequirement
+import at.dotpoint.gradle.cross.options.requirement.IOptionsRequirement
 import at.dotpoint.gradle.cross.variant.parser.buildtype.BuildTypeNotationParser
 import at.dotpoint.gradle.cross.variant.parser.buildtype.IBuildTypeNotationParser
 import at.dotpoint.gradle.cross.variant.parser.flavor.FlavorNotationParser
@@ -28,7 +28,7 @@ class ApplicationComponentSpec extends GeneralComponentSpec implements IApplicat
 	protected final IBuildTypeNotationParser buildTypeNotationParser;
 
 	//
-	protected IConfigurationRequirement configuration;
+	protected IOptionsRequirement configuration;
 
 	// --------------------------------------------- //
 	// --------------------------------------------- //
@@ -104,16 +104,16 @@ class ApplicationComponentSpec extends GeneralComponentSpec implements IApplicat
 	 *
 	 * @return
 	 */
-	IConfigurationRequirement getConfiguration()
+	IOptionsRequirement getOptions()
 	{
 		if( this.configuration == null )
-			this.configuration = new ConfigurationRequirement();
+			this.configuration = new OptionsRequirement();
 
 		return this.configuration;
 	}
 
 	@Override
-	void setConfiguration( IConfigurationRequirement configuration )
+	void setOptions( IOptionsRequirement configuration )
 	{
 		this.configuration = configuration;
 	}

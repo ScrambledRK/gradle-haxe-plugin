@@ -1,17 +1,17 @@
-package at.dotpoint.gradle.cross.configuration.builder
+package at.dotpoint.gradle.cross.options.builder
 
-import at.dotpoint.gradle.cross.configuration.model.Configuration
-import at.dotpoint.gradle.cross.configuration.model.IConfiguration
-import at.dotpoint.gradle.cross.configuration.requirement.IConfigurationRequirementInternal
-import at.dotpoint.gradle.cross.configuration.requirement.command.IConfigurationCommand
-import at.dotpoint.gradle.cross.configuration.setting.ConfigurationSetting
+import at.dotpoint.gradle.cross.options.model.Options
+import at.dotpoint.gradle.cross.options.model.IOptions
+import at.dotpoint.gradle.cross.options.requirement.IOptionsRequirementInternal
+import at.dotpoint.gradle.cross.options.requirement.command.IOptionsCommand
+import at.dotpoint.gradle.cross.options.setting.OptionsSetting
 import at.dotpoint.gradle.cross.convention.ConventionUtil
 import at.dotpoint.gradle.cross.variant.model.IVariant
 import at.dotpoint.gradle.cross.variant.target.VariantCombination
 /**
  * Created by RK on 16.05.2016.
  */
-class ConfigurationBuilder implements IConfigurationBuilder
+class OptionsBuilder implements IOptionsBuilder
 {
 	//
 	private final File buildDir;
@@ -20,7 +20,7 @@ class ConfigurationBuilder implements IConfigurationBuilder
 	 *
 	 * @param project
 	 */
-	ConfigurationBuilder( File buildDir )
+	OptionsBuilder( File buildDir )
 	{
 		this.buildDir = buildDir
 	}
@@ -33,15 +33,15 @@ class ConfigurationBuilder implements IConfigurationBuilder
 	 * @param variantCombination
 	 * @return
 	 */
-	IConfiguration build( Iterable<IConfigurationRequirementInternal> requirements )
+	IOptions build( Iterable<IOptionsRequirementInternal> requirements )
 	{
-		IConfiguration configuration = new Configuration();
+		IOptions configuration = new Options();
 
-		for( IConfigurationRequirementInternal requirement : requirements )
+		for( IOptionsRequirementInternal requirement : requirements )
 		{
-			ArrayList<IConfigurationCommand> commands = requirement.getConfigurationCommands();
+			ArrayList<IOptionsCommand> commands = requirement.getConfigurationCommands();
 
-			for( IConfigurationCommand command : commands )
+			for( IOptionsCommand command : commands )
 			{
 				String name = command.setting.name;
 				Object value = command.setting.value;
@@ -49,7 +49,7 @@ class ConfigurationBuilder implements IConfigurationBuilder
 				if( value instanceof String )
 					value = value.replaceAll(/\@\{(\w+\.\w+)\}/){ m, k -> this.getStringVariable( variantCombination, k ) };
 
-				configuration.add( new ConfigurationSetting( name, value ) );
+				configuration.add( new OptionsSetting( name, value ) );
 			}
 		}
 

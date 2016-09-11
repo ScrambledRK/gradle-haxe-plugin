@@ -1,11 +1,11 @@
-package at.dotpoint.gradle.cross.configuration.requirement
+package at.dotpoint.gradle.cross.options.requirement
 
-import at.dotpoint.gradle.cross.configuration.requirement.command.IConfigurationCommand
+import at.dotpoint.gradle.cross.options.requirement.command.IOptionsCommand
 
 /**
 *  Created by RK on 16.05.2016.
 */
-interface IConfigurationRequirement
+interface IOptionsRequirement
 {
 	/**
 	 *
@@ -32,11 +32,11 @@ interface IConfigurationRequirement
 /**
  *
  */
-interface IConfigurationRequirementInternal extends IConfigurationRequirement
+interface IOptionsRequirementInternal extends IOptionsRequirement
 {
 	/**
 	 *
 	 * @return
 	 */
-	ArrayList<IConfigurationCommand> getConfigurationCommands();
+	ArrayList<IOptionsCommand> getConfigurationCommands();
 }

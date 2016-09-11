@@ -16,6 +16,8 @@ import at.dotpoint.gradle.haxe.specification.IHaxeBinarySpecInternal
 import at.dotpoint.gradle.haxe.transform.java.JavaTransform
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.artifacts.dsl.DependencyHandler
+import org.gradle.api.internal.artifacts.dsl.dependencies.ProjectFinder
 import org.gradle.api.internal.file.FileResolver
 import org.gradle.api.internal.resolve.ProjectModelResolver
 import org.gradle.internal.reflect.Instantiator
@@ -124,10 +126,16 @@ class HaxePlugin implements Plugin<Project>
 		 */
 		private ILifeCycleTransform createJavaTransform( ServiceRegistry serviceRegistry )
 		{
-			ProjectModelResolver projectModelResolver = serviceRegistry.get( ProjectModelResolver.class );
+			ProjectFinder projectFinder                     = serviceRegistry.get( ProjectFinder.class );
+//			ArtifactDependencyResolver dependencyResolver   = serviceRegistry.get( ArtifactDependencyResolver.class )
+//			RepositoryHandler repositoryHandler             = serviceRegistry.get( RepositoryHandler.class )
+
+			ProjectModelResolver projectModelResolver       = serviceRegistry.get( ProjectModelResolver.class );
+			DependencyHandler dependencyHandler             = serviceRegistry.get( DependencyHandler.class );
+
 			LibraryBinaryResolver libraryBinaryResolver = new LibraryBinaryResolver( projectModelResolver );
 
-			return new JavaTransform( libraryBinaryResolver );
+			return new JavaTransform( projectFinder, dependencyHandler, libraryBinaryResolver );
 		}
 
 	}

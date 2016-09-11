@@ -1,9 +1,9 @@
-package at.dotpoint.gradle.cross.configuration.setting
+package at.dotpoint.gradle.cross.options.setting
 
 /**
  * Created by RK on 16.05.2016.
  */
-class ConfigurationSetting implements IConfigurationSetting
+class OptionsSetting implements IOptionsSetting
 {
 
 	//
@@ -13,12 +13,12 @@ class ConfigurationSetting implements IConfigurationSetting
 	// --------------------- //
 	// --------------------- //
 
-	public ConfigurationSetting()
+	public OptionsSetting()
 	{
 		this( null, null )
 	}
 
-	public ConfigurationSetting( String name, Object value )
+	public OptionsSetting( String name, Object value )
 	{
 		this.name = name;
 		this.value = value;

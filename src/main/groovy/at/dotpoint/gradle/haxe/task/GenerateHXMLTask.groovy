@@ -1,7 +1,7 @@
 package at.dotpoint.gradle.haxe.task
 
-import at.dotpoint.gradle.cross.configuration.model.IConfiguration
-import at.dotpoint.gradle.cross.configuration.setting.IConfigurationSetting
+import at.dotpoint.gradle.cross.options.model.IOptions
+import at.dotpoint.gradle.cross.options.setting.IOptionsSetting
 import at.dotpoint.gradle.cross.sourceset.ISourceSet
 import at.dotpoint.gradle.cross.task.ACrossSourceTask
 import at.dotpoint.gradle.haxe.configuration.ConfigurationConstant
@@ -18,13 +18,16 @@ class GenerateHXMLTask extends ACrossSourceTask
 	private List<ISourceSet> sourceSets;
 
 	//
-	private IConfiguration configuration
+	private IOptions options
 
     //
 	private File hxmlFile;
 
 	//
 	private String mainClassPath;
+
+	//
+	private Set<File> dependencies;
 
 	// ********************************************************************************************** //
 	// ********************************************************************************************** //
@@ -75,14 +78,14 @@ class GenerateHXMLTask extends ACrossSourceTask
 	 *
 	 * @return
 	 */
-	public IConfiguration getConfiguration()
+	public IOptions getOptions()
 	{
-		return configuration;
+		return options;
 	}
 
-	public void setConfiguration( IConfiguration configuration )
+	public void setOptions( IOptions options )
 	{
-		this.configuration = configuration;
+		this.options = options;
 	}
 
 	/**
@@ -91,9 +94,9 @@ class GenerateHXMLTask extends ACrossSourceTask
 	 */
 	String getMainClassPath()
 	{
-		if( this.mainClassPath == null && this.configuration != null )
+		if( this.mainClassPath == null && this.options != null )
 		{
-			IConfigurationSetting setting = this.configuration.getSettingByName( ConfigurationConstant.KEY_MAIN );
+			IOptionsSetting setting = this.options.getSettingByName( ConfigurationConstant.KEY_MAIN );
 
 			if( setting != null && setting.value instanceof String )
 				this.setMainClassPath( mainClassPath );
@@ -105,6 +108,16 @@ class GenerateHXMLTask extends ACrossSourceTask
 	void setMainClassPath( String mainClassPath )
 	{
 		this.mainClassPath = mainClassPath;
+	}
+
+	Set<File> getDependencies()
+	{
+		return dependencies
+	}
+
+	void setDependencies( Set<File> dependencies )
+	{
+		this.dependencies = dependencies
 	}
 
 	// ********************************************************************************************** //
@@ -131,12 +144,20 @@ class GenerateHXMLTask extends ACrossSourceTask
 	        classpath += "\n" + "-cp " + value;
 
 	    // -------------- //
-	    // configuration:
+	    // dependencies:
 
-	    String configuration = "";
+	    String dependencies = "";
 
-        for( String value : this.getConfigurations() )
-	        configuration += "\n" + value;
+        for( String value : this.getCompileDependencies() )
+	        dependencies += "\n" + value;
+
+	    // -------------- //
+	    // options:
+
+	    String options = "";
+
+        for( String value : this.getCompileOptions() )
+	        options += "\n" + value;
 
 		// -------------- //
 		// total:
@@ -149,8 +170,11 @@ class GenerateHXMLTask extends ACrossSourceTask
 		total += "\n\n## classpath:"
 		total += classpath;
 
-		total += "\n\n## configurations:"
-		total += configuration;
+	    total += "\n\n## dependencies:"
+        total += dependencies;
+
+		total += "\n\n## options:"
+		total += options;
 
 		total += "\n\n## output:"
 		total += this.getOutput();
@@ -195,22 +219,69 @@ class GenerateHXMLTask extends ACrossSourceTask
 
 	// ------------------------------------------------------------ //
 	// ------------------------------------------------------------ //
-	// configuration:
+	// dependencies:
 
 	/**
 	 *
 	 * @return
 	 */
-	private ArrayList<String> getConfigurations()
+	private ArrayList<String> getCompileDependencies()
 	{
 		ArrayList<String> list = new ArrayList<>();
 
-		if( this.configuration == null )
+		if( this.dependencies == null )
 			return list;
 
 		// ------------- //
 
-		for( IConfigurationSetting setting : this.configuration )
+		for( File artifact : this.dependencies )
+		{
+			String value = this.getNativeDependencyOption( artifact );
+
+			if( value != null && !list.contains( value ) )
+				list.add( value );
+		}
+
+		// ------------- //
+
+		return list;
+	}
+
+	/**
+	 *
+	 * @param configurationSetting
+	 * @return
+	 */
+	private String getNativeDependencyOption( File artifact )
+	{
+		//
+		switch( this.targetVariantCombination.platform.name )
+		{
+			case "java": 	return "-java-lib " + artifact.absolutePath;
+
+			default:
+				return null;
+		}
+	}
+
+	// ------------------------------------------------------------ //
+	// ------------------------------------------------------------ //
+	// options:
+
+	/**
+	 *
+	 * @return
+	 */
+	private ArrayList<String> getCompileOptions()
+	{
+		ArrayList<String> list = new ArrayList<>();
+
+		if( this.options == null )
+			return list;
+
+		// ------------- //
+
+		for( IOptionsSetting setting : this.options )
 		{
 			String value = this.getHxmlConfigValue( setting );
 
@@ -228,7 +299,7 @@ class GenerateHXMLTask extends ACrossSourceTask
 	 * @param configurationSetting
 	 * @return
 	 */
-	private String getHxmlConfigValue( IConfigurationSetting configurationSetting )
+	private String getHxmlConfigValue( IOptionsSetting configurationSetting )
 	{
 		switch( configurationSetting.name )
 		{

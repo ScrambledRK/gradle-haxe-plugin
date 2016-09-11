@@ -12,6 +12,7 @@ abstract class ALifeCycleTransform<TData extends ILifeCycleTransformData>
 		extends ATaskTransform<IApplicationBinarySpec, TData>
 		implements ILifeCycleTransform<TData>
 {
+
 	/**
 	 *
 	 * @return

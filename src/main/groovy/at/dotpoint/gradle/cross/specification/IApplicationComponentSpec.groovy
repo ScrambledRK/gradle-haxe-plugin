@@ -1,6 +1,6 @@
 package at.dotpoint.gradle.cross.specification
 
-import at.dotpoint.gradle.cross.configuration.requirement.IConfigurationRequirement
+import at.dotpoint.gradle.cross.options.requirement.IOptionsRequirement
 import at.dotpoint.gradle.cross.variant.requirement.IVariantRequirement
 import at.dotpoint.gradle.cross.variant.requirement.buildtype.IBuildTypeRequirement
 import at.dotpoint.gradle.cross.variant.requirement.flavor.IFlavorRequirement
@@ -27,7 +27,7 @@ public interface IApplicationComponentSpec extends IGeneralComponentSpec, Applic
 	void buildType( Iterable<Object> buildTypeRequirements );
 
 	//
-	IConfigurationRequirement getConfiguration()
+	IOptionsRequirement getOptions()
 }
 
 /**
@@ -48,5 +48,5 @@ public interface IApplicationComponentSpecInternal extends IApplicationComponent
 	List<List<IVariantRequirement>> getVariantRequirements();
 
 	//
-	void setConfiguration( IConfigurationRequirement configuration );
+	void setOptions( IOptionsRequirement configuration );
 }

@@ -1,8 +1,8 @@
 package at.dotpoint.gradle.cross
 
-import at.dotpoint.gradle.cross.configuration.builder.ConfigurationBuilder
-import at.dotpoint.gradle.cross.configuration.model.Configuration
-import at.dotpoint.gradle.cross.configuration.requirement.IConfigurationRequirementInternal
+import at.dotpoint.gradle.cross.options.builder.OptionsBuilder
+import at.dotpoint.gradle.cross.options.model.Options
+import at.dotpoint.gradle.cross.options.requirement.IOptionsRequirementInternal
 import at.dotpoint.gradle.cross.sourceset.CrossSourceSet
 import at.dotpoint.gradle.cross.sourceset.ISourceSet
 import at.dotpoint.gradle.cross.sourceset.ISourceSetInternal
@@ -267,7 +267,7 @@ class CrossPlugin implements Plugin<Project>
 				IApplicationBinarySpecInternal binarySpecInternal = (IApplicationBinarySpecInternal) binarySpec;
 
 				this.setTargetVariant( binarySpecInternal, permutation, variantResolver );
-				this.setConfiguration( binarySpecInternal, applicationComponentSpec, buildDir );
+				this.setOptions( binarySpecInternal, applicationComponentSpec, buildDir );
 			}
 
 			return (IApplicationBinarySpecInternal) builder.get( variationName );
@@ -300,15 +300,15 @@ class CrossPlugin implements Plugin<Project>
 		 * @param applicationComponentSpec
 		 * @param buildDir
 		 */
-		private void setConfiguration( IApplicationBinarySpecInternal binarySpec,
-				                       IApplicationComponentSpecInternal applicationComponentSpec,
-				                       File buildDir )
+		private void setOptions( IApplicationBinarySpecInternal binarySpec,
+		                         IApplicationComponentSpecInternal applicationComponentSpec,
+		                         File buildDir )
 		{
-			Configuration configuration = this.generateConfigurationRequirement( binarySpec,
+			Options configuration = this.generateOptionRequirements( binarySpec,
 					applicationComponentSpec, buildDir );
 
 			if( configuration != null )
-				binarySpec.setConfiguration( configuration );
+				binarySpec.setOptions( configuration );
 		}
 
 		/**
@@ -318,23 +318,23 @@ class CrossPlugin implements Plugin<Project>
 		 * @param buildDir
 		 * @return
 		 */
-		private Configuration generateConfigurationRequirement( IApplicationBinarySpecInternal binarySpec,
-		                                                        IApplicationComponentSpecInternal applicationComponentSpec,
-		                                                        File buildDir )
+		private Options generateOptionRequirements( IApplicationBinarySpecInternal binarySpec,
+		                                            IApplicationComponentSpecInternal applicationComponentSpec,
+		                                            File buildDir )
 		{
 			VariantCombination<IVariant> variantCombination = binarySpec.getTargetVariantCombination();
-			ArrayList<IConfigurationRequirementInternal> requirements = new ArrayList<>();
+			ArrayList<IOptionsRequirementInternal> requirements = new ArrayList<>();
 
 			for( IVariant variant : variantCombination )
 			{
 				if( variant.configuration != null )
-					requirements.add( variant.configuration as IConfigurationRequirementInternal );
+					requirements.add( variant.configuration as IOptionsRequirementInternal );
 			}
 
-			if( applicationComponentSpec.configuration != null )
-				requirements.add( applicationComponentSpec.configuration as IConfigurationRequirementInternal );
+			if( applicationComponentSpec.options != null )
+				requirements.add( applicationComponentSpec.options as IOptionsRequirementInternal );
 
-			return new ConfigurationBuilder( buildDir ).build( requirements );
+			return new OptionsBuilder( buildDir ).build( requirements );
 		}
 	}
 

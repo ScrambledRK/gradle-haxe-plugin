@@ -1,6 +1,6 @@
 package at.dotpoint.gradle.cross.variant.model
 
-import at.dotpoint.gradle.cross.configuration.requirement.IConfigurationRequirement
+import at.dotpoint.gradle.cross.options.requirement.IOptionsRequirement
 import org.gradle.api.Named
 
 /**
@@ -14,8 +14,8 @@ public interface IVariant extends Named {
 	String getDisplayName();
 
 	/**
-	 * Returns a variant configuration (dynamic setting object).
+	 * Returns a variant options (dynamic setting object).
 	 */
-	IConfigurationRequirement getConfiguration();
+	IOptionsRequirement getConfiguration();
 
 }
