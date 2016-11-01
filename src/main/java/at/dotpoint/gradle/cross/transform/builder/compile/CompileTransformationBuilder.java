@@ -23,17 +23,14 @@ import java.util.List;
 public class CompileTransformationBuilder extends ATransformationBuilder<IApplicationBinarySpec,List<ISourceSet>>
 {
 	//
-	private static final Logger LOGGER = Logging.getLogger(CompileTransformationBuilder.class)
+	private static final Logger LOGGER = Logging.getLogger(CompileTransformationBuilder.class);
 
 	// ------------------------------------------------- //
 	// ------------------------------------------------- //
 
 	/**
-	 *
-	 * @param compileTransformationContainer
-	 * @param taskContainer
 	 */
-	CompileTransformationBuilder( CompileTransformationContainer compileTransformationContainer )
+	public CompileTransformationBuilder( CompileTransformationContainer compileTransformationContainer )
 	{
 		super( Lists.newArrayList( compileTransformationContainer ) );
 	}
@@ -42,8 +39,6 @@ public class CompileTransformationBuilder extends ATransformationBuilder<IApplic
 	// ------------------------------------------------- //
 
 	/**
-	 *
-	 * @param binarySpec
 	 */
 	public void createTransformationTasks( IApplicationBinarySpecInternal binarySpec )
 	{

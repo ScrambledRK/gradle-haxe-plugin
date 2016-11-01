@@ -9,7 +9,7 @@ import org.gradle.internal.reflect.Instantiator;
  */
 public class PlatformContainer extends VariantContainer<IPlatform> implements IPlatformContainer {
 
-	PlatformContainer(Instantiator instantiator) {
-		super( IPlatform.class, instantiator)
+	public PlatformContainer(Instantiator instantiator) {
+		super( IPlatform.class, instantiator);
 	}
 }

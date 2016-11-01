@@ -18,19 +18,15 @@ public class LibraryBinaryResolver
 	protected ProjectModelResolver projectModelResolver;
 
 	//
-	LibraryBinaryResolver( ProjectModelResolver projectModelResolver )
+	public LibraryBinaryResolver( ProjectModelResolver projectModelResolver )
 	{
-		this.projectModelResolver = projectModelResolver
+		this.projectModelResolver = projectModelResolver;
 	}
 
 	// ---------------------------------------- //
 	// ---------------------------------------- //
 
 	/**
-	 *
-	 * @param libraryDependencySpec
-	 * @param variants
-	 * @return
 	 */
 	public IApplicationBinarySpec resolveBinary( ILibraryDependencySpec libraryDependencySpec,
 	                                             VariantCombination<IVariant> variants )
@@ -42,7 +38,7 @@ public class LibraryBinaryResolver
 
 		// ---------------- //
 
-		for( BinarySpec binarySpec : library.binaries )
+		for( BinarySpec binarySpec : library.getBinaries() )
 		{
 			IApplicationBinarySpec applicationBinarySpec = null;
 
@@ -52,7 +48,7 @@ public class LibraryBinaryResolver
 			if( applicationBinarySpec == null )
 				continue;
 
-			if( applicationBinarySpec.targetVariantCombination.contains( variants ) )
+			if( applicationBinarySpec.getTargetVariantCombination().contains( variants ) )
 				return applicationBinarySpec;
 		}
 
@@ -60,9 +56,6 @@ public class LibraryBinaryResolver
 	}
 
 	/**
-	 *
-	 * @param libraryDependencySpec
-	 * @return
 	 */
 	private IApplicationComponentSpec findApplicationSpec( ILibraryDependencySpec libraryDependencySpec )
 	{
@@ -75,9 +68,6 @@ public class LibraryBinaryResolver
 	}
 
 	/**
-	 *
-	 * @param libraryDependencySpec
-	 * @return
 	 */
 	private ComponentSpecContainer findComponentSpecContainer( ILibraryDependencySpec libraryDependencySpec )
 	{
@@ -92,9 +82,6 @@ public class LibraryBinaryResolver
 	}
 
 	/**
-	 *
-	 * @param libraryDependencySpec
-	 * @return
 	 */
 	private ModelRegistry findProject( ILibraryDependencySpec libraryDependencySpec )
 	{

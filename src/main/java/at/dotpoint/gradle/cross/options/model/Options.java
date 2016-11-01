@@ -13,7 +13,7 @@ public class Options extends ArrayList<IOptionsSetting> implements IOptions
 	public IOptionsSetting getSettingByName( String name )
 	{
 		for( IOptionsSetting setting : this )
-			if( setting.name == name ) return setting;
+			if( setting.getName() == name ) return setting;
 
 		return null;
 	}

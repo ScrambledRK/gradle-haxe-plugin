@@ -8,7 +8,7 @@ import org.gradle.internal.reflect.Instantiator;
  */
 public class BuildTypeContainer extends VariantContainer<IBuildType> implements IBuildTypeContainer {
 
-	BuildTypeContainer( Instantiator instantiator )
+	public BuildTypeContainer( Instantiator instantiator )
 	{
 		super( IBuildType.class, instantiator );
 	}

@@ -5,6 +5,7 @@ import at.dotpoint.gradle.cross.variant.target.VariantCombination;
 import org.gradle.api.Named;
 
 import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 /**
  * Created by gehat on 16.06.16.
@@ -12,37 +13,24 @@ import java.util.ArrayList;
 public class NameUtil
 {
 	/**
-	 *
-	 * @param permutation
-	 * @return
 	 */
-	public static String getVariationName( VariantCombination<Named> permutation )
+	public static String getVariationName( VariantCombination<? extends Named> permutation )
 	{
-		ArrayList<String> names = new ArrayList<>();
-
-		for( int i = 0; i < permutation.size(); i++ )
-			names.add( permutation.get( i ).name );
+		ArrayList<String> names = permutation.stream()
+				.map( Named::getName )
+				.collect( Collectors.toCollection( ArrayList::new ) );
 
 		return StringUtil.toCamelCase( names );
 	}
 
 	/**
-	 *
-	 * @param prefix
-	 * @param namedObject
-	 * @param targetVariation
-	 * @return
 	 */
 	public static String generateTransformTaskName( String prefix, Named namedObject, VariantCombination<IVariant> targetVariation )
 	{
-		return StringUtil.toCamelCase( prefix, getVariationName( targetVariation ), namedObject.name );
+		return StringUtil.toCamelCase( prefix, getVariationName( targetVariation ), namedObject.getName() );
 	}
 
 	/**
-	 *
-	 * @param prefix
-	 * @param targetVariation
-	 * @return
 	 */
 	public static String generateTransformTaskName( String prefix, VariantCombination<IVariant> targetVariation )
 	{
@@ -50,13 +38,10 @@ public class NameUtil
 	}
 
 	/**
-	 *
-	 * @param prefix
-	 * @param namedObject
-	 * @return
+
 	 */
 	public static String generateTransformTaskName( String prefix, Named namedObject )
 	{
-		return StringUtil.toCamelCase( prefix, namedObject.name );
+		return StringUtil.toCamelCase( prefix, namedObject.getName() );
 	}
 }

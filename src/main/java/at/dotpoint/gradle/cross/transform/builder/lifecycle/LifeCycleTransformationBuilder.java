@@ -11,6 +11,9 @@ import at.dotpoint.gradle.cross.transform.model.lifecycle.ILifeCycleTransformDat
 import com.google.common.collect.Lists;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
+
+import java.util.ArrayList;
+
 /**
  * Created by RK on 03.07.2016.
  */
@@ -24,25 +27,25 @@ public class LifeCycleTransformationBuilder
 	// ------------------------------------------------- //
 
 	/**
-	 *
-	 * @param compileTransformationContainer
-	 * @param taskContainer
 	 */
-	LifeCycleTransformationBuilder( LifeCycleTransformationContainer lifeCycleTransformationContainer )
+	public LifeCycleTransformationBuilder( LifeCycleTransformationContainer lifeCycleTransformationContainer )
 	{
-		super( Lists.newArrayList( lifeCycleTransformationContainer ) );
+		ArrayList<ILifeCycleTransform> transformList = new ArrayList<>();
+
+		for( ILifeCycleTransform transform : lifeCycleTransformationContainer )
+			transformList.add( transform );
+
+		super( transformList );
 	}
 
 	// ------------------------------------------------- //
 	// ------------------------------------------------- //
 
 	/**
-	 *
-	 * @param binarySpec
 	 */
 	public void createTransformationTasks( IApplicationBinarySpecInternal binarySpec )
 	{
-		println "createTransformationTasks. " + binarySpec;
+		//println "createTransformationTasks. " + binarySpec;
 
 		// --------------------- //
 		// already assigned?
@@ -69,11 +72,7 @@ public class LifeCycleTransformationBuilder
 		this.performTaskCreation( result );
 	}
 
-/**
-	 *
-	 * @param target
-	 * @param input
-	 * @return
+	/**
 	 */
 	protected AssignedTransform<IApplicationBinarySpec,ILifeCycleTransformData> assignTransformation(
 			IApplicationBinarySpec target )
@@ -83,7 +82,7 @@ public class LifeCycleTransformationBuilder
 			if( !(transform instanceof ILifeCycleTransform) )
 				continue;
 
-			if( transform.canTransform( target ) )
+			if( transform.canTransform( target, null ) )
 				return this.createAssignedTransform( target, transform.createTransformData(), transform );
 		}
 

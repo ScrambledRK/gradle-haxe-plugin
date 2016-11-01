@@ -12,9 +12,6 @@ import java.io.File;
 public class ConventionUtil
 {
 	/**
-	 *
-	 * @param variant
-	 * @return
 	 */
 	public static File getVariationBuildDir( File buildDir, VariantCombination<IVariant> variant )
 	{

@@ -7,11 +7,11 @@ import at.dotpoint.gradle.cross.variant.model.DefaultVariant;
 public class Flavor extends DefaultVariant implements IFlavorInternal {
 
 	public Flavor( String name) {
-		super(name, name)
+		super(name, name);
 	}
 
 	public Flavor( String name, String displayName) {
-		super(name, displayName)
+		super(name, displayName);
 	}
 
 }

@@ -67,7 +67,7 @@ class TypeConverter extends TypedNotationConverter<String, FlavorRequirement>
 
 	TypeConverter()
     {
-        super( String.class )
+        super( String.class );
     }
 
     @Override

@@ -19,14 +19,12 @@ public class VariantIterator<TVariant> implements Iterator<VariantCombination<TV
 	private int counter;
 
 	/**
-	 *
-	 * @param collection
 	 */
-	VariantIterator( List<List<TVariant>> collection )
+	public VariantIterator( List<List<TVariant>> collection )
 	{
 		this.collection = collection;
 
-		this.permutations = new ArrayList<VariantCombination<TVariant>>();
+		this.permutations = new ArrayList<>();
 		this.counter = 0;
 	}
 
@@ -34,8 +32,6 @@ public class VariantIterator<TVariant> implements Iterator<VariantCombination<TV
 	// ---------------------------------------- //
 
 	/**
-	 *
-	 * @return
 	 */
 	protected List<VariantCombination<TVariant>> getPermutations()
 	{
@@ -46,42 +42,41 @@ public class VariantIterator<TVariant> implements Iterator<VariantCombination<TV
 	}
 
 	/**
-	 *
 	 */
 	private void generatePermutations()
 	{
 		int numTotalPermutations = 1;
 
-		for( int i = 0; i < this.collection.size(); i++ )
+		for( List<TVariant> aCollection1 : this.collection )
 		{
-			if( this.collection.get(i).size() == 0 )
+			if( aCollection1.size() == 0 )
 				continue;
 
-			numTotalPermutations *= this.collection.get(i).size();
+			numTotalPermutations *= aCollection1.size();
 		}
 
 		// ----------------- //
 
 		int numCurrentPermutations = 1;
 
-		for( int k = 0; k < this.collection.size(); k++ )
+		for( List<TVariant> aCollection : this.collection )
 		{
-			if( this.collection.get(k).size() == 0 )
+			if( aCollection.size() == 0 )
 				continue;
 
-			numCurrentPermutations *= this.collection.get(k).size();
+			numCurrentPermutations *= aCollection.size();
 
 			int repetitions = numTotalPermutations / numCurrentPermutations;
 			int counter = 0;
 
 			for( int j = 0; j < numCurrentPermutations; j++ )
 			{
-				for (int r = 0; r < repetitions; r++)
+				for( int r = 0; r < repetitions; r++ )
 				{
 					if( this.permutations.size() <= counter )
-						this.permutations.add( new VariantCombination<TVariant>() );
+						this.permutations.add( new VariantCombination<>() );
 
-					this.permutations.get(counter).add( this.collection.get(k).get( j % this.collection.get(k).size() ) );
+					this.permutations.get( counter ).add( aCollection.get( j % aCollection.size() ) );
 					counter++;
 				}
 			}

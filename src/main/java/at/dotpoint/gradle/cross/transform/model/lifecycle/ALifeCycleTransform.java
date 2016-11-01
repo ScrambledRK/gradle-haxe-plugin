@@ -14,8 +14,6 @@ public abstract class ALifeCycleTransform<TData extends ILifeCycleTransformData>
 {
 
 	/**
-	 *
-	 * @return
 	 */
 	public abstract TData createTransformData();
 
@@ -23,10 +21,6 @@ public abstract class ALifeCycleTransform<TData extends ILifeCycleTransformData>
 	// ---------------------------------------------------------------- //
 
 	/**
-	 *
-	 * @param target
-	 * @param input
-	 * @return
 	 */
 	public boolean canTransform( IApplicationBinarySpec target )
 	{
@@ -34,9 +28,6 @@ public abstract class ALifeCycleTransform<TData extends ILifeCycleTransformData>
 	}
 
 	/**
-	 *
-	 * @param target
-	 * @return
 	 */
 	protected boolean isValidTransformInput( ILifeCycleTransformData input )
 	{
@@ -47,11 +38,6 @@ public abstract class ALifeCycleTransform<TData extends ILifeCycleTransformData>
 	// ---------------------------------------------------------------- //
 
 	/**
-	 *
-	 * @param binarySpec
-	 * @param input
-	 * @param taskContainer
-	 * @return
 	 */
 	@Override
 	public Task createTransformTask( IApplicationBinarySpec binarySpec,
@@ -74,50 +60,35 @@ public abstract class ALifeCycleTransform<TData extends ILifeCycleTransformData>
 
 		return null;
 	}
+
 	/**
-	 *
-	 * @param binarySpec
-	 * @param input
-	 * @param taskContainer
 	 */
 	abstract protected Task createConvertTransformation( IApplicationBinarySpec binarySpec,
-	                                                     TData input )
+	                                                     TData input );
 
 	/**
-	 *
-	 * @param binarySpec
-	 * @param input
-	 * @param taskContainer
 	 */
 	abstract protected Task createCompileTransformation( IApplicationBinarySpec binarySpec,
-	                                                     TData input )
+	                                                     TData input );
 
 	/**
-	 *
-	 * @param binarySpec
-	 * @param input
-	 * @param taskContainer
 	 */
 	abstract protected Task createTestTransformation( IApplicationBinarySpec binarySpec,
-	                                                  TData input )
+	                                                  TData input );
 
 	// ---------------------------------------------------------------- //
 	// ---------------------------------------------------------------- //
 
 	/**
-	 *
-	 * @param binarySpec
-	 * @param task
-	 * @param lifeCycleName
 	 */
 	protected void performLifeCycle( IApplicationBinarySpec binarySpec, Task task, String lifeCycleName )
 	{
-		Task lifeCycleTask = TaskUtil.findTaskByName( binarySpec.tasks,
-				binarySpec.tasks.taskName( lifeCycleName ) );
+		Task lifeCycleTask = TaskUtil.findTaskByName( binarySpec.getTasks(),
+				binarySpec.getTasks().taskName( lifeCycleName ) );
 
 		if( lifeCycleTask == null )
 			throw new RuntimeException( "lifeCycleTask '" + lifeCycleName + "' not found for: " + binarySpec );
 
-		lifeCycleTask.dependsOn task;
+		lifeCycleTask.dependsOn( task );
 	}
 }

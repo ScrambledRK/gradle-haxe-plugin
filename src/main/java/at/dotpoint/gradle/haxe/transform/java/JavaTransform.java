@@ -172,7 +172,7 @@ public class JavaTransform extends ALifeCycleTransform<JavaTransformData>
 		// hxml:
 
 		//
-		Task generateTask = TaskUtil.createBinaryTask( binarySpec, GenerateHXMLTask.class,
+		Task generateTask = TaskUtil.createTask( binarySpec, GenerateHXMLTask.class,
 				StringUtil.toCamelCase( binarySpec.tasks.taskName( "generateHxml" ), sourceSetName ) )
 		{
 			it.targetVariantCombination = binarySpec.targetVariantCombination.clone();
@@ -184,7 +184,7 @@ public class JavaTransform extends ALifeCycleTransform<JavaTransformData>
 		}
 
 		//
-		Task executeTask = TaskUtil.createBinaryTask( binarySpec, ExecuteHXMLTask.class,
+		Task executeTask = TaskUtil.createTask( binarySpec, ExecuteHXMLTask.class,
 				StringUtil.toCamelCase( binarySpec.tasks.taskName( "executeHxml" ), sourceSetName ) )
 		{
 			it.hxmlFile = (generateTask as GenerateHXMLTask).hxmlFile;
@@ -222,7 +222,7 @@ public class JavaTransform extends ALifeCycleTransform<JavaTransformData>
 	private Task createGradle( IApplicationBinarySpec binarySpec, JavaTransformData input, String sourceSetName )
 	{
 		//
-		Task generateTask = TaskUtil.createBinaryTask( binarySpec, GenerateGradleTask.class,
+		Task generateTask = TaskUtil.createTask( binarySpec, GenerateGradleTask.class,
 				StringUtil.toCamelCase( binarySpec.tasks.taskName( "generateGradleProject" ), sourceSetName ) )
 		{
 			it.outputDir = new File( it.project.buildDir, binarySpec.tasks.taskName( sourceSetName ) );
@@ -232,7 +232,7 @@ public class JavaTransform extends ALifeCycleTransform<JavaTransformData>
 		}
 
 		//
-		Task executeTask = TaskUtil.createBinaryTask( binarySpec, ExecuteGradleTask.class,
+		Task executeTask = TaskUtil.createTask( binarySpec, ExecuteGradleTask.class,
 				StringUtil.toCamelCase( binarySpec.tasks.taskName( "executeGradleProject" ), sourceSetName ) )
 		{
 			it.gradleFile = (generateTask as GenerateGradleTask).gradleFile;

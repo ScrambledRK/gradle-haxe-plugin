@@ -18,7 +18,7 @@ public class HaxeConvertTransform extends AConvertTransform
 	//
 	HaxeConvertTransform( LibraryBinaryResolver libraryBinaryResolver )
 	{
-		this.libraryBinaryResolver = libraryBinaryResolver
+		this.libraryBinaryResolver = libraryBinaryResolver;
 	}
 
 	// ---------------------------------------------------------------- //

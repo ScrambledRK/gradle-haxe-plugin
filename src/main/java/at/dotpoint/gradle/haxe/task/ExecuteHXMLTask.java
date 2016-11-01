@@ -17,21 +17,17 @@ public class ExecuteHXMLTask extends DefaultTask
 	// ------------------------------------------------------------ //
 
 	/**
-	 *
-	 * @return
 	 */
 	public File getHxmlFile()
 	{
-		return this.hxmlFile
+		return this.hxmlFile;
 	}
 
 	/**
-	 *
-	 * @param hxmlFile
 	 */
 	public void setHxmlFile( File hxmlFile )
 	{
-		this.hxmlFile = hxmlFile
+		this.hxmlFile = hxmlFile;
 	}
 
 	// ------------------------------------------------------------ //
@@ -42,7 +38,7 @@ public class ExecuteHXMLTask extends DefaultTask
     {
         project.exec
 		{
-			it.executable "haxe"
+			it.executable "haxe";
 			it.args this.hxmlFile.absolutePath;
 		}
     }

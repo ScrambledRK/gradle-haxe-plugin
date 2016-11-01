@@ -10,7 +10,7 @@ public class BuildTypeRequirement extends DefaultNamed implements IBuildTypeRequ
 {
 
 	public BuildTypeRequirement( String name) {
-		super(name)
+		super(name);
 	}
 
 	@Override

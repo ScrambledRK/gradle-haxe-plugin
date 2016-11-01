@@ -14,8 +14,8 @@ public class HaxeComponentSpec extends ApplicationComponentSpec implements IHaxe
 	 *
 	 * @param flavorNotationParser
 	 */
-	HaxeComponentSpec( IFlavorNotationParser<IFlavorRequirement> flavorNotationParser )
+	public HaxeComponentSpec( IFlavorNotationParser<IFlavorRequirement> flavorNotationParser )
 	{
-		super( flavorNotationParser )
+		super( flavorNotationParser );
 	}
 }

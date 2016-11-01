@@ -21,7 +21,7 @@ public class StringUtil
 
 		String result = null;
 
-		for( String value in params )
+		for( String value : params )
 		{
 			result = result == null ? value : result + value.substring( 0, 1 ).toUpperCase() + value.substring( 1 );
 		}

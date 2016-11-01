@@ -50,7 +50,7 @@ public class CrossSourceSet extends BaseLanguageSourceSet implements ISourceSetI
 
     public PlatformRequirement getPlatformRequirement()
     {
-        return platformRequirement
+        return platformRequirement;
     }
 
     /**

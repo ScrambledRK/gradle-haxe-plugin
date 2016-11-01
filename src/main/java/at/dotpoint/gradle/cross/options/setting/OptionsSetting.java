@@ -15,7 +15,7 @@ public class OptionsSetting implements IOptionsSetting
 
 	public OptionsSetting()
 	{
-		this( null, null )
+		this( null, null );
 	}
 
 	public OptionsSetting( String name, Object value )

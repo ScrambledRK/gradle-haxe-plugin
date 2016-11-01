@@ -30,26 +30,6 @@ public interface IApplicationComponentSpec extends IGeneralComponentSpec, Applic
 	void buildType( Iterable<Object> buildTypeRequirements );
 
 	//
-	IOptionsRequirement getOptions()
+	IOptionsRequirement getOptions();
 }
 
-/**
- *
- */
-public interface IApplicationComponentSpecInternal extends IApplicationComponentSpec
-{
-	//
-    List<PlatformRequirement> getTargetPlatforms();
-
-	//
-	List<IFlavorRequirement> getTargetFlavors();
-
-	//
-	List<IBuildTypeRequirement> getTargetBuildTypes();
-
-	//
-	List<List<IVariantRequirement>> getVariantRequirements();
-
-	//
-	void setOptions( IOptionsRequirement configuration );
-}

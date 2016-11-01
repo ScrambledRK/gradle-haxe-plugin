@@ -16,12 +16,12 @@ public class DefaultVariant extends DefaultDisplayNamed implements IVariant
 
 	public DefaultVariant( String name )
 	{
-		super( name, name )
+		super( name, name );
 	}
 
 	public DefaultVariant( String name, String displayName )
 	{
-		super( name, displayName )
+		super( name, displayName );
 	}
 
 	// --------------------- //

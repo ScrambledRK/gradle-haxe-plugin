@@ -9,7 +9,7 @@ public class BuildTypeResolver extends VariantResolver<IBuildType, IBuildTypeReq
 		implements IBuildTypeResolver
 {
 
-	BuildTypeResolver( ExtensiblePolymorphicDomainObjectContainer<IBuildType> variantContainer ) {
+	public BuildTypeResolver( ExtensiblePolymorphicDomainObjectContainer<IBuildType> variantContainer ) {
 		super(variantContainer);
 	}
 

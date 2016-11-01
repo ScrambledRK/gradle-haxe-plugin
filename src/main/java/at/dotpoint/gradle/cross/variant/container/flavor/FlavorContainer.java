@@ -9,7 +9,7 @@ import org.gradle.internal.reflect.Instantiator;
  */
 public class FlavorContainer extends VariantContainer<IFlavor> implements IFlavorContainer {
 
-	FlavorContainer( Instantiator instantiator )
+	public FlavorContainer( Instantiator instantiator )
 	{
 		super( IFlavor.class, instantiator );
 	}

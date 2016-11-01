@@ -1,4 +1,4 @@
-package at.dotpoint.gradle.cross.variant.parser.buildtype
+package at.dotpoint.gradle.cross.variant.parser.buildtype;
 
 import at.dotpoint.gradle.cross.variant.parser.IVariantNotationParser;
 import at.dotpoint.gradle.cross.variant.requirement.buildtype.IBuildTypeRequirement;

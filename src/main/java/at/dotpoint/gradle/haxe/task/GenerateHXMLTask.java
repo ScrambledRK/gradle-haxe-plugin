@@ -24,7 +24,7 @@ public class GenerateHXMLTask extends ACrossSourceTask
 	private List<ISourceSet> sourceSets;
 
 	//
-	private IOptions options
+	private IOptions options;
 
     //
 	private File hxmlFile;
@@ -47,7 +47,7 @@ public class GenerateHXMLTask extends ACrossSourceTask
 		if( this.hxmlFile == null )
 			this.setHxmlFile( new File( this.getOutputDir(), "build.hxml" ) );
 
-		return this.hxmlFile
+		return this.hxmlFile;
 	}
 
 	/**
@@ -118,12 +118,12 @@ public class GenerateHXMLTask extends ACrossSourceTask
 
 	Set<File> getDependencies()
 	{
-		return dependencies
+		return dependencies;
 	}
 
 	void setDependencies( Set<File> dependencies )
 	{
-		this.dependencies = dependencies
+		this.dependencies = dependencies;
 	}
 
 	// ********************************************************************************************** //
@@ -173,16 +173,16 @@ public class GenerateHXMLTask extends ACrossSourceTask
 		total += "\n## generated via gradle task:";
 		total += "\n## " + this.name;
 
-		total += "\n\n## classpath:"
+		total += "\n\n## classpath:";
 		total += classpath;
 
-	    total += "\n\n## dependencies:"
+	    total += "\n\n## dependencies:";
         total += dependencies;
 
-		total += "\n\n## options:"
+		total += "\n\n## options:";
 		total += options;
 
-		total += "\n\n## output:"
+		total += "\n\n## output:";
 		total += this.getOutput();
 
 		// -------------- //
@@ -195,8 +195,6 @@ public class GenerateHXMLTask extends ACrossSourceTask
 	// classpath:
 
 	/**
-	 *
-	 * @return
 	 */
 	private ArrayList<String> getClassPaths()
 	{
@@ -209,9 +207,9 @@ public class GenerateHXMLTask extends ACrossSourceTask
 
 		for( ISourceSet set : this.sourceSets )
 		{
-			set.source.getSrcDirs().each
+			set.getSource().getSrcDirs().each
 			{
-				String value = GFileUtils.relativePath( this.project.projectDir, it.absoluteFile );
+				String value = GFileUtils.relativePath( this.getProject().getProjectDir(), it.absoluteFile );
 
 				if( value != null && !list.contains( value ) )
 					list.add( value );
@@ -228,8 +226,6 @@ public class GenerateHXMLTask extends ACrossSourceTask
 	// dependencies:
 
 	/**
-	 *
-	 * @return
 	 */
 	private ArrayList<String> getCompileDependencies()
 	{

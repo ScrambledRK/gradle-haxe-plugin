@@ -9,8 +9,8 @@ import at.dotpoint.gradle.cross.variant.model.flavor.IFlavor;
 public class FlavorRequirement extends DefaultNamed implements IFlavorRequirement
 {
 
-	FlavorRequirement( String name) {
-		super(name)
+	public FlavorRequirement( String name) {
+		super(name);
 	}
 
 	@Override

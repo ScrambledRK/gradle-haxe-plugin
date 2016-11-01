@@ -1,7 +1,6 @@
 package at.dotpoint.gradle.cross.util;
 
 import org.gradle.api.Action;
-import org.gradle.api.DomainObjectSet;
 import org.gradle.api.Task;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.platform.base.BinarySpec;
@@ -11,70 +10,47 @@ import org.gradle.platform.base.BinarySpec;
 public class TaskUtil
 {
 	/**
-	 *
-	 * @param container
-	 * @param name
-	 * @return
 	 */
-	public static Task findTaskByName( DomainObjectSet<Task> container, String name )
+	public static <TTask extends Task> TTask findTaskByName( Iterable<Task> container,
+	                                                         String name, Class<TTask> type )
 	{
-		Task current = null;
+		Task task = TaskUtil.findTaskByName( container, name );
 
-		container.each {
-			if( it.name == name )
-				current = it;
-		}
+		if( task != null && type.isAssignableFrom( task.getClass() ) )
+			return type.cast( task );
 
-		return current;
+		return null;
 	}
 
 	/**
-	 *
-	 * @param binarySpec
-	 * @param sourceSet
-	 * @param type
-	 * @param name
-	 * @return
 	 */
-	public static <TTask extends Task> TTask createBinaryTask( BinarySpec binarySpec, Class<TTask> type,
-															   String name, Action<? super TTask> config )
+	public static Task findTaskByName( Iterable<Task> container, String name )
 	{
-		TTask task = null;
-
-		binarySpec.tasks.create( name, type )
+		for( Task task : container )
 		{
-			task = it;
-			config.execute( task );
+			if( name.equals( task.getName() ) )
+				return task;
 		}
 
-		// --------------- //
-
-		return task;
+		return null;
 	}
 
 	/**
-	 *
-	 * @param prefix
-	 * @param type
-	 * @param sourceSet
-	 * @param targetVariation
-	 * @param taskContainer
-	 * @return
 	 */
-	public static <TTask extends Task> TTask createTaskContainerTask( TaskContainer taskContainer, Class<TTask> type,
-																		String name, Action<? super TTask> config )
+	public static <TTask extends Task> TTask createTask( BinarySpec binarySpec, Class<TTask> type,
+	                                                     String name, Action<? super TTask> config )
 	{
-		TTask task = null;
+		binarySpec.getTasks().create( name, type, config::execute );
+		return TaskUtil.findTaskByName( binarySpec.getTasks(), name, type );
+	}
 
-		taskContainer.create( name, type )
-		{
-			task = it;
-			config.execute( task );
-		}
-
-		// --------------- //
-
-		return task;
+	/**
+	 */
+	public static <TTask extends Task> TTask createTask( TaskContainer taskContainer, Class<TTask> type,
+	                                                     String name, Action<? super TTask> config )
+	{
+		taskContainer.create( name, type, config::execute );
+		return TaskUtil.findTaskByName( taskContainer, name, type );
 	}
 
 }

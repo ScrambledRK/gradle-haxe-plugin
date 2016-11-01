@@ -9,8 +9,8 @@ public class FlavorResolver extends VariantResolver<IFlavor, IFlavorRequirement>
 		implements IFlavorResolver
 {
 
-	FlavorResolver( ExtensiblePolymorphicDomainObjectContainer<IFlavor> variantContainer ) {
-		super(variantContainer)
+	public FlavorResolver( ExtensiblePolymorphicDomainObjectContainer<IFlavor> variantContainer ) {
+		super(variantContainer);
 	}
 
 	@Override

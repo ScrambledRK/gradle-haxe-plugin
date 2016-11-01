@@ -1,4 +1,4 @@
-package at.dotpoint.gradle.cross.variant.parser.flavor
+package at.dotpoint.gradle.cross.variant.parser.flavor;
 
 import at.dotpoint.gradle.cross.variant.parser.IVariantNotationParser;
 import at.dotpoint.gradle.cross.variant.requirement.flavor.IFlavorRequirement;

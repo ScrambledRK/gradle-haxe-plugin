@@ -21,21 +21,16 @@ public class OptionsBuilder implements IOptionsBuilder
 	private final File buildDir;
 
 	/**
-	 *
-	 * @param project
 	 */
-	OptionsBuilder( File buildDir )
+	public OptionsBuilder( File buildDir )
 	{
-		this.buildDir = buildDir
+		this.buildDir = buildDir;
 	}
 
 	// ------------------------------------------------------------ //
 	// ------------------------------------------------------------ //
 
 	/**
-	 *
-	 * @param variantCombination
-	 * @return
 	 */
 	public IOptions build( Iterable<IOptionsRequirementInternal> requirements )
 	{
@@ -47,11 +42,11 @@ public class OptionsBuilder implements IOptionsBuilder
 
 			for( IOptionsCommand command : commands )
 			{
-				String name = command.setting.name;
-				Object value = command.setting.value;
+				String name = command.getSetting().getName();
+				Object value = command.getSetting().getValue();
 
-				if( value instanceof String )
-					value = value.replaceAll(/\@\{(\w+\.\w+)\}/){ m, k -> this.getStringVariable( variantCombination, k ) }
+				//if( value instanceof String )
+				//	value = ((String)value).replaceAll("/\@\{(\w+\.\w+)\}/"){ m, k -> this.getStringVariable( variantCombination, k ) }
 
 				configuration.add( new OptionsSetting( name, value ) );
 			}
@@ -60,15 +55,14 @@ public class OptionsBuilder implements IOptionsBuilder
 		return configuration;
 	}
 
+
+
 	/**
-	 *
-	 * @param variable
-	 * @return
 	 */
-	public String getStringVariable( VariantCombination<IVariant> variantCombination, String variable )
+	private String getStringVariable( VariantCombination<IVariant> variantCombination, String variable )
 	{
 		if( variable == "variation.buildDir" )
-			return ConventionUtil.getVariationBuildDir( this.buildDir, variantCombination ).path;
+			return ConventionUtil.getVariationBuildDir( this.buildDir, variantCombination ).getPath();
 
 		return variable;
 	}

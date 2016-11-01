@@ -21,7 +21,7 @@ public class ALifeCycleTransformData implements ILifeCycleTransformData
 	 */
 	public List<ISourceSet> getSourceSets()
 	{
-		return sourceSets
+		return sourceSets;
 	}
 
 	/**
@@ -30,6 +30,6 @@ public class ALifeCycleTransformData implements ILifeCycleTransformData
 	 */
 	public void setSourceSets( List<ISourceSet> sourceSets )
 	{
-		this.sourceSets = sourceSets
+		this.sourceSets = sourceSets;
 	}
 }

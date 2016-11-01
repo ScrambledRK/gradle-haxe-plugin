@@ -1,4 +1,4 @@
-package at.dotpoint.gradle.cross.task
+package at.dotpoint.gradle.cross.task;
 
 import at.dotpoint.gradle.cross.variant.target.IVariationsSourceInternal;
 import at.dotpoint.gradle.cross.variant.target.IVariationsTargetInternal;

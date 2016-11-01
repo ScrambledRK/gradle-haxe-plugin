@@ -11,37 +11,37 @@ public class ModuleDependencySpec implements IModuleDependencySpecInternal
 	@Override
 	public String getModule()
 	{
-		return module
+		return module;
 	}
 
 	@Override
 	public void setModule( String module )
 	{
-		this.module = module
+		this.module = module;
 	}
 
 	@Override
 	public String getGroup()
 	{
-		return group
+		return group;
 	}
 
 	@Override
 	public void setGroup( String group )
 	{
-		this.group = group
+		this.group = group;
 	}
 
 	@Override
 	public String getVersion()
 	{
-		return version
+		return version;
 	}
 
 	@Override
 	public void setVersion( String version )
 	{
-		this.version = version
+		this.version = version;
 	}
 
 	/**

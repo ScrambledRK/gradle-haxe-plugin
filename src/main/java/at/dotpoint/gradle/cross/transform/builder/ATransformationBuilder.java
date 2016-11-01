@@ -17,7 +17,7 @@ public abstract class ATransformationBuilder<TTarget,TInput> implements ITransfo
 	/**
 	 *
 	 */
-	protected ArrayList<ITaskTransform<TTarget,TInput>> transformList;
+	protected ArrayList<? extends ITaskTransform<TTarget,TInput>> transformList;
 
 	/**
 	 *
@@ -28,11 +28,8 @@ public abstract class ATransformationBuilder<TTarget,TInput> implements ITransfo
 	// ------------------------------------ //
 
 	/**
-	 *
-	 * @param transformList
-	 * @param taskContainer
 	 */
-	ATransformationBuilder( ArrayList<ITaskTransform<TTarget, TInput>> transformList )
+	public ATransformationBuilder( ArrayList<? extends ITaskTransform<TTarget, TInput>> transformList )
 	{
 		this.assignedTransforms = new ArrayList<>();
 		this.transformList = transformList;
@@ -42,16 +39,10 @@ public abstract class ATransformationBuilder<TTarget,TInput> implements ITransfo
 	// ------------------------------------ //
 
 	/**
-	 *
-	 * @param binarySpec
 	 */
 	abstract public void createTransformationTasks( IApplicationBinarySpecInternal binarySpec );
 
 	/**
-	 *
-	 * @param target
-	 * @param input
-	 * @return
 	 */
 	protected AssignedTransform<TTarget,TInput> getAssignedTransform( TTarget target,
 	                                                                  TInput input )
@@ -65,10 +56,6 @@ public abstract class ATransformationBuilder<TTarget,TInput> implements ITransfo
 	}
 
 	/**
-	 *
-	 * @param target
-	 * @param input
-	 * @return
 	 */
 	protected AssignedTransform<TTarget,TInput> getAssignedTransform( TTarget target )
 	{
@@ -82,10 +69,6 @@ public abstract class ATransformationBuilder<TTarget,TInput> implements ITransfo
 	}
 
 	/**
-	 *
-	 * @param target
-	 * @param input
-	 * @return
 	 */
 	protected AssignedTransform<TTarget,TInput> assignTransformation( TTarget target,
 	                                                                  TInput input )
@@ -100,11 +83,6 @@ public abstract class ATransformationBuilder<TTarget,TInput> implements ITransfo
 	}
 
 	/**
-	 *
-	 * @param target
-	 * @param input
-	 * @param transform
-	 * @return
 	 */
 	protected AssignedTransform<TTarget,TInput> createAssignedTransform( TTarget target,
 	                                                                     TInput input,
@@ -122,8 +100,6 @@ public abstract class ATransformationBuilder<TTarget,TInput> implements ITransfo
 	}
 
 	/**
-	 *
-	 * @param assigned
 	 */
 	protected void performTaskCreation( AssignedTransform<TTarget,TInput> assigned )
 	{
@@ -131,50 +107,15 @@ public abstract class ATransformationBuilder<TTarget,TInput> implements ITransfo
 	}
 
 	/**
-	 *
-	 * @param assignedTransform
-	 * @param binarySpec
 	 */
 	protected void performLifeCycle( AssignedTransform assignedTransform,
 	                                 IApplicationBinarySpecInternal binarySpec,
 	                                 String taskName )
 	{
-		Task convertTask = TaskUtil.findTaskByName( binarySpec.tasks,
-				binarySpec.tasks.taskName( taskName ) );
+		Task convertTask = TaskUtil.findTaskByName( binarySpec.getTasks(),
+				binarySpec.getTasks().taskName( taskName ) );
 
-		convertTask.dependsOn assignedTransform.task;
+		convertTask.dependsOn( assignedTransform.task );
 	}
 }
 
-/**
- *
- * @param <TTarget>
- * @param <TInput>
- */
-public class AssignedTransform<TTarget,TInput>
-{
-	//
-	public TTarget target;
-
-	//
-	public TInput input;
-
-	//
-	public ITaskTransform<TTarget,TInput> transform;
-
-	//
-	public Task task;
-
-	/**
-	 *
-	 * @param target
-	 * @param input
-	 * @param transform
-	 */
-	AssignedTransform( TTarget target, TInput input, ITaskTransform<TTarget,TInput> transform )
-	{
-		this.target = target;
-		this.input = input;
-		this.transform = transform;
-	}
-}

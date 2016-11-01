@@ -40,11 +40,8 @@ public class ApplicationComponentSpec extends GeneralComponentSpec implements IA
 	// --------------------------------------------- //
 
 	/**
-	 *
-	 * @param flavorNotationParser
-	 * @param targetFlavorList
 	 */
-	ApplicationComponentSpec()
+	public ApplicationComponentSpec()
 	{
 		this.targetPlatformList = new ArrayList<>();
 		this.targetFlavorList = new ArrayList<>();
@@ -59,8 +56,6 @@ public class ApplicationComponentSpec extends GeneralComponentSpec implements IA
 	// --------------------------------------------- //
 
 	/**
-	 *
-	 * @return
 	 */
 	@Override
 	public List<PlatformRequirement> getTargetPlatforms()
@@ -69,8 +64,6 @@ public class ApplicationComponentSpec extends GeneralComponentSpec implements IA
 	}
 
 	/**
-	 *
-	 * @return
 	 */
 	@Override
 	public List<IFlavorRequirement> getTargetFlavors()
@@ -79,8 +72,6 @@ public class ApplicationComponentSpec extends GeneralComponentSpec implements IA
 	}
 
 	/**
-	 *
-	 * @return
 	 */
 	@Override
 	public List<IBuildTypeRequirement> getTargetBuildTypes()
@@ -89,13 +80,11 @@ public class ApplicationComponentSpec extends GeneralComponentSpec implements IA
 	}
 
 	/**
-	 *
-	 * @return
 	 */
 	@Override
-	public List<List<IVariantRequirement>> getVariantRequirements()
+	public List<List<? extends IVariantRequirement>> getVariantRequirements()
 	{
-		List<List<IVariantRequirement>> variants = new ArrayList<List<IVariantRequirement>>();
+		List<List<? extends IVariantRequirement>> variants = new ArrayList<>();
 		variants.add( this.getTargetPlatforms() );
 		variants.add( this.getTargetFlavors() );
 		variants.add( this.getTargetBuildTypes() );

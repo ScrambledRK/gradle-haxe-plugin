@@ -15,37 +15,37 @@ public class ModuleDependencySpecBuilder implements IModuleDependencySpecBuilder
 	@Override
 	public String getModule()
 	{
-		return module
+		return module;
 	}
 
 	@Override
 	public void setModule( String module )
 	{
-		this.module = module
+		this.module = module;
 	}
 
 	@Override
 	public String getGroup()
 	{
-		return group
+		return group;
 	}
 
 	@Override
 	public void setGroup( String group )
 	{
-		this.group = group
+		this.group = group;
 	}
 
 	@Override
 	public String getVersion()
 	{
-		return version
+		return version;
 	}
 
 	@Override
 	public void setVersion( String version )
 	{
-		this.version = version
+		this.version = version;
 	}
 
 	@Override
@@ -53,9 +53,9 @@ public class ModuleDependencySpecBuilder implements IModuleDependencySpecBuilder
 	{
 		IModuleDependencySpecInternal specInternal = new ModuleDependencySpec();
 
-		specInternal.group = this.group;
-		specInternal.module = this.module;
-		specInternal.version = this.version;
+		specInternal.setGroup( this.group );
+		specInternal.setModule( this.module );
+		specInternal.setVersion( this.version );
 
 		return specInternal;
 	}

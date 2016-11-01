@@ -11,8 +11,8 @@ import at.dotpoint.gradle.cross.variant.requirement.IVariantRequirement;
 public class PlatformRequirement extends DefaultNamed implements IVariantRequirement, org.gradle.platform.base.internal.PlatformRequirement
 {
 
-	PlatformRequirement(String platformName) {
-		super(platformName)
+	public PlatformRequirement(String platformName) {
+		super(platformName);
 	}
 
 	@Override

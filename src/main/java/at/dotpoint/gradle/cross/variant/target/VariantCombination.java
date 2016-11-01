@@ -50,8 +50,6 @@ public class VariantCombination<TVariant> extends ArrayList<TVariant>
 	// ---------------------------------------------------------- //
 
 	/**
-	 *
-	 * @param variant
 	 */
 	public void setVariant( TVariant variant, Class<TVariant> variantType )
 	{
@@ -70,29 +68,24 @@ public class VariantCombination<TVariant> extends ArrayList<TVariant>
 	}
 
 	/**
-	 *
-	 * @param variantType
-	 * @return
 	 */
 	public <TVariantType extends TVariant> TVariantType getVariant( Class<TVariantType> variantType )
 	{
 		int index = this.getIndexOfVariant( variantType );
 
 		if( index != -1 )
-			return this.get( index );
+			return variantType.cast( this.get( index ) );
 
 		return null;
 	}
 
 	/**
-	 *
-	 * @return
 	 */
-	protected int getIndexOfVariant( Class<TVariant> variantType )
+	protected int getIndexOfVariant( Class<? extends TVariant> variantType )
 	{
 		for (int i = 0; i < this.size(); i++)
 		{
-			if( this.get(i).class.isAssignableFrom( variantType ) || variantType.isAssignableFrom( this.get(i).class ) )
+			if( this.get(i).getClass().isAssignableFrom( variantType ) || variantType.isAssignableFrom( this.get(i).getClass() ) )
 				return i;
 		}
 
@@ -103,9 +96,6 @@ public class VariantCombination<TVariant> extends ArrayList<TVariant>
 	// ---------------------------------------------------------- //
 
 	/**
-	 *
-	 * @param other
-	 * @return
 	 */
 	public boolean isEqual( VariantCombination<TVariant> other )
 	{
@@ -116,7 +106,7 @@ public class VariantCombination<TVariant> extends ArrayList<TVariant>
 
 		for( int i = 0; i < this.size(); i++ )
 		{
-			Class<TVariant> variantType = this.get(i).class
+			Class<TVariant> variantType = this.get(i).getClass();
 
 			if( !this.getVariant( variantType ).equals( other.getVariant( variantType ) ) )
 				return false;
@@ -126,9 +116,6 @@ public class VariantCombination<TVariant> extends ArrayList<TVariant>
 	}
 
 	/**
-	 *
-	 * @param other
-	 * @return
 	 */
 	public boolean contains( VariantCombination<TVariant> other )
 	{
@@ -139,7 +126,7 @@ public class VariantCombination<TVariant> extends ArrayList<TVariant>
 
 		for( int i = 0; i < other.size(); i++ )
 		{
-			Class<TVariant> variantType = other.get(i).class
+			Class<TVariant> variantType = other.get(i).getClass();
 
 			if( !this.getVariant( variantType ).equals( other.getVariant( variantType ) ) )
 				return false;
@@ -148,12 +135,4 @@ public class VariantCombination<TVariant> extends ArrayList<TVariant>
 		return true;
 	}
 
-	// ---------------------------------------------------------- //
-	// ---------------------------------------------------------- //
-
-	@Override
-	public VariantCombination<TVariant> clone()
-	{
-		return (VariantCombination<TVariant>)(super.clone());
-	}
 }

@@ -7,10 +7,10 @@ import at.dotpoint.gradle.cross.variant.model.DefaultVariant;
 public class BuildType extends DefaultVariant implements IBuildTypeInternal {
 
 	public BuildType( String name) {
-		super(name, name)
+		super(name, name);
 	}
 
 	public BuildType( String name, String displayName) {
-		super(name, displayName)
+		super(name, displayName);
 	}
 }

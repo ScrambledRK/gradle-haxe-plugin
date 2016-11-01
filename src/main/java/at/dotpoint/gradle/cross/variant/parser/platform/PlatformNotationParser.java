@@ -69,7 +69,7 @@ class TypeConverter extends TypedNotationConverter<String, PlatformRequirement>
 
 	TypeConverter()
     {
-        super( String.class )
+        super( String.class );
     }
 
     @Override

@@ -17,25 +17,25 @@ public class LibraryDependencySpec implements ILibraryDependencySpecInternal
 	@Override
 	public String getProjectPath()
 	{
-		return projectPath
+		return projectPath;
 	}
 
 	@Override
 	public void setProjectPath( String projectPath )
 	{
-		this.projectPath = projectPath
+		this.projectPath = projectPath;
 	}
 
 	@Override
 	public String getLibraryName()
 	{
-		return libraryName
+		return libraryName;
 	}
 
 	@Override
 	public void setLibraryName( String libraryName )
 	{
-		this.libraryName = libraryName
+		this.libraryName = libraryName;
 	}
 
 	@Override

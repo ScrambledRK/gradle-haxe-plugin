@@ -8,7 +8,7 @@ import org.gradle.api.internal.DefaultDomainObjectSet;
 public class LifeCycleTransformationContainer extends DefaultDomainObjectSet<ILifeCycleTransform>
 {
 
-	LifeCycleTransformationContainer()
+	public LifeCycleTransformationContainer()
 	{
 		super( ILifeCycleTransform.class );
 	}

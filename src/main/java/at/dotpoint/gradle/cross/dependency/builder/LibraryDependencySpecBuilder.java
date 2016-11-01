@@ -15,25 +15,25 @@ public class LibraryDependencySpecBuilder implements ILibraryDependencySpecBuild
 	@Override
 	public String getProjectPath()
 	{
-		return projectPath
+		return projectPath;
 	}
 
 	@Override
 	public void setProjectPath( String projectPath )
 	{
-		this.projectPath = projectPath
+		this.projectPath = projectPath;
 	}
 
 	@Override
 	public String getLibraryName()
 	{
-		return libraryName
+		return libraryName;
 	}
 
 	@Override
 	public void setLibraryName( String libraryName )
 	{
-		this.libraryName = libraryName
+		this.libraryName = libraryName;
 	}
 
 	@Override
@@ -41,8 +41,8 @@ public class LibraryDependencySpecBuilder implements ILibraryDependencySpecBuild
 	{
 		ILibraryDependencySpecInternal specInternal = new LibraryDependencySpec();
 
-		specInternal.projectPath = this.projectPath;
-		specInternal.libraryName = this.libraryName;
+		specInternal.setProjectPath( this.projectPath );
+		specInternal.setLibraryName( this.libraryName );
 
 		return specInternal;
 	}

@@ -65,8 +65,6 @@ public class HaxePlugin implements Plugin<Project>
 	/**
 	 *
 	 */
-	@SuppressWarnings(["UnusedDeclaration", "GrMethodMayBeStatic"])
-	//
 	static class HaxePluginRules extends RuleSource
 	{
 
