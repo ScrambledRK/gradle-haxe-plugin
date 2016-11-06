@@ -18,7 +18,7 @@ import at.dotpoint.gradle.cross.variant.container.buildtype.BuildTypeContainer;
 import at.dotpoint.gradle.cross.variant.container.buildtype.IBuildTypeContainer;
 import at.dotpoint.gradle.cross.variant.container.flavor.FlavorContainer;
 import at.dotpoint.gradle.cross.variant.container.flavor.IFlavorContainer;
-import at.dotpoint.gradle.cross.variant.container.platform.*;
+import at.dotpoint.gradle.cross.variant.container.platform.IPlatformContainer;
 import at.dotpoint.gradle.cross.variant.factory.buildtype.BuildTypeFactory;
 import at.dotpoint.gradle.cross.variant.factory.flavor.FlavorFactory;
 import at.dotpoint.gradle.cross.variant.factory.platform.PlatformFactory;
@@ -38,6 +38,7 @@ import at.dotpoint.gradle.cross.variant.target.VariantCombination;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.Task;
 import org.gradle.api.internal.file.FileResolver;
 import org.gradle.api.internal.tasks.DefaultTaskDependency;
 import org.gradle.api.tasks.TaskContainer;
@@ -47,9 +48,7 @@ import org.gradle.language.base.plugins.LifecycleBasePlugin;
 import org.gradle.model.*;
 import org.gradle.model.internal.core.Hidden;
 import org.gradle.platform.base.*;
-import org.gradle.platform.base.PlatformContainer;
 import org.gradle.platform.base.internal.BinarySpecInternal;
-import org.gradle.api.Task;
 
 import javax.inject.Inject;
 import java.io.File;
@@ -346,7 +345,7 @@ public class CrossPlugin implements Plugin<Project>
 		 */
 		@Mutate
 		void registerVariationResolver( IVariantResolverRepository variantResolver,
-		                                at.dotpoint.gradle.cross.variant.container.platform.PlatformContainer platformContainer,
+		                                IPlatformContainer platformContainer,
 		                                IFlavorContainer flavorContainer,
 		                                IBuildTypeContainer buildTypeContainer )
 		{
@@ -365,7 +364,7 @@ public class CrossPlugin implements Plugin<Project>
 		@SuppressWarnings("GroovyAssignabilityCheck")
 		//
 		@Model
-		IFlavorContainer flavors( Instantiator instantiator )
+		IFlavorContainer flavorContainer( Instantiator instantiator )
 		{
 			return new FlavorContainer( instantiator );
 		}
@@ -389,7 +388,7 @@ public class CrossPlugin implements Plugin<Project>
 		@SuppressWarnings("GroovyAssignabilityCheck")
 		//
 		@Model
-		IBuildTypeContainer buildTypes( Instantiator instantiator )
+		IBuildTypeContainer buildTypeContainer( Instantiator instantiator )
 		{
 			return new BuildTypeContainer( instantiator );
 		}
@@ -413,7 +412,7 @@ public class CrossPlugin implements Plugin<Project>
 		@SuppressWarnings("GroovyAssignabilityCheck")
 		//
 		@Model
-		IPlatformContainer platforms( Instantiator instantiator )
+		IPlatformContainer platformContainer( Instantiator instantiator )
 		{
 			return new at.dotpoint.gradle.cross.variant.container.platform.PlatformContainer( instantiator );
 		}
@@ -422,7 +421,7 @@ public class CrossPlugin implements Plugin<Project>
 		 * Platform Factories
 		 */
 		@Mutate
-		void registerPlatformFactories( PlatformContainer platformContainer )
+		void registerPlatformFactories( IPlatformContainer platformContainer )
 		{
 			platformContainer.registerFactory( IPlatform.class, new PlatformFactory() );
 		}

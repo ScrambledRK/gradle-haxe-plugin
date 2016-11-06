@@ -111,7 +111,7 @@ public class JavaTransform extends ALifeCycleTransform
 			if( !(sourceSet instanceof ISourceSet) )
 				return false;
 
-			if( "haxe".equals( ((ISourceSet)sourceSet).getSourcePlatform().getName() ) )
+			if( !"haxe".equals( ((ISourceSet)sourceSet).getSourcePlatform().getName() ) )
 				return false;
 		}
 

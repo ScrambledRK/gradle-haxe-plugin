@@ -1,20 +1,16 @@
 package at.dotpoint.gradle.cross.util;
 
-import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Created by RK on 20.02.16.
  */
 public class StringUtil
 {
-	public static String toCamelCase( ArrayList<String> params )
+	public static String toCamelCase( List<String> params )
 	{
-		return toCamelCase( (String[]) params.toArray() );
-	}
-
-	public static String toCamelCase( String... params )
-	{
-		if ( params == null || params.length == 0 )
+		if ( params == null || params.size() == 0 )
 			return null;
 
 		// ----------- //
@@ -27,5 +23,10 @@ public class StringUtil
 		}
 
 		return result;
+	}
+
+	public static String toCamelCase( String... params )
+	{
+		return toCamelCase( Arrays.asList( params ) );
 	}
 }

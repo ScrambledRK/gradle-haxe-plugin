@@ -1,6 +1,6 @@
 package at.dotpoint.gradle.cross.variant.resolver.platform;
 
-import at.dotpoint.gradle.cross.variant.container.platform.PlatformContainer;
+import at.dotpoint.gradle.cross.variant.container.platform.IPlatformContainer;
 import at.dotpoint.gradle.cross.variant.model.platform.IPlatform;
 import at.dotpoint.gradle.cross.variant.requirement.platform.PlatformRequirement;
 import at.dotpoint.gradle.cross.variant.resolver.VariantResolver;
@@ -13,7 +13,7 @@ public class PlatformResolver extends VariantResolver<IPlatform,PlatformRequirem
 {
 
 	//
-	public PlatformResolver( PlatformContainer platformContainer ) {
+	public PlatformResolver( IPlatformContainer platformContainer ) {
 		super( platformContainer );
 	}
 
