@@ -6,7 +6,9 @@ import at.dotpoint.gradle.cross.options.requirement.IOptionsRequirementInternal;
 import at.dotpoint.gradle.cross.sourceset.CrossSourceSet;
 import at.dotpoint.gradle.cross.sourceset.ISourceSet;
 import at.dotpoint.gradle.cross.sourceset.ISourceSetInternal;
+import at.dotpoint.gradle.cross.specification.ApplicationBinarySpec;
 import at.dotpoint.gradle.cross.specification.*;
+import at.dotpoint.gradle.cross.specification.GeneralComponentSpec;
 import at.dotpoint.gradle.cross.transform.builder.ITransformBuilder;
 import at.dotpoint.gradle.cross.transform.repository.ITransformBuilderRepository;
 import at.dotpoint.gradle.cross.transform.repository.TransformBuilderRepository;
@@ -16,6 +18,7 @@ import at.dotpoint.gradle.cross.variant.container.buildtype.BuildTypeContainer;
 import at.dotpoint.gradle.cross.variant.container.buildtype.IBuildTypeContainer;
 import at.dotpoint.gradle.cross.variant.container.flavor.FlavorContainer;
 import at.dotpoint.gradle.cross.variant.container.flavor.IFlavorContainer;
+import at.dotpoint.gradle.cross.variant.container.platform.*;
 import at.dotpoint.gradle.cross.variant.factory.buildtype.BuildTypeFactory;
 import at.dotpoint.gradle.cross.variant.factory.flavor.FlavorFactory;
 import at.dotpoint.gradle.cross.variant.factory.platform.PlatformFactory;
@@ -35,7 +38,6 @@ import at.dotpoint.gradle.cross.variant.target.VariantCombination;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
-import org.gradle.api.Task;
 import org.gradle.api.internal.file.FileResolver;
 import org.gradle.api.internal.tasks.DefaultTaskDependency;
 import org.gradle.api.tasks.TaskContainer;
@@ -44,10 +46,10 @@ import org.gradle.language.base.plugins.LanguageBasePlugin;
 import org.gradle.language.base.plugins.LifecycleBasePlugin;
 import org.gradle.model.*;
 import org.gradle.model.internal.core.Hidden;
-import org.gradle.platform.base.ApplicationBinarySpec;
 import org.gradle.platform.base.*;
-import org.gradle.platform.base.GeneralComponentSpec;
+import org.gradle.platform.base.PlatformContainer;
 import org.gradle.platform.base.internal.BinarySpecInternal;
+import org.gradle.api.Task;
 
 import javax.inject.Inject;
 import java.io.File;
@@ -160,7 +162,8 @@ public class CrossPlugin implements Plugin<Project>
 		/**
 		 * ITransformBuilderRepository
 		 */
-		@Hidden @Model
+		@Hidden
+		@Model
 		ITransformBuilderRepository transformBuilderRepository()
 		{
 			return new TransformBuilderRepository();
@@ -403,6 +406,17 @@ public class CrossPlugin implements Plugin<Project>
 		// -------------------------------------------------- //
 		// -------------------------------------------------- //
 		// Variant:Platform (almost gradle-native)
+
+		/**
+		 * IBuildTypeContainer
+		 */
+		@SuppressWarnings("GroovyAssignabilityCheck")
+		//
+		@Model
+		IPlatformContainer platforms( Instantiator instantiator )
+		{
+			return new at.dotpoint.gradle.cross.variant.container.platform.PlatformContainer( instantiator );
+		}
 
 		/**
 		 * Platform Factories
