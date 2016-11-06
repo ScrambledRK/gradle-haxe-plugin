@@ -8,14 +8,14 @@ import org.gradle.api.Task;
 /**
  * Created by RK on 2016-08-27.
  */
-public abstract class ALifeCycleTransform<TData extends ILifeCycleTransformData>
-		extends ATaskTransform<IApplicationBinarySpec, TData>
-		implements ILifeCycleTransform<TData>
+public abstract class ALifeCycleTransform
+		extends ATaskTransform<IApplicationBinarySpec, ILifeCycleTransformData>
+		implements ILifeCycleTransform
 {
 
 	/**
 	 */
-	public abstract TData createTransformData();
+	public abstract ILifeCycleTransformData createTransformData();
 
 	// ---------------------------------------------------------------- //
 	// ---------------------------------------------------------------- //
@@ -41,7 +41,7 @@ public abstract class ALifeCycleTransform<TData extends ILifeCycleTransformData>
 	 */
 	@Override
 	public Task createTransformTask( IApplicationBinarySpec binarySpec,
-	                          TData input )
+	                                 ILifeCycleTransformData input )
 	{
 		Task convertTask = this.createConvertTransformation( binarySpec, input );
 		Task compileTask = this.createCompileTransformation( binarySpec, input );
@@ -64,17 +64,17 @@ public abstract class ALifeCycleTransform<TData extends ILifeCycleTransformData>
 	/**
 	 */
 	abstract protected Task createConvertTransformation( IApplicationBinarySpec binarySpec,
-	                                                     TData input );
+	                                                     ILifeCycleTransformData input );
 
 	/**
 	 */
 	abstract protected Task createCompileTransformation( IApplicationBinarySpec binarySpec,
-	                                                     TData input );
+	                                                     ILifeCycleTransformData input );
 
 	/**
 	 */
 	abstract protected Task createTestTransformation( IApplicationBinarySpec binarySpec,
-	                                                  TData input );
+	                                                  ILifeCycleTransformData input );
 
 	// ---------------------------------------------------------------- //
 	// ---------------------------------------------------------------- //

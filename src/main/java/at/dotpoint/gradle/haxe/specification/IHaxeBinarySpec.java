@@ -14,7 +14,3 @@ public interface IHaxeBinarySpec extends IApplicationBinarySpec
 
 }
 
-public interface IHaxeBinarySpecInternal extends IApplicationBinarySpecInternal
-{
-
-}

@@ -2,8 +2,11 @@ package at.dotpoint.gradle.haxe.task.java;
 
 import org.gradle.api.DefaultTask;
 import org.gradle.api.tasks.TaskAction;
+import org.gradle.internal.impldep.org.apache.commons.io.FileUtils;
+import org.gradle.internal.impldep.org.apache.commons.io.IOUtils;
 
 import java.io.File;
+import java.io.IOException;
 
 /**
  * Created by RK on 2016-09-04.
@@ -26,7 +29,7 @@ public class GenerateGradleTask extends DefaultTask
 	public File getOutputDir()
 	{
 		if( this.outputDir == null )
-			this.outputDir = new File( this.project.buildDir.absolutePath );
+			this.outputDir = new File( this.getProject().getBuildDir().getAbsolutePath() );
 
 		return this.outputDir;
 	}
@@ -37,8 +40,6 @@ public class GenerateGradleTask extends DefaultTask
 	}
 
 	/**
-	 *
-	 * @return
 	 */
 	public File getGradleFile()
 	{
@@ -49,18 +50,14 @@ public class GenerateGradleTask extends DefaultTask
 	}
 
 	/**
-	 *
-	 * @param hxmlFile
 	 */
 	public void setGradleFile( File gradleFile )
 	{
 		this.gradleFile = gradleFile;
-		this.outputs.file( this.getGradleFile() );
+		this.getOutputs().file( this.getGradleFile() );
 	}
 
 	/**
-	 *
-	 * @return
 	 */
 	public File getSettingsFile()
 	{
@@ -71,13 +68,11 @@ public class GenerateGradleTask extends DefaultTask
 	}
 
 	/**
-	 *
-	 * @param hxmlFile
 	 */
 	public void setSettingsFile( File settingFile )
 	{
 		this.settingFile = settingFile;
-		this.outputs.file( this.getSettingsFile() );
+		this.getOutputs().file( this.getSettingsFile() );
 	}
 
 	// ********************************************************************************************** //
@@ -87,7 +82,7 @@ public class GenerateGradleTask extends DefaultTask
 	 *
 	 */
     @TaskAction
-    public void generateGradleProject()
+    public void generateGradleProject() throws IOException
     {
 		this.generateBuildGradle();
 	    this.generateSettingGradle();
@@ -96,35 +91,25 @@ public class GenerateGradleTask extends DefaultTask
 	/**
 	 *
 	 */
-	private void generateBuildGradle()
+	private void generateBuildGradle() throws IOException
 	{
-		String output = getClass().getResource("/templates/build-java.gradle").openStream().text;
+		String output = IOUtils.toString( getClass().getResource("/templates/build-java.gradle").openStream() );
 
-		output = output.replaceAll( "%GROUP%", this.project.getGroup().toString() );
-		output = output.replaceAll( "%VERSION%", this.project.getVersion().toString() );
+		output = output.replaceAll( "%GROUP%", this.getProject().getGroup().toString() );
+		output = output.replaceAll( "%VERSION%", this.getProject().getVersion().toString() );
 
 		// -------------- //
 
-		if( !this.getGradleFile().exists() )
-		{
-			this.gradleFile.parentFile.mkdirs();
-			this.gradleFile.createNewFile();
-		}
-
-		this.gradleFile.text = output;
+		FileUtils.touch( this.gradleFile );
+	    FileUtils.writeStringToFile( this.gradleFile,  output );
 	}
 
 	/**
 	 *
 	 */
-	private void generateSettingGradle()
+	private void generateSettingGradle() throws IOException
 	{
-		if( !this.getSettingsFile().exists() )
-		{
-			this.settingFile.parentFile.mkdirs();
-			this.settingFile.createNewFile();
-		}
-
-		this.settingFile.text = "rootProject.name = '" + project.name + "'";
+		FileUtils.touch( this.settingFile );
+	    FileUtils.writeStringToFile( this.settingFile,  "rootProject.name = '" + getProject().getName() + "'" );
 	}
 }

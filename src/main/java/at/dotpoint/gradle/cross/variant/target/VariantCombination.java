@@ -1,57 +1,19 @@
 package at.dotpoint.gradle.cross.variant.target;
 
-import at.dotpoint.gradle.cross.variant.model.buildtype.IBuildType;
-import at.dotpoint.gradle.cross.variant.model.flavor.IFlavor;
-import at.dotpoint.gradle.cross.variant.model.platform.IPlatform;
+import org.gradle.api.Named;
 
 import java.util.ArrayList;
 
 /**
  *
- * @param < TVariant >
  */
-public class VariantCombination<TVariant> extends ArrayList<TVariant>
+public class VariantCombination<TVariant extends Named> extends ArrayList<TVariant>
 {
 
-	//
-	public IPlatform getPlatform()
-	{
-		return this.getVariant( IPlatform.class );
-	}
-
-	public void setPlatform( IPlatform platform )
-	{
-		this.setVariant( platform, IPlatform.class );
-	}
-
-	//
-	public IFlavor getFlavor()
-	{
-		return this.getVariant( IFlavor.class );
-	}
-
-	public void setFlavor( IFlavor flavor )
-	{
-		this.setVariant( flavor, IFlavor.class );
-	}
-
-	//
-	public IBuildType getBuildType()
-	{
-		return this.getVariant( IBuildType.class );
-	}
-
-	public void setBuildType( IBuildType buildType )
-	{
-		this.setVariant( buildType, IBuildType.class );
-	}
-
-	// ---------------------------------------------------------- //
-	// ---------------------------------------------------------- //
 
 	/**
 	 */
-	public void setVariant( TVariant variant, Class<TVariant> variantType )
+	public void setVariant( TVariant variant, Class<? extends TVariant> variantType )
 	{
 		int index = this.getIndexOfVariant( variantType );
 
@@ -69,7 +31,7 @@ public class VariantCombination<TVariant> extends ArrayList<TVariant>
 
 	/**
 	 */
-	public <TVariantType extends TVariant> TVariantType getVariant( Class<TVariantType> variantType )
+	public <TVariantType extends Named> TVariantType getVariant( Class<TVariantType> variantType )
 	{
 		int index = this.getIndexOfVariant( variantType );
 
@@ -81,7 +43,7 @@ public class VariantCombination<TVariant> extends ArrayList<TVariant>
 
 	/**
 	 */
-	protected int getIndexOfVariant( Class<? extends TVariant> variantType )
+	protected int getIndexOfVariant( Class<? extends Named> variantType )
 	{
 		for (int i = 0; i < this.size(); i++)
 		{
@@ -106,7 +68,7 @@ public class VariantCombination<TVariant> extends ArrayList<TVariant>
 
 		for( int i = 0; i < this.size(); i++ )
 		{
-			Class<TVariant> variantType = this.get(i).getClass();
+			Class<? extends Named> variantType = this.get(i).getClass();
 
 			if( !this.getVariant( variantType ).equals( other.getVariant( variantType ) ) )
 				return false;
@@ -126,7 +88,7 @@ public class VariantCombination<TVariant> extends ArrayList<TVariant>
 
 		for( int i = 0; i < other.size(); i++ )
 		{
-			Class<TVariant> variantType = other.get(i).getClass();
+			Class<? extends Named> variantType = other.get(i).getClass();
 
 			if( !this.getVariant( variantType ).equals( other.getVariant( variantType ) ) )
 				return false;

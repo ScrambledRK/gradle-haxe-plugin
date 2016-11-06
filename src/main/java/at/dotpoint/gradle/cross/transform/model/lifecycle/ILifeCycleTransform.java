@@ -6,14 +6,14 @@ import at.dotpoint.gradle.cross.transform.model.ITaskTransform;
 /**
  * Created by RK on 2016-08-27.
  */
-public interface ILifeCycleTransform<TData extends ILifeCycleTransformData>
-		extends ITaskTransform<IApplicationBinarySpec, TData>
+public interface ILifeCycleTransform
+		extends ITaskTransform<IApplicationBinarySpec, ILifeCycleTransformData>
 {
 	/**
 	 *
 	 * @return
 	 */
-	TData createTransformData();
+	ILifeCycleTransformData createTransformData();
 
 	/**
 	 *

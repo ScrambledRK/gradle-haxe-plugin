@@ -10,11 +10,3 @@ public interface ILibraryDependencySpec extends IDependencySpec
 	String getLibraryName();
 }
 
-public interface ILibraryDependencySpecInternal extends ILibraryDependencySpec
-{
-
-	void setProjectPath( String projectPath );
-
-	void setLibraryName( String libraryName );
-}
-

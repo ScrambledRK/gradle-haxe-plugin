@@ -103,9 +103,6 @@ public class HaxePlugin implements Plugin<Project>
 		}
 
 		/**
-		 *
-		 * @param libraryBinaryResolver
-		 * @return
 		 */
 		private ITransformBuilder createLifeCycleTransformBuilder( ServiceRegistry serviceRegistry )
 		{
@@ -117,10 +114,6 @@ public class HaxePlugin implements Plugin<Project>
 		}
 
 		/**
-		 *
-		 * @param serviceRegistry
-		 * @param taskContainer
-		 * @return
 		 */
 		private ILifeCycleTransform createJavaTransform( ServiceRegistry serviceRegistry )
 		{

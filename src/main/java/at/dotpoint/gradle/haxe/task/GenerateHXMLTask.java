@@ -4,12 +4,15 @@ import at.dotpoint.gradle.cross.options.model.IOptions;
 import at.dotpoint.gradle.cross.options.setting.IOptionsSetting;
 import at.dotpoint.gradle.cross.sourceset.ISourceSet;
 import at.dotpoint.gradle.cross.task.ACrossSourceTask;
+import at.dotpoint.gradle.cross.variant.model.platform.IPlatform;
 import at.dotpoint.gradle.haxe.configuration.ConfigurationConstant;
 import org.gradle.api.tasks.TaskAction;
+import org.gradle.internal.impldep.org.apache.commons.io.FileUtils;
 import org.gradle.language.base.LanguageSourceSet;
 import org.gradle.util.GFileUtils;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -57,21 +60,19 @@ public class GenerateHXMLTask extends ACrossSourceTask
 	public void setHxmlFile( File hxmlFile )
 	{
 		this.hxmlFile = hxmlFile;
-		this.outputs.file( this.getHxmlFile() );
+		this.getOutputs().file( this.getHxmlFile() );
 	}
 
 	/**
-	 *
-	 * @param sourceSet
 	 */
-	public void setSourceSets( List<ISourceSet>  sourceSets )
+	public void setSourceSets( List<ISourceSet> sourceSets )
 	{
 		this.sourceSets = sourceSets;
 
 		for( LanguageSourceSet set : this.sourceSets )
-			this.source( set.source );
+			this.source( set.getSource() );
 
-		this.inputs.files( this.source );
+		this.getInputs().files( this.source );
 
 	}
 
@@ -104,7 +105,7 @@ public class GenerateHXMLTask extends ACrossSourceTask
 		{
 			IOptionsSetting setting = this.options.getSettingByName( ConfigurationConstant.KEY_MAIN );
 
-			if( setting != null && setting.value instanceof String )
+			if( setting != null && setting.getValue() instanceof String )
 				this.setMainClassPath( mainClassPath );
 		}
 
@@ -133,14 +134,8 @@ public class GenerateHXMLTask extends ACrossSourceTask
 	 *
 	 */
     @TaskAction
-    public void generateHXML()
+    public void generateHXML() throws IOException
     {
-		if( !hxmlFile.exists() )
-		{
-			hxmlFile.parentFile.mkdirs();
-			hxmlFile.createNewFile();
-		}
-
 		// -------------- //
 	    // classpath:
 
@@ -171,7 +166,7 @@ public class GenerateHXMLTask extends ACrossSourceTask
 		String total = "##";
 
 		total += "\n## generated via gradle task:";
-		total += "\n## " + this.name;
+		total += "\n## " + this.getName();
 
 		total += "\n\n## classpath:";
 		total += classpath;
@@ -187,7 +182,8 @@ public class GenerateHXMLTask extends ACrossSourceTask
 
 		// -------------- //
 
-		hxmlFile.text = total;
+	    FileUtils.touch( hxmlFile );
+	    FileUtils.writeStringToFile( hxmlFile, total );
     }
 
 	// ------------------------------------------------------------ //
@@ -207,11 +203,11 @@ public class GenerateHXMLTask extends ACrossSourceTask
 
 		for( ISourceSet set : this.sourceSets )
 		{
-			set.getSource().getSrcDirs().each
+			for( File it : set.getSource().getSrcDirs() )
 			{
-				String value = GFileUtils.relativePath( this.getProject().getProjectDir(), it.absoluteFile );
+				String value = GFileUtils.relativePath( this.getProject().getProjectDir(), it.getAbsoluteFile() );
 
-				if( value != null && !list.contains( value ) )
+				if( !list.contains( value ) )
 					list.add( value );
 			}
 		}
@@ -250,16 +246,13 @@ public class GenerateHXMLTask extends ACrossSourceTask
 	}
 
 	/**
-	 *
-	 * @param configurationSetting
-	 * @return
 	 */
 	private String getNativeDependencyOption( File artifact )
 	{
 		//
-		switch( this.targetVariantCombination.platform.name )
+		switch( this.getTargetVariantCombination().getVariant( IPlatform.class ).getName() )
 		{
-			case "java": 	return "-java-lib " + artifact.absolutePath;
+			case "java": 	return "-java-lib " + artifact.getAbsolutePath();
 
 			default:
 				return null;
@@ -271,8 +264,6 @@ public class GenerateHXMLTask extends ACrossSourceTask
 	// options:
 
 	/**
-	 *
-	 * @return
 	 */
 	private ArrayList<String> getCompileOptions()
 	{
@@ -297,16 +288,13 @@ public class GenerateHXMLTask extends ACrossSourceTask
 	}
 
 	/**
-	 *
-	 * @param configurationSetting
-	 * @return
 	 */
 	private String getHxmlConfigValue( IOptionsSetting configurationSetting )
 	{
-		switch( configurationSetting.name )
+		switch( configurationSetting.getName() )
 		{
 			case ConfigurationConstant.KEY_HXML:
-				return configurationSetting.value;
+				return (String)configurationSetting.getValue();
 
 			default:
 				return null;
@@ -318,15 +306,13 @@ public class GenerateHXMLTask extends ACrossSourceTask
 	// output:
 
 	/**
-	 *
-	 * @return
 	 */
 	private String getOutput()
 	{
-		String outputPath = this.getOutputDir(); // new File( this.getOutputDir(), project.name ).path;
+		String outputPath = this.getOutputDir().getAbsolutePath(); // new File( this.getOutputDir(), project.name ).path;
 
 		//
-		switch( this.targetVariantCombination.platform.name )
+		switch( this.getTargetVariantCombination().getVariant( IPlatform.class ).getName() )
 		{
 			case "java": 	return "\n-java " + outputPath;
 			case "flash": 	return "\n-as3 " + outputPath;

@@ -5,6 +5,6 @@ package at.dotpoint.gradle.haxe.configuration;
  */
 public class ConfigurationConstant
 {
-	public static String KEY_HXML = "hxml";
-	public static String KEY_MAIN = "main";
+	public static final String KEY_HXML = "hxml";
+	public static final String KEY_MAIN = "main";
 }

@@ -52,7 +52,7 @@ public class DefaultVariant extends DefaultDisplayNamed implements IVariant
 	public boolean equals( Object obj )
 	{
 		if( obj instanceof IVariant )
-			return this.name.equals( ((IVariant)obj).name );
+			return this.name.equals( ((IVariant)obj).getName() );
 
 		return false;
 	}

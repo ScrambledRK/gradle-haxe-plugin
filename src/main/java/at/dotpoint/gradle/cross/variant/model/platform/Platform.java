@@ -9,10 +9,10 @@ public class Platform extends DefaultVariant implements IPlatformInternal {
 
 
 	public Platform(String name) {
-		super(name, name)
+		super(name, name);
 	}
 
 	public Platform(String name, String displayName) {
-		super(name, displayName)
+		super(name, displayName);
 	}
 }

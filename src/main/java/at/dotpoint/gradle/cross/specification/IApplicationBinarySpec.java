@@ -39,25 +39,3 @@ public interface IApplicationBinarySpec extends ApplicationBinarySpec, HasInterm
 	IApplicationComponentSpec getApplication();
 }
 
-/**
- * Created by RK on 11.03.16.
- */
-//
-public interface IApplicationBinarySpecInternal extends IApplicationBinarySpec, BinarySpecInternal, IVariationsTargetInternal
-{
-	//
-	void setTargetPlatform( IPlatform platform );
-
-	//
-	void setTargetFlavor( IFlavor releaseType );
-
-	//
-	void setTargetBuildType( IBuildType releaseType );
-
-	//
-	void setTargetVariant( IVariant variant );
-
-	//
-	void setOptions( IOptions configuration );
-}
-

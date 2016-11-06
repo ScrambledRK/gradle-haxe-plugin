@@ -1,6 +1,7 @@
 package at.dotpoint.gradle.cross.variant.iterator;
 
 import at.dotpoint.gradle.cross.variant.target.VariantCombination;
+import org.gradle.api.Named;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -9,10 +10,10 @@ import java.util.List;
 /**
  * Created by RK on 20.03.16.
  */
-public class VariantIterator<TVariant> implements Iterator<VariantCombination<TVariant>>
+public class VariantIterator<TVariant extends Named> implements Iterator<VariantCombination<TVariant>>
 {
 	//
-	private final List<List<TVariant>> collection;
+	private final List<List<? extends TVariant>> collection;
 	private final List<VariantCombination<TVariant>> permutations;
 
 	//
@@ -20,7 +21,7 @@ public class VariantIterator<TVariant> implements Iterator<VariantCombination<TV
 
 	/**
 	 */
-	public VariantIterator( List<List<TVariant>> collection )
+	public VariantIterator( List<List<? extends TVariant>> collection )
 	{
 		this.collection = collection;
 
@@ -47,7 +48,7 @@ public class VariantIterator<TVariant> implements Iterator<VariantCombination<TV
 	{
 		int numTotalPermutations = 1;
 
-		for( List<TVariant> aCollection1 : this.collection )
+		for( List<? extends TVariant> aCollection1 : this.collection )
 		{
 			if( aCollection1.size() == 0 )
 				continue;
@@ -59,7 +60,7 @@ public class VariantIterator<TVariant> implements Iterator<VariantCombination<TV
 
 		int numCurrentPermutations = 1;
 
-		for( List<TVariant> aCollection : this.collection )
+		for( List<? extends TVariant> aCollection : this.collection )
 		{
 			if( aCollection.size() == 0 )
 				continue;

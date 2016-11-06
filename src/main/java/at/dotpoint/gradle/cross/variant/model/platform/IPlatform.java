@@ -14,14 +14,4 @@ public interface IPlatform extends org.gradle.platform.base.Platform, IVariant
 
 }
 
-/**
- *
- */
-@Managed
-//
-public interface IPlatformInternal extends IPlatform
-{
-
-}
-
 

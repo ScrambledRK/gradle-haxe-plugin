@@ -20,8 +20,8 @@ public class BinarySpecUtil
 	{
 		ArrayList<ISourceSet> sourceSets = new ArrayList<>();
 
-		populateInputSourceSets( binarySpec.sources.iterator(), sourceSets );
-		populateInputSourceSets( binarySpec.application.sources.iterator(), sourceSets );
+		populateInputSourceSets( binarySpec.getSources().iterator(), sourceSets );
+		populateInputSourceSets( binarySpec.getApplication().getSources().iterator(), sourceSets );
 
 		return sourceSets;
 	}

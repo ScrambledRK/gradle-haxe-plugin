@@ -12,8 +12,6 @@ import com.google.common.collect.Lists;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
 
-import java.util.ArrayList;
-
 /**
  * Created by RK on 03.07.2016.
  */
@@ -30,12 +28,7 @@ public class LifeCycleTransformationBuilder
 	 */
 	public LifeCycleTransformationBuilder( LifeCycleTransformationContainer lifeCycleTransformationContainer )
 	{
-		ArrayList<ILifeCycleTransform> transformList = new ArrayList<>();
-
-		for( ILifeCycleTransform transform : lifeCycleTransformationContainer )
-			transformList.add( transform );
-
-		super( transformList );
+		super( Lists.newArrayList( lifeCycleTransformationContainer ) );
 	}
 
 	// ------------------------------------------------- //
@@ -83,7 +76,7 @@ public class LifeCycleTransformationBuilder
 				continue;
 
 			if( transform.canTransform( target, null ) )
-				return this.createAssignedTransform( target, transform.createTransformData(), transform );
+				return this.createAssignedTransform( target, null, transform );
 		}
 
 		return null;

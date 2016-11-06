@@ -31,14 +31,3 @@ public interface IOptionsRequirement
 	void remove( String key, Object value );
 }
 
-/**
- *
- */
-public interface IOptionsRequirementInternal extends IOptionsRequirement
-{
-	/**
-	 *
-	 * @return
-	 */
-	ArrayList<IOptionsCommand> getConfigurationCommands();
-}

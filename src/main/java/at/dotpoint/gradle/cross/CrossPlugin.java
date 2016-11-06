@@ -1,7 +1,7 @@
 package at.dotpoint.gradle.cross;
 
 import at.dotpoint.gradle.cross.options.builder.OptionsBuilder;
-import at.dotpoint.gradle.cross.options.model.Options;
+import at.dotpoint.gradle.cross.options.model.IOptions;
 import at.dotpoint.gradle.cross.options.requirement.IOptionsRequirementInternal;
 import at.dotpoint.gradle.cross.sourceset.CrossSourceSet;
 import at.dotpoint.gradle.cross.sourceset.ISourceSet;
@@ -11,6 +11,7 @@ import at.dotpoint.gradle.cross.transform.builder.ITransformBuilder;
 import at.dotpoint.gradle.cross.transform.repository.ITransformBuilderRepository;
 import at.dotpoint.gradle.cross.transform.repository.TransformBuilderRepository;
 import at.dotpoint.gradle.cross.util.NameUtil;
+import at.dotpoint.gradle.cross.util.TaskUtil;
 import at.dotpoint.gradle.cross.variant.container.buildtype.BuildTypeContainer;
 import at.dotpoint.gradle.cross.variant.container.buildtype.IBuildTypeContainer;
 import at.dotpoint.gradle.cross.variant.container.flavor.FlavorContainer;
@@ -256,13 +257,12 @@ public class CrossPlugin implements Plugin<Project>
 			String variationName = NameUtil.getVariationName( permutation );
 
 			//
-			builder.create( variationName ) { IApplicationBinarySpec binarySpec ->
-
+			builder.create( variationName, binarySpec -> {
 				IApplicationBinarySpecInternal binarySpecInternal = (IApplicationBinarySpecInternal) binarySpec;
 
-				this.setTargetVariant( binarySpecInternal, permutation, variantResolver );
-				this.setOptions( binarySpecInternal, applicationComponentSpec, buildDir );
-			}
+				BinaryRules.this.setTargetVariant( binarySpecInternal, permutation, variantResolver );
+				BinaryRules.this.setOptions( binarySpecInternal, applicationComponentSpec, buildDir );
+			} );
 
 			return (IApplicationBinarySpecInternal) builder.get( variationName );
 		}
@@ -291,7 +291,7 @@ public class CrossPlugin implements Plugin<Project>
 		                         IApplicationComponentSpecInternal applicationComponentSpec,
 		                         File buildDir )
 		{
-			Options configuration = this.generateOptionRequirements( binarySpec,
+			IOptions configuration = this.generateOptionRequirements( binarySpec,
 					applicationComponentSpec, buildDir );
 
 			if( configuration != null )
@@ -300,9 +300,9 @@ public class CrossPlugin implements Plugin<Project>
 
 		/**
 		 */
-		private Options generateOptionRequirements( IApplicationBinarySpecInternal binarySpec,
-		                                            IApplicationComponentSpecInternal applicationComponentSpec,
-		                                            File buildDir )
+		private IOptions generateOptionRequirements( IApplicationBinarySpecInternal binarySpec,
+		                                             IApplicationComponentSpecInternal applicationComponentSpec,
+		                                             File buildDir )
 		{
 			VariantCombination<IVariant> variantCombination = binarySpec.getTargetVariantCombination();
 			ArrayList<IOptionsRequirementInternal> requirements = new ArrayList<>();
@@ -343,7 +343,7 @@ public class CrossPlugin implements Plugin<Project>
 		 */
 		@Mutate
 		void registerVariationResolver( IVariantResolverRepository variantResolver,
-		                                PlatformContainer platformContainer,
+		                                at.dotpoint.gradle.cross.variant.container.platform.PlatformContainer platformContainer,
 		                                IFlavorContainer flavorContainer,
 		                                IBuildTypeContainer buildTypeContainer )
 		{
@@ -362,9 +362,9 @@ public class CrossPlugin implements Plugin<Project>
 		@SuppressWarnings("GroovyAssignabilityCheck")
 		//
 		@Model
-		IFlavorContainer flavors()
+		IFlavorContainer flavors( Instantiator instantiator )
 		{
-			return new FlavorContainer();
+			return new FlavorContainer( instantiator );
 		}
 
 		/**
@@ -386,9 +386,9 @@ public class CrossPlugin implements Plugin<Project>
 		@SuppressWarnings("GroovyAssignabilityCheck")
 		//
 		@Model
-		IBuildTypeContainer buildTypes()
+		IBuildTypeContainer buildTypes( Instantiator instantiator )
 		{
-			return new BuildTypeContainer();
+			return new BuildTypeContainer( instantiator );
 		}
 
 		/**
@@ -450,57 +450,57 @@ public class CrossPlugin implements Plugin<Project>
 		 */
 		private void createLifeCycleTasks( TaskContainer tasks, BinaryContainer binaries )
 		{
-			tasks.create( NAME_CONVERT_SOURCE, DefaultTask.class )
+			tasks.create( NAME_CONVERT_SOURCE, DefaultTask.class, it ->
 			{
-				it.group = GROUP_NAME_BUILD;
-				it.description = "converts non-native sources to the native target language of a binary"
-			}
+				it.setGroup( GROUP_NAME_BUILD );
+				it.setDescription( "converts non-native sources to the native target language of a binary" );
+			} );
 
-			tasks.create( NAME_COMPILE_SOURCE, DefaultTask.class )
+			tasks.create( NAME_COMPILE_SOURCE, DefaultTask.class, it ->
 			{
-				it.group = GROUP_NAME_BUILD;
-				it.description = "compiles native sources to a native target binary"
-			}
+				it.setGroup( GROUP_NAME_BUILD );
+				it.setDescription( "compiles native sources to a native target binary" );
+			} );
 
 //			tasks.create( NAME_TEST_SOURCE, DefaultTask.class )         // "check" task already provided
 //			{                                                           // just like "assemble" or "build" is
 //				it.group = GROUP_NAME_TEST;
 //				it.description = "tests native sources after they've been compiled"
-//			}
+//			} );
 
 			// -------------------- //
 
-			tasks.create( NAME_PACKAGE_SOURCE, DefaultTask.class )
+			tasks.create( NAME_PACKAGE_SOURCE, DefaultTask.class, it ->
 			{
-				it.group = GROUP_NAME_DISTRIBUTE;
-				it.description = "packs an assembled product into a distribution form (zip etc.)"
-			}
+				it.setGroup( GROUP_NAME_DISTRIBUTE );
+				it.setDescription( "packs an assembled product into a distribution form (zip etc.)" );
+			} );
 
-			tasks.create( NAME_INSTALL_SOURCE, DefaultTask.class )
+			tasks.create( NAME_INSTALL_SOURCE, DefaultTask.class, it ->
 			{
-				it.group = GROUP_NAME_EXECUTE;
-				it.description = "unpacks installs a packaged product into an executable form"
-			}
+				it.setGroup( GROUP_NAME_EXECUTE );
+				it.setDescription( "unpacks installs a packaged product into an executable form" );
+			} );
 
-			tasks.create( NAME_EXECUTE_SOURCE, DefaultTask.class )
+			tasks.create( NAME_EXECUTE_SOURCE, DefaultTask.class, it ->
 			{
-				it.group = GROUP_NAME_EXECUTE;
-				it.description = "runs/executes an installed product"
-			}
+				it.setGroup( GROUP_NAME_EXECUTE );
+				it.setDescription( "runs/executes an installed product" );
+			} );
 
 			// -------------------- //
 
-			tasks.getByName(NAME_COMPILE_SOURCE).dependsOn NAME_CONVERT_SOURCE;
-			tasks.getByName(NAME_TEST_SOURCE).dependsOn NAME_COMPILE_SOURCE;
+			tasks.getByName(NAME_COMPILE_SOURCE).dependsOn( NAME_CONVERT_SOURCE );
+			tasks.getByName(NAME_TEST_SOURCE).dependsOn( NAME_COMPILE_SOURCE );
 
-			tasks.getByName(NAME_ASSEMBLE).dependsOn NAME_COMPILE_SOURCE;
-			tasks.getByName(NAME_ASSEMBLE).dependsOn NAME_PACKAGE_SOURCE;
+			tasks.getByName(NAME_ASSEMBLE).dependsOn( NAME_COMPILE_SOURCE );
+			tasks.getByName(NAME_ASSEMBLE).dependsOn( NAME_PACKAGE_SOURCE );
 
 			// -------------------- //
 
-			tasks.getByName(NAME_PACKAGE_SOURCE).dependsOn NAME_COMPILE_SOURCE;
-			tasks.getByName(NAME_INSTALL_SOURCE).dependsOn NAME_PACKAGE_SOURCE;
-			tasks.getByName(NAME_EXECUTE_SOURCE).dependsOn NAME_INSTALL_SOURCE;
+			tasks.getByName(NAME_PACKAGE_SOURCE).dependsOn( NAME_COMPILE_SOURCE );
+			tasks.getByName(NAME_INSTALL_SOURCE).dependsOn( NAME_PACKAGE_SOURCE );
+			tasks.getByName(NAME_EXECUTE_SOURCE).dependsOn( NAME_INSTALL_SOURCE );
 		}
 
 		/**
@@ -522,91 +522,52 @@ public class CrossPlugin implements Plugin<Project>
 		 */
 		private void createBinaryTasks( TaskContainer tasks, BinarySpec binary )
 		{
-			Task taskConvert 	= null;
-			Task taskCompile 	= null;
-			Task taskTest 	    = null;
-			Task taskAssemble 	= null;
+			Task taskConvert = TaskUtil.createTask( binary, DefaultTask.class,
+					binary.getTasks().taskName( NAME_CONVERT_SOURCE ), null );
 
-			Task taskPackage 	= null;
-			Task taskInstall 	= null;
-			Task taskExecute 	= null;
+			Task taskCompile = TaskUtil.createTask( binary, DefaultTask.class,
+					binary.getTasks().taskName( NAME_COMPILE_SOURCE ), null );
 
-			Task taskBuild 	= null;
+			Task taskTest = TaskUtil.createTask( binary, DefaultTask.class,
+					binary.getTasks().taskName( NAME_TEST_SOURCE ), null );
 
-			//
-			binary.getTasks().create( binary.getTasks().taskName( NAME_CONVERT_SOURCE ), DefaultTask.class )
-			{
-				taskConvert = it;
-			}
+			Task taskAssemble = TaskUtil.createTask( binary, DefaultTask.class,
+					binary.getTasks().taskName( NAME_ASSEMBLE ), null );
 
-			//
-			binary.getTasks().create( binary.getTasks().taskName( NAME_COMPILE_SOURCE ), DefaultTask.class )
-			{
-				taskCompile = it;
-			}
+			Task taskPackage = TaskUtil.createTask( binary, DefaultTask.class,
+					binary.getTasks().taskName( NAME_PACKAGE_SOURCE ), null );
 
-			//
-			binary.getTasks().create( binary.getTasks().taskName( NAME_TEST_SOURCE ), DefaultTask.class )
-			{
-				taskTest = it;
-			}
+			Task taskInstall = TaskUtil.createTask( binary, DefaultTask.class,
+					binary.getTasks().taskName( NAME_INSTALL_SOURCE ), null );
 
-			//
-			binary.getTasks().create( binary.getTasks().taskName( NAME_ASSEMBLE ), DefaultTask.class )
-			{
-				taskAssemble = it;
-			}
+			Task taskExecute = TaskUtil.createTask( binary, DefaultTask.class,
+					binary.getTasks().taskName( NAME_EXECUTE_SOURCE ), null );
+
+			Task taskBuild = TaskUtil.createTask( binary, DefaultTask.class,
+					binary.getTasks().taskName( NAME_BUILD ), null );
 
 			// --------- //
 
-			//
-			binary.getTasks().create( binary.getTasks().taskName( NAME_PACKAGE_SOURCE ), DefaultTask.class )
-			{
-				taskPackage = it;
-			}
+			taskCompile.dependsOn( taskConvert );
+			taskTest.dependsOn( taskCompile );
 
-			//
-			binary.getTasks().create( binary.getTasks().taskName( NAME_INSTALL_SOURCE ), DefaultTask.class )
-			{
-				taskInstall = it;
-			}
-
-			//
-			binary.getTasks().create( binary.getTasks().taskName( NAME_EXECUTE_SOURCE ), DefaultTask.class )
-			{
-				taskExecute = it;
-			}
-
-			// --------- //
-
-			//
-			binary.getTasks().create( binary.getTasks().taskName( NAME_BUILD ), DefaultTask.class )
-			{
-				taskBuild = it;
-			}
-
-			// --------- //
-
-			taskCompile.dependsOn taskConvert;
-			taskTest.dependsOn taskCompile;
-
-			taskAssemble.dependsOn taskCompile;
-			taskAssemble.dependsOn taskPackage;
+			taskAssemble.dependsOn( taskCompile );
+			taskAssemble.dependsOn( taskPackage );
 
 			binary.setBuildTask( taskAssemble );
 
 			// --------- //
 
-			taskPackage.dependsOn taskCompile;
-			taskInstall.dependsOn taskPackage;
-			taskExecute.dependsOn taskInstall;
+			taskPackage.dependsOn( taskCompile );
+			taskInstall.dependsOn( taskPackage );
+			taskExecute.dependsOn( taskInstall );
 
 			// --------- //
 
-			taskBuild.dependsOn taskAssemble;
+			taskBuild.dependsOn( taskAssemble );
 
 			if( taskTest != null )
-				taskBuild.dependsOn taskTest;
+				taskBuild.dependsOn( taskTest );
 		}
 
 		/**
@@ -629,30 +590,30 @@ public class CrossPlugin implements Plugin<Project>
 			{
 				for( Task task : binary.getTasks() )
 				{
-					if( task.name.startsWith(NAME_CONVERT_SOURCE) )
-						convertLifeCycleTask.dependsOn task;
+					if( task.getName().startsWith(NAME_CONVERT_SOURCE) )
+						convertLifeCycleTask.dependsOn( task );
 
-					if( task.name.startsWith(NAME_COMPILE_SOURCE) )
-						compileLifeCycleTask.dependsOn task;
+					if( task.getName().startsWith(NAME_COMPILE_SOURCE) )
+						compileLifeCycleTask.dependsOn( task );
 
-					if( task.name.startsWith(NAME_TEST_SOURCE) )
-						testLifeCycleTask.dependsOn task;
-
-					// --------- //
-
-					if( task.name.startsWith(NAME_PACKAGE_SOURCE) )
-						packageLifeCycleTask.dependsOn task;
-
-					if( task.name.startsWith(NAME_INSTALL_SOURCE) )
-						installLifeCycleTask.dependsOn task;
-
-					if( task.name.startsWith(NAME_EXECUTE_SOURCE) )
-						executeLifeCycleTask.dependsOn task;
+					if( task.getName().startsWith(NAME_TEST_SOURCE) )
+						testLifeCycleTask.dependsOn( task );
 
 					// --------- //
 
-					if( task.name.startsWith(NAME_BUILD) )
-						buildLifeCycleTask.dependsOn task;
+					if( task.getName().startsWith(NAME_PACKAGE_SOURCE) )
+						packageLifeCycleTask.dependsOn( task );
+
+					if( task.getName().startsWith(NAME_INSTALL_SOURCE) )
+						installLifeCycleTask.dependsOn( task );
+
+					if( task.getName().startsWith(NAME_EXECUTE_SOURCE) )
+						executeLifeCycleTask.dependsOn( task );
+
+					// --------- //
+
+					if( task.getName().startsWith(NAME_BUILD) )
+						buildLifeCycleTask.dependsOn( task );
 				}
 			}
 		}
@@ -681,19 +642,17 @@ public class CrossPlugin implements Plugin<Project>
 		@Finalize
 		void updateAssembleDependencies( @Path("tasks.assemble") Task assemble, BinaryContainer binaries )
 		{
-			(DefaultTaskDependency)(assemble.getTaskDependencies()).getValues().clear();
+			((DefaultTaskDependency)(assemble.getTaskDependencies())).getValues().clear();
 
 			for( BinarySpec binary : binaries )
 			{
-				for( Task task : binary.getTasks() )
-				{
-					if( task.name.startsWith(NAME_ASSEMBLE) )
-						assemble.dependsOn task;
-				}
+				binary.getTasks().stream()
+						.filter( task -> task.getName().startsWith( NAME_ASSEMBLE ) )
+						.forEach( assemble::dependsOn );
 			}
 
-			assemble.dependsOn NAME_COMPILE_SOURCE;
-			assemble.dependsOn NAME_PACKAGE_SOURCE;
+			assemble.dependsOn( NAME_COMPILE_SOURCE );
+			assemble.dependsOn( NAME_PACKAGE_SOURCE );
 		}
 
 	}

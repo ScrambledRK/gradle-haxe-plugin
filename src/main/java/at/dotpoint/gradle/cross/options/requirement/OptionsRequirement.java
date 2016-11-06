@@ -74,24 +74,16 @@ public class OptionsRequirement implements IOptionsRequirementInternal
 	// --------------------- //
 
 	/**
-	 *
-	 * @param type
-	 * @param key
-	 * @param value
 	 */
 	protected void addCommand( OptionsCommandType type, String key, Object value )
 	{
 		IOptionsSetting setting = this.createConfigurationSetting( key, value );
 		IOptionsCommand command = this.createConfigurationCommand( type, setting );
 
-		this.commands.push( command );
+		this.commands.add( command );
 	}
 
 	/**
-	 *
-	 * @param key
-	 * @param value
-	 * @return
 	 */
 	protected IOptionsSetting createConfigurationSetting( String key, Object value )
 	{
@@ -99,10 +91,6 @@ public class OptionsRequirement implements IOptionsRequirementInternal
 	}
 
 	/**
-	 *
-	 * @param key
-	 * @param value
-	 * @return
 	 */
 	protected IOptionsCommand createConfigurationCommand( OptionsCommandType type, IOptionsSetting setting )
 	{
@@ -113,8 +101,6 @@ public class OptionsRequirement implements IOptionsRequirementInternal
 	// --------------------- //
 
 	/**
-	 *
-	 * @return
 	 */
 	public String toString()
 	{

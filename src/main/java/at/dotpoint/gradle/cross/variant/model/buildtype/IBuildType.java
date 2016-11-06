@@ -10,12 +10,3 @@ public interface IBuildType extends IVariant {
 
 }
 
-/**
- *
- */
-@Managed
-//
-public interface IBuildTypeInternal extends IBuildType
-{
-
-}

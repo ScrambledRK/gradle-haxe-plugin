@@ -14,10 +14,3 @@ public interface IHaxeSourceSet extends ISourceSet
 
 }
 
-/**
- *
- */
-public interface IHaxeSourceSetInternal extends IHaxeSourceSet, ISourceSetInternal
-{
-
-}

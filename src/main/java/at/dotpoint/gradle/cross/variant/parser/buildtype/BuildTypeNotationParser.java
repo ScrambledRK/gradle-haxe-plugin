@@ -31,7 +31,7 @@ public class BuildTypeNotationParser implements IBuildTypeNotationParser
 	}
 
 	@Override
-	BuildTypeRequirement parseNotation( Object o ) throws TypeConversionException {
+	public BuildTypeRequirement parseNotation( Object o ) throws TypeConversionException {
 		return this.parser.parseNotation(o);
 	}
 
@@ -55,7 +55,7 @@ class StringConverter implements NotationConverter<String, BuildTypeRequirement>
     @Override
     public void describe( DiagnosticsVisitor diagnosticsVisitor )
     {
-        visitor.candidate("name of a buildType").example("TODO");
+	    diagnosticsVisitor.candidate("name of a buildType").example("TODO");
     }
 }
 

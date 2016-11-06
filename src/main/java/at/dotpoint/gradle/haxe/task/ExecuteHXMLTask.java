@@ -4,6 +4,7 @@ import org.gradle.api.DefaultTask;
 import org.gradle.api.tasks.TaskAction;
 
 import java.io.File;
+import java.util.Collections;
 
 /**
  * Created by RK on 21.05.2016.
@@ -36,10 +37,10 @@ public class ExecuteHXMLTask extends DefaultTask
     @TaskAction
     public void executeHXML()
     {
-        project.exec
-		{
-			it.executable "haxe";
-			it.args this.hxmlFile.absolutePath;
-		}
+	    this.getProject().exec( it ->
+        {
+            it.setExecutable( "haxe" );
+            it.setArgs( Collections.singletonList( ExecuteHXMLTask.this.getHxmlFile().getAbsolutePath() ) );
+        } );
     }
 }

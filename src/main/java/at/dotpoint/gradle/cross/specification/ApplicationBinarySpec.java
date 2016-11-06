@@ -6,11 +6,11 @@ import at.dotpoint.gradle.cross.variant.model.buildtype.IBuildType;
 import at.dotpoint.gradle.cross.variant.model.flavor.IFlavor;
 import at.dotpoint.gradle.cross.variant.model.platform.IPlatform;
 import at.dotpoint.gradle.cross.variant.target.VariantCombination;
-import org.gradle.language.base.LanguageSourceSet;
+import org.gradle.nativeplatform.ObjectFile;
 import org.gradle.platform.base.TransformationFileType;
 import org.gradle.platform.base.binary.BaseBinarySpec;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.Set;
 
 /**
@@ -134,8 +134,6 @@ public class ApplicationBinarySpec extends BaseBinarySpec implements IApplicatio
 	// IBuildType
 
 	/**
-	 *
-	 * @param flavor
 	 */
 	@Override
 	public void setTargetBuildType(IBuildType buildType) {
@@ -151,8 +149,6 @@ public class ApplicationBinarySpec extends BaseBinarySpec implements IApplicatio
 	// -------------------------------------- //
 
 	/**
-	 *
-	 * @return
 	 */
 	@Override
 	public IApplicationComponentSpec getApplication() {
@@ -160,12 +156,10 @@ public class ApplicationBinarySpec extends BaseBinarySpec implements IApplicatio
 	}
 
 	/**
-	 *
-	 * @return
 	 */
 	@Override
 	public Set<? extends Class<? extends TransformationFileType>> getIntermediateTypes() {
-		return new HashSet<? extends Class<? extends TransformationFileType>>( Arrays.asList(LanguageSourceSet.class));
+		return Collections.singleton(ObjectFile.class);
 	}
 
 	@Override
@@ -184,6 +178,6 @@ public class ApplicationBinarySpec extends BaseBinarySpec implements IApplicatio
 		if( applicationComponentSpec == null )
 			return super.getDisplayName();
 
-		return super.getTypeName() + " '" + applicationComponentSpec.projectPath + ":" + super.identifier.getPath()  + "'";
+		return super.getTypeName() + " '" + applicationComponentSpec.getProjectPath() + ":" + super.getIdentifier().getPath()  + "'";
 	}
 }

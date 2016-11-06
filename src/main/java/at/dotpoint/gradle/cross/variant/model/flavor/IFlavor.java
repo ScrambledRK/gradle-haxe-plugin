@@ -10,12 +10,3 @@ public interface IFlavor extends IVariant {
 
 }
 
-/**
- *
- */
-@Managed
-//
-public interface IFlavorInternal extends IFlavor
-{
-
-}

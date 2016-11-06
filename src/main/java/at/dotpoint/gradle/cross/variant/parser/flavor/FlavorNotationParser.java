@@ -55,7 +55,7 @@ class StringConverter implements NotationConverter<String, FlavorRequirement>
     @Override
     public void describe( DiagnosticsVisitor diagnosticsVisitor )
     {
-        visitor.candidate("name of a flavor").example("TODO");
+	    diagnosticsVisitor.candidate("name of a flavor").example("TODO");
     }
 }
 

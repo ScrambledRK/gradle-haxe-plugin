@@ -4,6 +4,7 @@ import org.gradle.api.DefaultTask;
 import org.gradle.api.tasks.TaskAction;
 
 import java.io.File;
+import java.util.Collections;
 
 /**
  * Created by RK on 21.05.2016.
@@ -22,7 +23,7 @@ public class ExecuteGradleTask extends DefaultTask
 	 */
 	public File getGradleFile()
 	{
-		return this.gradleFile
+		return this.gradleFile;
 	}
 
 	/**
@@ -31,7 +32,7 @@ public class ExecuteGradleTask extends DefaultTask
 	 */
 	public void setGradleFile( File hxmlFile )
 	{
-		this.gradleFile = hxmlFile
+		this.gradleFile = hxmlFile;
 	}
 
 	// ------------------------------------------------------------ //
@@ -40,17 +41,19 @@ public class ExecuteGradleTask extends DefaultTask
     @TaskAction
     public void executeHXML()
     {
-	    String gradlePath = System.getenv("gradle")
+	    this.getProject().exec( it ->
+	    {
+		    String gradlePath = System.getenv("gradle");
 
-	    if( System.getProperty("os.name").toLowerCase().contains( "win" ) )
-		    gradlePath += "/gradle.bat"
+            if( System.getProperty("os.name").toLowerCase().contains( "win" ) )
+                gradlePath += "/gradle.bat";
 
-        project.exec
-		{
-			it.workingDir this.gradleFile.parentFile.absolutePath
+		    // ----------- //
 
-			it.executable gradlePath
-			it.args "build";
-		}
+		    it.setWorkingDir( ExecuteGradleTask.this.getGradleFile().getParentFile().getAbsoluteFile() );
+
+			it.setExecutable( gradlePath );
+			it.setArgs( Collections.singletonList( "build" ) );
+	    } );
     }
 }

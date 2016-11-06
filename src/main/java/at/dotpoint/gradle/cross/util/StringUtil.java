@@ -7,12 +7,12 @@ import java.util.ArrayList;
  */
 public class StringUtil
 {
-	static String toCamelCase( ArrayList<String> params )
+	public static String toCamelCase( ArrayList<String> params )
 	{
-		toCamelCase( (String[]) params.toArray() );
+		return toCamelCase( (String[]) params.toArray() );
 	}
 
-	static String toCamelCase( String... params )
+	public static String toCamelCase( String... params )
 	{
 		if ( params == null || params.length == 0 )
 			return null;

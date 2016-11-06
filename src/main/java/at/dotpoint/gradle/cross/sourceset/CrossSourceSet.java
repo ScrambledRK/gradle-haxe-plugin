@@ -25,12 +25,12 @@ public class CrossSourceSet extends BaseLanguageSourceSet implements ISourceSetI
     // --------------------------------------------------- //
     // --------------------------------------------------- //
 
-    CrossSourceSet()
+    public CrossSourceSet()
     {
         this( null, null );
     }
 
-    CrossSourceSet( IPlatform platform, PlatformRequirement platformRequirement )
+    public CrossSourceSet( IPlatform platform, PlatformRequirement platformRequirement )
     {
         this.platform = platform;
         this.platformRequirement = platformRequirement;

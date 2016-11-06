@@ -13,13 +13,3 @@ public interface IVariationsSource
 	VariantCombination<IVariant> getSourceVariantCombination();
 }
 
-/**
- *
- */
-public interface IVariationsSourceInternal extends IVariationsSource
-{
-	/**
-	 * IFlavor, IPlatform, IBuildType
-	 */
-	void setSourceVariantCombination( VariantCombination<IVariant> combination );
-}

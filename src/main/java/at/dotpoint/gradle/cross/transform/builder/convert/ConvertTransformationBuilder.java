@@ -27,9 +27,6 @@ public class ConvertTransformationBuilder extends ATransformationBuilder<ISource
 	// ------------------------------------------------- //
 
 	/**
-	 *
-	 * @param convertTransformationContainer
-	 * @param taskContainer
 	 */
 	ConvertTransformationBuilder( ConvertTransformationContainer convertTransformationContainer )
 	{
@@ -40,19 +37,14 @@ public class ConvertTransformationBuilder extends ATransformationBuilder<ISource
 	// ------------------------------------------------- //
 
 	/**
-	 *
-	 * @param binarySpec
 	 */
 	public void createTransformationTasks( IApplicationBinarySpecInternal binarySpec )
 	{
-		this.createSourceSetTransformations( binarySpec.sources.iterator(), binarySpec );
-		this.createSourceSetTransformations( binarySpec.application.sources.iterator(), binarySpec );
+		this.createSourceSetTransformations( binarySpec.getSources().iterator(), binarySpec );
+		this.createSourceSetTransformations( binarySpec.getApplication().getSources().iterator(), binarySpec );
 	}
 
 	/**
-	 *
-	 * @param iterator
-	 * @param binarySpec
 	 */
 	private void createSourceSetTransformations( Iterator<LanguageSourceSet> iterator,
 	                                             IApplicationBinarySpecInternal binarySpec )

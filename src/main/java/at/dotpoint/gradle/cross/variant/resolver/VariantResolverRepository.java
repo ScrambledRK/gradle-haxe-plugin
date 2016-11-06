@@ -29,7 +29,8 @@ public class VariantResolverRepository implements IVariantResolverRepository
 	{
 		for( IVariantResolver<?,?> variantResolver : this.variantResolvers )
 		{
-			if( variantResolver.getVariantType().isAssignableFrom(variantType) && variantResolver.getRequirementType().isAssignableFrom( variantRequirement.class ) )
+			if( variantResolver.getVariantType().isAssignableFrom( variantType )
+					&& variantResolver.getRequirementType().isAssignableFrom( variantRequirement.getClass() ) )
 			{
 				@SuppressWarnings("unchecked")
 				  IVariantResolver<TVariant,TRequirement> vr = (IVariantResolver<TVariant,TRequirement>) variantResolver;

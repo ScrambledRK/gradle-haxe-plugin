@@ -14,7 +14,3 @@ public interface IHaxeComponentSpec extends IApplicationComponentSpec
 
 }
 
-public interface IHaxeComponentSpecInternal extends IHaxeComponentSpec, IApplicationComponentSpecInternal
-{
-
-}

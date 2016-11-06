@@ -4,6 +4,7 @@ import at.dotpoint.gradle.cross.variant.model.IVariant;
 import at.dotpoint.gradle.cross.variant.target.IVariationsTarget;
 import at.dotpoint.gradle.cross.variant.target.VariantCombination;
 import org.gradle.api.Task;
+
 /**
  * Created by RK on 08.07.2016.
  */
@@ -12,10 +13,6 @@ public abstract class ATaskTransform<TTarget, TInput>
 {
 
 	/**
-	 *
-	 * @param target
-	 * @param input
-	 * @return
 	 */
 	public boolean canTransform( TTarget target, TInput input )
 	{
@@ -24,25 +21,14 @@ public abstract class ATaskTransform<TTarget, TInput>
 	}
 
 	/**
-	 *
-	 * @param target
-	 * @return
 	 */
 	abstract protected boolean isValidTransformTarget( TTarget target );
 
 	/**
-	 *
-	 * @param target
-	 * @return
 	 */
 	abstract protected boolean isValidTransformInput( TInput target );
 
 	/**
-	 *
-	 * @param target
-	 * @param input
-	 * @param taskContainer
-	 * @return
 	 */
 	public abstract Task createTransformTask( TTarget target, TInput input );
 
@@ -50,37 +36,34 @@ public abstract class ATaskTransform<TTarget, TInput>
 	// ---------------------------------------------------------- //
 
 	/**
-	 *
-	 * @param target
-	 * @param input
-	 * @return
 	 */
-	protected VariantCombination<IVariant> getApplicableVariations( TInput input )
+	protected VariantCombination<IVariant> getApplicableVariations( Object input )
 	{
-		if( input instanceof Iterable<IVariant> )
+		if( input instanceof Iterable)
 		{
 			VariantCombination<IVariant> result = new VariantCombination<>();
+			Iterable<?> iterable = (Iterable<?>) input;
 
-			for( IVariant variant : input )
+			iterable.forEach( variant ->
 			{
-				if( this.isValidVariant( variant ) )
-					result.add( variant );
-			}
+				if( !(variant instanceof IVariant) )
+					return;
+
+				if( ATaskTransform.this.isValidVariant( (IVariant)variant ) )
+					result.add( (IVariant)variant );
+			} );
 
 			return result;
 		}
 		else if( input instanceof IVariationsTarget )
 		{
-			return this.getApplicableVariations( (IVariationsTarget)input.getTargetVariantCombination() );
+			return this.getApplicableVariations( ((IVariationsTarget)input).getTargetVariantCombination() );
 		}
 
-		return new VariantCombination<IVariant>();
+		return new VariantCombination<>();
 	}
 
 	/**
-	 *
-	 * @param variant
-	 * @return
 	 */
 	protected boolean isValidVariant( IVariant variant )
 	{

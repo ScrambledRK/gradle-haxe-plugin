@@ -13,13 +13,3 @@ public interface IModuleDependencySpec extends IDependencySpec
 	String getVersion();
 }
 
-public interface IModuleDependencySpecInternal extends IModuleDependencySpec
-{
-
-	void setModule( String module );
-
-	void setGroup( String group );
-
-	void setVersion( String version );
-}
-

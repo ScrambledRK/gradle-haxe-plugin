@@ -88,7 +88,7 @@ public class ACrossSourceTask extends SourceTask implements ICrossSourceTask
 	public File getOutputDir()
 	{
 		if( this.outputDir == null )
-			this.outputDir = ConventionUtil.getVariationBuildDir( this.project.buildDir, this.targetVariantCombination );
+			this.outputDir = ConventionUtil.getVariationBuildDir( this.getProject().getProjectDir(), this.getTargetVariantCombination() );
 
 		return this.outputDir;
 	}

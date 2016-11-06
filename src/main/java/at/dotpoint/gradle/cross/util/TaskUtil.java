@@ -40,6 +40,13 @@ public class TaskUtil
 	public static <TTask extends Task> TTask createTask( BinarySpec binarySpec, Class<TTask> type,
 	                                                     String name, Action<? super TTask> config )
 	{
+		if( config == null )
+		{
+			config = tTask -> {
+				//;
+			};
+		}
+
 		binarySpec.getTasks().create( name, type, config::execute );
 		return TaskUtil.findTaskByName( binarySpec.getTasks(), name, type );
 	}
@@ -49,6 +56,13 @@ public class TaskUtil
 	public static <TTask extends Task> TTask createTask( TaskContainer taskContainer, Class<TTask> type,
 	                                                     String name, Action<? super TTask> config )
 	{
+		if( config == null )
+		{
+			config = tTask -> {
+				//;
+			};
+		}
+
 		taskContainer.create( name, type, config::execute );
 		return TaskUtil.findTaskByName( taskContainer, name, type );
 	}

@@ -48,7 +48,7 @@ public abstract class VariantResolver<TVariant extends IVariant, TRequirement ex
 	{
 		for ( TVariant variant : this.variantContainer )
 		{
-			if ( variant.name == requirement.name )
+			if ( variant.getName().equals( requirement.getName() ) )
 				return variant;
 		}
 
@@ -58,6 +58,6 @@ public abstract class VariantResolver<TVariant extends IVariant, TRequirement ex
 	//
 	protected TVariant createVariant( TRequirement requirement )
 	{
-		return this.variantContainer.create( requirement.name, this.getVariantType() );
+		return this.variantContainer.create( requirement.getName(), this.getVariantType() );
 	}
 }
