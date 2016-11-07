@@ -6,8 +6,8 @@ import at.dotpoint.gradle.cross.sourceset.ISourceSet;
 import at.dotpoint.gradle.cross.task.ACrossSourceTask;
 import at.dotpoint.gradle.cross.variant.model.platform.IPlatform;
 import at.dotpoint.gradle.haxe.configuration.ConfigurationConstant;
+import org.apache.commons.io.FileUtils;
 import org.gradle.api.tasks.TaskAction;
-import org.gradle.internal.impldep.org.apache.commons.io.FileUtils;
 import org.gradle.language.base.LanguageSourceSet;
 import org.gradle.util.GFileUtils;
 
@@ -73,7 +73,6 @@ public class GenerateHXMLTask extends ACrossSourceTask
 			this.source( set.getSource() );
 
 		this.getInputs().files( this.source );
-
 	}
 
 	public List<ISourceSet> getSourceSets()
@@ -181,6 +180,8 @@ public class GenerateHXMLTask extends ACrossSourceTask
 		total += this.getOutput();
 
 		// -------------- //
+
+	    System.out.println( total );
 
 	    FileUtils.touch( hxmlFile );
 	    FileUtils.writeStringToFile( hxmlFile, total );

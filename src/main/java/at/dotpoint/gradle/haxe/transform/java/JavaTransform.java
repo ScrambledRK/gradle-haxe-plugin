@@ -127,6 +127,7 @@ public class JavaTransform extends ALifeCycleTransform
 	protected Task createConvertTransformation( IApplicationBinarySpec binarySpec,
 	                                            ILifeCycleTransformData input )
 	{
+		System.out.println( "createConvertTransformation: " + binarySpec );
 		return this.createHXML( binarySpec, input, "compile" );
 	}
 
@@ -157,6 +158,9 @@ public class JavaTransform extends ALifeCycleTransform
 	{
 		VariantCombination<IVariant> targetVariation = binarySpec.getTargetVariantCombination();
 		List<ISourceSet> sourceSets = this.getSourceSets( binarySpec, sourceSetName );
+
+		if( sourceSets.isEmpty() )
+			System.out.println( binarySpec + " has no sourceSets for " + sourceSetName );
 
 		// ------------------------------------------- //
 		// hxml:

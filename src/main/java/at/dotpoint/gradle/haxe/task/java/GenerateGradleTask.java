@@ -1,9 +1,9 @@
 package at.dotpoint.gradle.haxe.task.java;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.tasks.TaskAction;
-import org.gradle.internal.impldep.org.apache.commons.io.FileUtils;
-import org.gradle.internal.impldep.org.apache.commons.io.IOUtils;
 
 import java.io.File;
 import java.io.IOException;

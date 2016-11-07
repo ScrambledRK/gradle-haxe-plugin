@@ -4,7 +4,7 @@ import org.gradle.api.DefaultTask;
 import org.gradle.api.tasks.TaskAction;
 
 import java.io.File;
-import java.util.Collections;
+import java.util.Arrays;
 
 /**
  * Created by RK on 21.05.2016.
@@ -39,8 +39,15 @@ public class ExecuteHXMLTask extends DefaultTask
     {
 	    this.getProject().exec( it ->
         {
-            it.setExecutable( "haxe" );
-            it.setArgs( Collections.singletonList( ExecuteHXMLTask.this.getHxmlFile().getAbsolutePath() ) );
+	        String haxePath = System.getenv("HAXEPATH");
+
+            if( System.getProperty("os.name").toLowerCase().contains( "win" ) )
+                haxePath += "haxe.exe";
+
+            // ----------- //
+
+            it.setExecutable( "cmd" );
+            it.setArgs( Arrays.asList( "/C", "haxe", ExecuteHXMLTask.this.getHxmlFile().getAbsolutePath() ) );
         } );
     }
 }
