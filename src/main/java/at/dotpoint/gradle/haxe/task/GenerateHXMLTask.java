@@ -206,12 +206,15 @@ public class GenerateHXMLTask extends ACrossSourceTask
 		{
 			for( File it : set.getSource().getSrcDirs() )
 			{
-				String value = GFileUtils.relativePath( this.getProject().getProjectDir(), it.getAbsoluteFile() );
+				String value = GFileUtils.relativePath( this.getOutputDir()/*this.getProject().getProjectDir()*/, it.getAbsoluteFile() );
 
 				if( !list.contains( value ) )
 					list.add( value );
 			}
 		}
+
+		for( String foo : list )
+			System.out.println( foo );
 
 		// ------------- //
 

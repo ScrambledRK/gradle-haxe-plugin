@@ -127,7 +127,6 @@ public class JavaTransform extends ALifeCycleTransform
 	protected Task createConvertTransformation( IApplicationBinarySpec binarySpec,
 	                                            ILifeCycleTransformData input )
 	{
-		System.out.println( "createConvertTransformation: " + binarySpec );
 		return this.createHXML( binarySpec, input, "compile" );
 	}
 
@@ -201,7 +200,7 @@ public class JavaTransform extends ALifeCycleTransform
 			for( Configuration configuration : artifacts )
 			{
 				Set<File> files = configuration.resolve();
-				generateTask.dependsOn( files );
+				//generateTask.dependsOn( files );
 			}
 		}
 
