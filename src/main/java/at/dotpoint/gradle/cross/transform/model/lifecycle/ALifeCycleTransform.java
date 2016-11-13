@@ -2,10 +2,10 @@ package at.dotpoint.gradle.cross.transform.model.lifecycle;
 
 import at.dotpoint.gradle.cross.CrossPlugin;
 import at.dotpoint.gradle.cross.specification.IApplicationBinarySpec;
-import at.dotpoint.gradle.cross.specification.IApplicationBinarySpecInternal;
 import at.dotpoint.gradle.cross.specification.IApplicationComponentSpec;
 import at.dotpoint.gradle.cross.specification.ITestComponentSpec;
 import at.dotpoint.gradle.cross.transform.model.ATaskTransform;
+import at.dotpoint.gradle.cross.util.NameUtil;
 import at.dotpoint.gradle.cross.util.TaskUtil;
 import org.gradle.api.Task;
 
@@ -47,10 +47,6 @@ public abstract class ALifeCycleTransform
 	public Task createTransformTask( IApplicationBinarySpec binarySpec,
 	                                 ILifeCycleTransformData input )
 	{
-		input.setBinarySpec( ( IApplicationBinarySpecInternal) binarySpec );
-
-		// -------- //
-
 		Task convertTask = this.createConvertTransformation( binarySpec );
 		Task compileTask = this.createCompileTransformation( binarySpec );
 
@@ -101,8 +97,7 @@ public abstract class ALifeCycleTransform
 	 */
 	protected void performLifeCycle( IApplicationBinarySpec binarySpec, Task task, String lifeCycleName )
 	{
-		Task lifeCycleTask = TaskUtil.findTaskByName( binarySpec.getTasks(),
-				binarySpec.getTasks().taskName( lifeCycleName ) );
+		Task lifeCycleTask = TaskUtil.findTaskByName( binarySpec, NameUtil.getBinaryTaskName( binarySpec, lifeCycleName ) );
 
 		if( lifeCycleTask == null )
 			throw new RuntimeException( "lifeCycleTask '" + lifeCycleName + "' not found for: " + binarySpec );

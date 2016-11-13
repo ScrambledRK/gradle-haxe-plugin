@@ -1,9 +1,7 @@
 package at.dotpoint.gradle.haxe.transform.java;
 
 import at.dotpoint.gradle.cross.dependency.model.IDependencySpec;
-import at.dotpoint.gradle.cross.dependency.model.ILibraryDependencySpec;
 import at.dotpoint.gradle.cross.dependency.model.IModuleDependencySpec;
-import at.dotpoint.gradle.cross.dependency.resolver.LibraryBinaryResolver;
 import at.dotpoint.gradle.cross.sourceset.ISourceSet;
 import at.dotpoint.gradle.cross.specification.IApplicationBinarySpec;
 import at.dotpoint.gradle.cross.specification.ITestComponentSpec;
@@ -32,16 +30,12 @@ import org.gradle.language.base.LanguageSourceSet;
 
 import java.io.File;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * Created by RK on 27.02.16.
  */
 public class JavaTransform extends ALifeCycleTransform
 {
-
-	//
-	private LibraryBinaryResolver libraryBinaryResolver;
 
 	//
 	private ArtifactDependencyResolver artifactDependencyResolver;
@@ -56,12 +50,10 @@ public class JavaTransform extends ALifeCycleTransform
 	private DependencyHandler dependencyHandler;
 
 	//
-	public JavaTransform( ProjectFinder projectFinder, DependencyHandler dependencyHandler,
-			       LibraryBinaryResolver libraryBinaryResolver )
+	public JavaTransform( ProjectFinder projectFinder, DependencyHandler dependencyHandler )
 	{
 		this.projectFinder = projectFinder;
 		this.dependencyHandler = dependencyHandler;
-		this.libraryBinaryResolver = libraryBinaryResolver;
 	}
 
 	// ---------------------------------------------------------------- //
@@ -182,11 +174,9 @@ public class JavaTransform extends ALifeCycleTransform
 			it.setOptions( binarySpec.getOptions() );
 
 			it.setSourceSets( sourceSets );
-			it.setDependencies( this.getArtifactFiles( binarySpec, sourceSets ) );
-
 			it.setOutputDir( generateOutputDir );
 
-			this.getDependencyBuildTasks( sourceSets, targetVariation ).forEach( it::dependsOn );
+			it.setDependencies( this.getArtifactFiles( binarySpec, sourceSets ) );
 		} );
 
 		//
@@ -275,58 +265,7 @@ public class JavaTransform extends ALifeCycleTransform
 		return dependencyArtifacts;
 	}
 
-	/**
-	 */
-	private List<Task> getDependencyBuildTasks( List<ISourceSet> sourceSets,
-	                                            VariantCombination<IVariant> targetVariation )
-	{
-		List<Task> dependencyTasks = new ArrayList<>();
 
-		for( ISourceSet set : sourceSets )
-		{
-			List<IApplicationBinarySpec> libraries = this.getLibraryDependencies( set, targetVariation );
-
-			dependencyTasks.addAll( libraries.stream()
-					.map( IApplicationBinarySpec::getBuildTask )
-					.collect( Collectors.toList() ) );
-		}
-
-		return dependencyTasks;
-	}
-
-	/**
-	 */
-	private List<ISourceSet> getSourceSets( IApplicationBinarySpec binarySpec,
-	                                        String name )
-	{
-		List<ISourceSet> sourceSetList = BinarySpecUtil.getSourceSetList( binarySpec );
-
-		return sourceSetList.stream()
-				.filter( set -> set.getName().equals( name ) )
-				.collect( Collectors.toList() );
-	}
-
-	/**
-	 */
-	private List<IApplicationBinarySpec> getLibraryDependencies( ISourceSet sourceSet,
-	                                                             VariantCombination<IVariant> targetVariation )
-	{
-		List<IApplicationBinarySpec> dependencies = new ArrayList<>();
-
-		sourceSet.getDependencies().getDependencies().stream()
-				.filter( dependencySpec -> dependencySpec instanceof ILibraryDependencySpec )
-				.forEach( dependencySpec ->
-				{
-					ILibraryDependencySpec libraryDependencySpec = (ILibraryDependencySpec) dependencySpec;
-					IApplicationBinarySpec applicationBinarySpec = this.libraryBinaryResolver.resolveBinary(
-							libraryDependencySpec, targetVariation );
-
-					if( applicationBinarySpec != null )
-						dependencies.add( applicationBinarySpec );
-				} );
-
-		return dependencies;
-	}
 
 	/**
 	 */

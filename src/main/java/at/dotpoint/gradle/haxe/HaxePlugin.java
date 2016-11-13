@@ -91,7 +91,7 @@ public class HaxePlugin implements Plugin<Project>
 
 			LibraryBinaryResolver libraryBinaryResolver = new LibraryBinaryResolver( projectModelResolver );
 
-			return new JavaTransform( projectFinder, dependencyHandler, libraryBinaryResolver );
+			return new JavaTransform( projectFinder, dependencyHandler );
 		}
 
 	}

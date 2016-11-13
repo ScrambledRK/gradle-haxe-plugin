@@ -1,5 +1,7 @@
 package at.dotpoint.gradle.cross;
 
+import at.dotpoint.gradle.cross.dependency.model.ILibraryDependencySpec;
+import at.dotpoint.gradle.cross.dependency.resolver.LibraryBinaryResolver;
 import at.dotpoint.gradle.cross.options.builder.OptionsBuilder;
 import at.dotpoint.gradle.cross.options.model.IOptions;
 import at.dotpoint.gradle.cross.options.requirement.IOptionsRequirementInternal;
@@ -12,6 +14,7 @@ import at.dotpoint.gradle.cross.specification.GeneralComponentSpec;
 import at.dotpoint.gradle.cross.transform.builder.ITransformBuilder;
 import at.dotpoint.gradle.cross.transform.repository.ITransformBuilderRepository;
 import at.dotpoint.gradle.cross.transform.repository.TransformBuilderRepository;
+import at.dotpoint.gradle.cross.util.BinarySpecUtil;
 import at.dotpoint.gradle.cross.util.NameUtil;
 import at.dotpoint.gradle.cross.util.TaskUtil;
 import at.dotpoint.gradle.cross.variant.container.buildtype.BuildTypeContainer;
@@ -40,9 +43,11 @@ import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.internal.file.FileResolver;
+import org.gradle.api.internal.resolve.ProjectModelResolver;
 import org.gradle.api.internal.tasks.DefaultTaskDependency;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.internal.reflect.Instantiator;
+import org.gradle.internal.service.ServiceRegistry;
 import org.gradle.language.base.plugins.LanguageBasePlugin;
 import org.gradle.language.base.plugins.LifecycleBasePlugin;
 import org.gradle.model.*;
@@ -53,6 +58,8 @@ import org.gradle.platform.base.internal.BinarySpecInternal;
 import javax.inject.Inject;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  *  Created by RK on 11.03.16.
@@ -185,7 +192,8 @@ public class CrossPlugin implements Plugin<Project>
 		@Finalize
 		void createTransformTasks( final TaskContainer taskContainer,
 		                           @Path("binaries") final ModelMap<BinarySpecInternal> binaries,
-		                           ITransformBuilderRepository transformBuilderRepository )
+		                           ITransformBuilderRepository transformBuilderRepository,
+		                           ServiceRegistry serviceRegistry)
 		{
 
 			for( BinarySpecInternal binarySpec : binaries )
@@ -196,6 +204,113 @@ public class CrossPlugin implements Plugin<Project>
 				for( ITransformBuilder builder : transformBuilderRepository )
 					builder.createTransformationTasks( (IApplicationBinarySpecInternal) binarySpec );
 			}
+
+			// ----------------------------- //
+
+			ProjectModelResolver projectModelResolver = serviceRegistry.get( ProjectModelResolver.class );
+			LibraryBinaryResolver libraryBinaryResolver = new LibraryBinaryResolver( projectModelResolver );
+
+			for( BinarySpecInternal binarySpec : binaries )
+			{
+				if( !( binarySpec instanceof IApplicationBinarySpecInternal ) )
+					continue;
+
+				this.setCompileLibraryTaskDependencies( libraryBinaryResolver, (IApplicationBinarySpec) binarySpec );
+				this.setTestLibraryTaskDependencies( libraryBinaryResolver, (IApplicationBinarySpec) binarySpec );
+			}
+		}
+
+		// -------------------------------------------------- //
+		// -------------------------------------------------- //
+		// set
+
+		/**
+		 */
+		private void setCompileLibraryTaskDependencies( LibraryBinaryResolver libraryBinaryResolver,
+				                                        IApplicationBinarySpec binarySpec )
+		{
+			List<ISourceSet> sourceSets = BinarySpecUtil.getSourceSetList( binarySpec );
+			this.setLibraryTaskDependencies( libraryBinaryResolver, binarySpec, sourceSets, NAME_TEST_SOURCE );
+		}
+
+		/**
+		 */
+		private void setTestLibraryTaskDependencies( LibraryBinaryResolver libraryBinaryResolver,
+				                                     IApplicationBinarySpec binarySpec )
+		{
+			IApplicationComponentSpec componentSpec = binarySpec.getApplication();
+
+			for( ITestComponentSpec testComponentSpec : componentSpec.getTests() )
+			{
+				List<ISourceSet> sourceSets = BinarySpecUtil.getSourceSetList( testComponentSpec );
+				this.setLibraryTaskDependencies( libraryBinaryResolver, binarySpec, sourceSets, NAME_CONVERT_SOURCE );
+			}
+		}
+
+		// -------------------------------------------------- //
+		// -------------------------------------------------- //
+
+		/**
+		 */
+		private void setLibraryTaskDependencies( LibraryBinaryResolver libraryBinaryResolver,
+		                                         IApplicationBinarySpec binarySpec, List<ISourceSet> sourceSets,
+		                                         String lifeCycleTaskName )
+		{
+			List<Task> dependencyTasks = this.getLibraryTaskDependencies( libraryBinaryResolver,
+					sourceSets, binarySpec.getTargetVariantCombination() );
+
+			Task lifeCycleTask = TaskUtil.findTaskByName( binarySpec,
+					NameUtil.getBinaryTaskName( binarySpec, lifeCycleTaskName ) );
+
+			dependencyTasks.forEach( lifeCycleTask::dependsOn ); // BUG: apply recursively to leaf-tasks in dependency hierarchy
+		}
+
+		// -------------------------------------------------- //
+		// -------------------------------------------------- //
+		// get
+
+		/**
+		 */
+		private List<Task> getLibraryTaskDependencies( LibraryBinaryResolver libraryBinaryResolver,
+		                                               List<ISourceSet> sourceSets,
+		                                               VariantCombination<IVariant> targetVariation )
+		{
+			List<Task> dependencyTasks = new ArrayList<>();
+
+			for( ISourceSet set : sourceSets )
+			{
+				List<IApplicationBinarySpec> libraries = this.getLibraryDependencies( libraryBinaryResolver,
+						set, targetVariation );
+
+				dependencyTasks.addAll( libraries.stream()
+						.map( IApplicationBinarySpec::getBuildTask )
+						.collect( Collectors.toList() ) );
+			}
+
+			return dependencyTasks;
+		}
+
+		/**
+		 */
+		private List<IApplicationBinarySpec> getLibraryDependencies( LibraryBinaryResolver libraryBinaryResolver,
+		                                                             ISourceSet sourceSet,
+		                                                             VariantCombination<IVariant> targetVariation )
+		{
+			List<IApplicationBinarySpec> dependencies = new ArrayList<>();
+
+			sourceSet.getDependencies().getDependencies().stream()
+					.filter( dependencySpec -> dependencySpec instanceof ILibraryDependencySpec )
+					.forEach( dependencySpec ->
+					{
+						ILibraryDependencySpec libraryDependencySpec = (ILibraryDependencySpec) dependencySpec;
+						IApplicationBinarySpec applicationBinarySpec = libraryBinaryResolver.resolveBinary(
+								libraryDependencySpec, targetVariation );
+
+						if( applicationBinarySpec != null )
+							dependencies.add( applicationBinarySpec );
+					} );
+
+			return dependencies;
 		}
 	}
 

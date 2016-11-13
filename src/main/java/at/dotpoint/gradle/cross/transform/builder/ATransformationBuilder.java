@@ -2,8 +2,6 @@ package at.dotpoint.gradle.cross.transform.builder;
 
 import at.dotpoint.gradle.cross.specification.IApplicationBinarySpecInternal;
 import at.dotpoint.gradle.cross.transform.model.ITaskTransform;
-import at.dotpoint.gradle.cross.util.TaskUtil;
-import org.gradle.api.Task;
 
 import java.util.ArrayList;
 
@@ -106,16 +104,5 @@ public abstract class ATransformationBuilder<TTarget,TInput> implements ITransfo
 		assigned.task = assigned.transform.createTransformTask( assigned.target, assigned.input );
 	}
 
-	/**
-	 */
-	protected void performLifeCycle( AssignedTransform assignedTransform,
-	                                 IApplicationBinarySpecInternal binarySpec,
-	                                 String taskName )
-	{
-		Task convertTask = TaskUtil.findTaskByName( binarySpec.getTasks(),
-				binarySpec.getTasks().taskName( taskName ) );
-
-		convertTask.dependsOn( assignedTransform.task );
-	}
 }
 
