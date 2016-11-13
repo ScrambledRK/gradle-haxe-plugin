@@ -47,6 +47,8 @@ public abstract class ALifeCycleTransform
 	public Task createTransformTask( IApplicationBinarySpec binarySpec,
 	                                 ILifeCycleTransformData input )
 	{
+		this.setBuildResult( binarySpec );
+
 		Task convertTask = this.createConvertTransformation( binarySpec );
 		Task compileTask = this.createCompileTransformation( binarySpec );
 
@@ -77,6 +79,10 @@ public abstract class ALifeCycleTransform
 				this.performLifeCycle( binarySpec, testTask, CrossPlugin.NAME_TEST_SOURCE );
 		}
 	}
+
+	/**
+	 */
+	abstract protected void setBuildResult( IApplicationBinarySpec binarySpec );
 
 	/**
 	 */

@@ -192,7 +192,7 @@ public class CrossPlugin implements Plugin<Project>
 		 */
 		@Finalize
 		void createTransformTasks( final TaskContainer taskContainer,
-		                           @Path("binaries") final ModelMap<BinarySpecInternal> binaries,
+		                           @Path("binaries") ModelMap<BinarySpecInternal> binaries,
 		                           ITransformBuilderRepository transformBuilderRepository,
 		                           ServiceRegistry serviceRegistry)
 		{
@@ -231,7 +231,7 @@ public class CrossPlugin implements Plugin<Project>
 				                                        IApplicationBinarySpec binarySpec )
 		{
 			List<ISourceSet> sourceSets = BinarySpecUtil.getSourceSetList( binarySpec );
-			this.setLibraryTaskDependencies( libraryBinaryResolver, binarySpec, sourceSets, NAME_TEST_SOURCE );
+			this.setLibraryTaskDependencies( libraryBinaryResolver, binarySpec, sourceSets, NAME_CONVERT_SOURCE );
 		}
 
 		/**
@@ -244,7 +244,7 @@ public class CrossPlugin implements Plugin<Project>
 			for( ITestComponentSpec testComponentSpec : componentSpec.getTests() )
 			{
 				List<ISourceSet> sourceSets = BinarySpecUtil.getSourceSetList( testComponentSpec );
-				this.setLibraryTaskDependencies( libraryBinaryResolver, binarySpec, sourceSets, NAME_CONVERT_SOURCE );
+				this.setLibraryTaskDependencies( libraryBinaryResolver, binarySpec, sourceSets, NAME_TEST_SOURCE );
 			}
 		}
 
@@ -264,8 +264,6 @@ public class CrossPlugin implements Plugin<Project>
 					NameUtil.getBinaryTaskName( binarySpec, lifeCycleTaskName ) );
 
 			this.setTaskDependencyRecursive( lifeCycleTask, dependencyTasks );
-
-
 		}
 
 		/**

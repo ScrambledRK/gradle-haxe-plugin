@@ -54,4 +54,9 @@ public class ModuleDependencySpec implements IModuleDependencySpecInternal
 	{
 		return this.group + ":" + this.module + ":" + this.version;
 	}
+
+	public String toString()
+	{
+		return this.getDisplayName();
+	}
 }

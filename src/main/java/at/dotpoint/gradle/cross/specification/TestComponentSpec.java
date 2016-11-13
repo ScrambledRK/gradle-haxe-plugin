@@ -20,6 +20,7 @@ public class TestComponentSpec extends DefaultComponentSpec implements ITestComp
 
 	//
 	protected IOptionsRequirement configuration;
+	protected String main;
 
 	// ------------------------------------------------------------------ //
 	// ------------------------------------------------------------------ //
@@ -42,6 +43,17 @@ public class TestComponentSpec extends DefaultComponentSpec implements ITestComp
 			this.configuration = new OptionsRequirement();
 
 		return this.configuration;
+	}
+
+	@Override
+	public String getMain()
+	{
+		return this.main;
+	}
+
+	public void setMain( String main )
+	{
+		this.main = main;
 	}
 
 	@Override

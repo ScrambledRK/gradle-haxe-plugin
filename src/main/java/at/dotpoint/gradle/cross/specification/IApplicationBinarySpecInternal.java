@@ -8,6 +8,9 @@ import at.dotpoint.gradle.cross.variant.model.platform.IPlatform;
 import at.dotpoint.gradle.cross.variant.target.IVariationsTargetInternal;
 import org.gradle.platform.base.internal.BinarySpecInternal;
 
+import java.io.File;
+import java.util.List;
+
 /**
  * Created by RK on 11.03.16.
  */
@@ -28,4 +31,7 @@ public interface IApplicationBinarySpecInternal extends IApplicationBinarySpec, 
 
 	//
 	void setOptions( IOptions configuration );
+
+	//
+	void setBuildResult( List<File> buildResult );
 }

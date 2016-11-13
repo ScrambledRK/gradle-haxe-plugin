@@ -10,7 +10,10 @@ import org.gradle.nativeplatform.ObjectFile;
 import org.gradle.platform.base.TransformationFileType;
 import org.gradle.platform.base.binary.BaseBinarySpec;
 
+import java.io.File;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -24,6 +27,7 @@ public class ApplicationBinarySpec extends BaseBinarySpec implements IApplicatio
 	private IBuildType buildType;
 
 	private IOptions configuration;
+	private List<File> buildResult;
 
 	private IApplicationBinarySpec testBinarySpecTarget;
 	private IApplicationBinarySpec testBinarySpecSource;
@@ -42,6 +46,26 @@ public class ApplicationBinarySpec extends BaseBinarySpec implements IApplicatio
 	{
 		return this.configuration;
 	}
+
+	// -------------------------------------- //
+	// -------------------------------------- //
+	//
+
+	@Override
+	public void setBuildResult( List<File> buildResult )
+	{
+		this.buildResult = buildResult;
+	}
+
+	@Override
+	public List<File> getBuildResult()
+	{
+		if( this.buildResult == null )
+			this.buildResult = new ArrayList<>();
+
+		return this.buildResult;
+	}
+
 
 	// -------------------------------------- //
 	// -------------------------------------- //

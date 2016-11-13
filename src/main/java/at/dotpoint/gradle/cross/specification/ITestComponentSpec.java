@@ -10,4 +10,8 @@ public interface ITestComponentSpec extends SourceComponentSpec
 {
 	//
 	IOptionsRequirement getOptions();
+
+	//
+	String getMain();
+	void setMain( String main );
 }

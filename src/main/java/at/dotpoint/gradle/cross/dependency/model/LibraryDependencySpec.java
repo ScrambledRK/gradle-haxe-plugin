@@ -51,4 +51,9 @@ public class LibraryDependencySpec implements ILibraryDependencySpecInternal
         }
         return Joiner.on(' ').join(parts);
 	}
+
+	public String toString()
+	{
+		return this.getDisplayName();
+	}
 }
