@@ -3,7 +3,7 @@ package at.dotpoint.gradle.cross;
 import at.dotpoint.gradle.cross.options.builder.OptionsBuilder;
 import at.dotpoint.gradle.cross.options.model.IOptions;
 import at.dotpoint.gradle.cross.options.requirement.IOptionsRequirementInternal;
-import at.dotpoint.gradle.cross.sourceset.CrossSourceSet;
+import at.dotpoint.gradle.cross.sourceset.SourceSet;
 import at.dotpoint.gradle.cross.sourceset.ISourceSet;
 import at.dotpoint.gradle.cross.sourceset.ISourceSetInternal;
 import at.dotpoint.gradle.cross.specification.ApplicationBinarySpec;
@@ -145,7 +145,7 @@ public class CrossPlugin implements Plugin<Project>
 		@ComponentType
 		void registerSourceSet( TypeBuilder<ISourceSet> builder )
 		{
-			builder.defaultImplementation( CrossSourceSet.class );
+			builder.defaultImplementation( SourceSet.class );
 			builder.internalView( ISourceSetInternal.class );
 		}
 	}

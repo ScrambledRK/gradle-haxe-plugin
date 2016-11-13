@@ -4,16 +4,18 @@ import at.dotpoint.gradle.cross.options.model.IOptions;
 import at.dotpoint.gradle.cross.options.setting.IOptionsSetting;
 import at.dotpoint.gradle.cross.sourceset.ISourceSet;
 import at.dotpoint.gradle.cross.task.ACrossSourceTask;
+import at.dotpoint.gradle.cross.util.StringUtil;
 import at.dotpoint.gradle.cross.variant.model.platform.IPlatform;
 import at.dotpoint.gradle.haxe.configuration.ConfigurationConstant;
 import org.apache.commons.io.FileUtils;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.language.base.LanguageSourceSet;
-import org.gradle.util.GFileUtils;
+import org.gradle.platform.base.BinarySpec;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -116,14 +118,30 @@ public class GenerateHXMLTask extends ACrossSourceTask
 		this.mainClassPath = mainClassPath;
 	}
 
-	Set<File> getDependencies()
+	/**
+	 *
+	 * @return
+	 */
+	public Set<File> getDependencies()
 	{
-		return dependencies;
+		if( this.dependencies == null )
+			this.dependencies = new HashSet<>();
+
+		return this.dependencies;
 	}
 
-	void setDependencies( Set<File> dependencies )
+	public void setDependencies( Set<File> dependencies )
 	{
 		this.dependencies = dependencies;
+	}
+
+	// ********************************************************************************************** //
+	// ********************************************************************************************** //
+
+	//
+	public static String generateTaskName( BinarySpec binarySpec, String postFix )
+	{
+		return StringUtil.toCamelCase( binarySpec.getTasks().taskName( "generateHxml" ), postFix );
 	}
 
 	// ********************************************************************************************** //
@@ -181,8 +199,6 @@ public class GenerateHXMLTask extends ACrossSourceTask
 
 		// -------------- //
 
-	    System.out.println( total );
-
 	    FileUtils.touch( hxmlFile );
 	    FileUtils.writeStringToFile( hxmlFile, total );
     }
@@ -206,15 +222,12 @@ public class GenerateHXMLTask extends ACrossSourceTask
 		{
 			for( File it : set.getSource().getSrcDirs() )
 			{
-				String value = GFileUtils.relativePath( this.getOutputDir()/*this.getProject().getProjectDir()*/, it.getAbsoluteFile() );
+				String value = it.getAbsolutePath();
 
 				if( !list.contains( value ) )
 					list.add( value );
 			}
 		}
-
-		for( String foo : list )
-			System.out.println( foo );
 
 		// ------------- //
 
@@ -231,12 +244,9 @@ public class GenerateHXMLTask extends ACrossSourceTask
 	{
 		ArrayList<String> list = new ArrayList<>();
 
-		if( this.dependencies == null )
-			return list;
-
 		// ------------- //
 
-		for( File artifact : this.dependencies )
+		for( File artifact : this.getDependencies() )
 		{
 			String value = this.getNativeDependencyOption( artifact );
 
@@ -299,6 +309,9 @@ public class GenerateHXMLTask extends ACrossSourceTask
 		{
 			case ConfigurationConstant.KEY_HXML:
 				return (String)configurationSetting.getValue();
+
+			case ConfigurationConstant.KEY_MAIN:
+				return "-main " + configurationSetting.getValue();
 
 			default:
 				return null;

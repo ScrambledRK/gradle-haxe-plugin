@@ -11,6 +11,21 @@ public class TaskUtil
 {
 	/**
 	 */
+	public static Task findTaskByName( BinarySpec binarySpec, String name )
+	{
+		return TaskUtil.findTaskByName( binarySpec.getTasks(), name );
+	}
+
+	/**
+	 */
+	public static <TTask extends Task> TTask findTaskByName( BinarySpec binarySpec,
+	                                                         String name, Class<TTask> type )
+	{
+		return TaskUtil.findTaskByName( binarySpec.getTasks(), name, type );
+	}
+
+	/**
+	 */
 	public static <TTask extends Task> TTask findTaskByName( Iterable<Task> container,
 	                                                         String name, Class<TTask> type )
 	{
@@ -48,7 +63,7 @@ public class TaskUtil
 		}
 
 		binarySpec.getTasks().create( name, type, config::execute );
-		return TaskUtil.findTaskByName( binarySpec.getTasks(), name, type );
+		return TaskUtil.findTaskByName( binarySpec, name, type );
 	}
 
 	/**

@@ -30,10 +30,7 @@ import org.gradle.api.internal.artifacts.dsl.dependencies.ProjectFinder;
 import org.gradle.language.base.LanguageSourceSet;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -145,6 +142,31 @@ public class JavaTransform extends ALifeCycleTransform
 	protected Task createTestTransformation( IApplicationBinarySpec binarySpec,
 	                                         ILifeCycleTransformData input )
 	{
+		JavaTransformData transformData = (JavaTransformData) input;
+
+		if( transformData.generateHXMLTask == null )
+		{
+			System.out.println( binarySpec + " cannot create TestTransformation, compile tasks missing");
+			return null;
+		}
+
+		// ------------------------------------------- //
+
+		VariantCombination<IVariant> targetVariation = binarySpec.getTargetVariantCombination();
+		List<ISourceSet> sourceSets = this.getSourceSets( binarySpec, "test");
+
+		if( sourceSets.isEmpty() )
+		{
+			System.out.println( binarySpec + " has no sourceSets for test" );
+			return null;
+		}
+
+		// ------------------------------------------- //
+
+
+
+		// ------------------------------------------- //
+
 		return null;
 	}
 
@@ -166,19 +188,22 @@ public class JavaTransform extends ALifeCycleTransform
 
 		//
 		GenerateHXMLTask generateTask = TaskUtil.createTask( binarySpec, GenerateHXMLTask.class,
-				StringUtil.toCamelCase( binarySpec.getTasks().taskName( "generateHxml" ), sourceSetName ), it ->
+				GenerateHXMLTask.generateTaskName( binarySpec, sourceSetName ), it ->
 		{
 			it.setTargetVariantCombination( targetVariation );
-
 			it.setOptions( binarySpec.getOptions() );
+
 			it.setSourceSets( sourceSets );
+			it.setDependencies( this.getArtifactFiles( binarySpec, sourceSets ) );
 
 			it.setOutputDir( new File( it.getProject().getBuildDir(), binarySpec.getTasks().taskName( sourceSetName ) ) );
+
+			this.getDependencyBuildTasks( sourceSets, targetVariation ).forEach( it::dependsOn );
 		} );
 
 		//
 		ExecuteHXMLTask executeTask = TaskUtil.createTask( binarySpec, ExecuteHXMLTask.class,
-				StringUtil.toCamelCase( binarySpec.getTasks().taskName( "executeHxml" ), sourceSetName ), it ->
+				ExecuteHXMLTask.generateTaskName( binarySpec, sourceSetName ), it ->
 		{
 			it.setHxmlFile( generateTask.getHxmlFile() );
 		} );
@@ -187,37 +212,24 @@ public class JavaTransform extends ALifeCycleTransform
 		executeTask.dependsOn( generateTask );
 
 		// ------------------------------------------- //
-		// dependencies:
 
-		for( ISourceSet set : sourceSets )
-		{
-			List<IApplicationBinarySpec> libraries = this.getLibraryDependencies( set, targetVariation );
-			List<Configuration> artifacts = this.getArtifactDependencies( binarySpec, set );
+		JavaTransformData transformData = (JavaTransformData) input;
 
-			for( IApplicationBinarySpec dependency : libraries )
-				generateTask.dependsOn( dependency.getBuildTask() );
-
-			for( Configuration configuration : artifacts )
-			{
-				Set<File> files = configuration.resolve();
-				//generateTask.dependsOn( files );
-			}
-		}
-
-		// ------------------------------------------- //
+		transformData.generateHXMLTask = generateTask;
+		transformData.executeHXMLTask = executeTask;
 
 		return executeTask;
 	}
 
 	/**
 	 */
-	private Task createGradle( IApplicationBinarySpec binarySpec, ILifeCycleTransformData input, String sourceSetName )
+	private Task createGradle( IApplicationBinarySpec binarySpec, ILifeCycleTransformData input, String name )
 	{
 		//
 		GenerateGradleTask generateTask = TaskUtil.createTask( binarySpec, GenerateGradleTask.class,
-				StringUtil.toCamelCase( binarySpec.getTasks().taskName( "generateGradleProject" ), sourceSetName ), it ->
+				StringUtil.toCamelCase( binarySpec.getTasks().taskName( "generateGradleProject" ), name ), it ->
 		{
-			it.setOutputDir( new File( it.getProject().getBuildDir(), binarySpec.getTasks().taskName( sourceSetName ) ) );
+			it.setOutputDir( new File( it.getProject().getBuildDir(), binarySpec.getTasks().taskName( name ) ) );
 
 			it.getGradleFile();
 			it.getSettingsFile();
@@ -225,7 +237,7 @@ public class JavaTransform extends ALifeCycleTransform
 
 		//
 		ExecuteGradleTask executeTask = TaskUtil.createTask( binarySpec, ExecuteGradleTask.class,
-				StringUtil.toCamelCase( binarySpec.getTasks().taskName( "executeGradleProject" ), sourceSetName ), it ->
+				StringUtil.toCamelCase( binarySpec.getTasks().taskName( "executeGradleProject" ), name ), it ->
 		{
 			it.setGradleFile( generateTask.getGradleFile() );
 		} );
@@ -242,12 +254,48 @@ public class JavaTransform extends ALifeCycleTransform
 
 	/**
 	 */
+	private Set<File> getArtifactFiles( IApplicationBinarySpec binarySpec, List<ISourceSet> sourceSets )
+	{
+		Set<File> dependencyArtifacts = new HashSet<>();
+
+		for( ISourceSet set : sourceSets )
+		{
+			List<Configuration> artifacts = this.getArtifactDependencies( binarySpec, set );
+
+			for( Configuration configuration : artifacts )
+				dependencyArtifacts.addAll( configuration.resolve() );
+		}
+
+		return dependencyArtifacts;
+	}
+
+	/**
+	 */
+	private List<Task> getDependencyBuildTasks( List<ISourceSet> sourceSets,
+	                                            VariantCombination<IVariant> targetVariation )
+	{
+		List<Task> dependencyTasks = new ArrayList<>();
+
+		for( ISourceSet set : sourceSets )
+		{
+			List<IApplicationBinarySpec> libraries = this.getLibraryDependencies( set, targetVariation );
+
+			dependencyTasks.addAll( libraries.stream()
+					.map( IApplicationBinarySpec::getBuildTask )
+					.collect( Collectors.toList() ) );
+		}
+
+		return dependencyTasks;
+	}
+
+	/**
+	 */
 	private List<ISourceSet> getSourceSets( IApplicationBinarySpec binarySpec,
 	                                        String name )
 	{
-		List<ISourceSet> directSourceSets = BinarySpecUtil.getSourceSetList( binarySpec );
+		List<ISourceSet> sourceSetList = BinarySpecUtil.getSourceSetList( binarySpec );
 
-		return directSourceSets.stream()
+		return sourceSetList.stream()
 				.filter( set -> set.getName().equals( name ) )
 				.collect( Collectors.toList() );
 	}
@@ -298,17 +346,4 @@ public class JavaTransform extends ALifeCycleTransform
 		return configurationList;
 	}
 
-	//
-//	private List<ResolutionAwareRepository> getResolutionAwareRepositories()
-//	{
-//		List<ResolutionAwareRepository> resolutionAwareRepositories = new ArrayList<>();
-//
-//		for( ArtifactRepository repository : this.repositoryHandler.collect() )
-//		{
-//			if( repository instanceof ResolutionAwareRepository )
-//				resolutionAwareRepositories.add( repository );
-//		}
-//
-//		return resolutionAwareRepositories;
-//	}
 }

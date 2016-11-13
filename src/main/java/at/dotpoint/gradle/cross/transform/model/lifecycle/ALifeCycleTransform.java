@@ -2,6 +2,7 @@ package at.dotpoint.gradle.cross.transform.model.lifecycle;
 
 import at.dotpoint.gradle.cross.CrossPlugin;
 import at.dotpoint.gradle.cross.specification.IApplicationBinarySpec;
+import at.dotpoint.gradle.cross.specification.IApplicationBinarySpecInternal;
 import at.dotpoint.gradle.cross.transform.model.ATaskTransform;
 import at.dotpoint.gradle.cross.util.TaskUtil;
 import org.gradle.api.Task;
@@ -43,6 +44,10 @@ public abstract class ALifeCycleTransform
 	public Task createTransformTask( IApplicationBinarySpec binarySpec,
 	                                 ILifeCycleTransformData input )
 	{
+		input.setBinarySpec( ( IApplicationBinarySpecInternal) binarySpec );
+
+		// -------- //
+
 		Task convertTask = this.createConvertTransformation( binarySpec, input );
 		Task compileTask = this.createCompileTransformation( binarySpec, input );
 		Task testTask    = this.createTestTransformation( binarySpec, input );
@@ -91,4 +96,5 @@ public abstract class ALifeCycleTransform
 
 		lifeCycleTask.dependsOn( task );
 	}
+
 }

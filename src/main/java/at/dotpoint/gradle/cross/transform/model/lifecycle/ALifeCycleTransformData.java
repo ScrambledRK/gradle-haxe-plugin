@@ -1,6 +1,8 @@
 package at.dotpoint.gradle.cross.transform.model.lifecycle;
 
 import at.dotpoint.gradle.cross.sourceset.ISourceSet;
+import at.dotpoint.gradle.cross.specification.IApplicationBinarySpec;
+import at.dotpoint.gradle.cross.specification.IApplicationBinarySpecInternal;
 
 import java.util.List;
 
@@ -10,26 +12,18 @@ import java.util.List;
 public class ALifeCycleTransformData implements ILifeCycleTransformData
 {
 	//
-	protected List<ISourceSet> sourceSets;
+	protected IApplicationBinarySpecInternal binarySpec;
 
 	// ---------------------------------------------------------------- //
 	// ---------------------------------------------------------------- //
 
-	/**
-	 *
-	 * @return
-	 */
-	public List<ISourceSet> getSourceSets()
+	public IApplicationBinarySpecInternal getBinarySpec()
 	{
-		return sourceSets;
+		return binarySpec;
 	}
 
-	/**
-	 *
-	 * @param sourceSets
-	 */
-	public void setSourceSets( List<ISourceSet> sourceSets )
+	public void setBinarySpec( IApplicationBinarySpecInternal binarySpec )
 	{
-		this.sourceSets = sourceSets;
+		this.binarySpec = binarySpec;
 	}
 }

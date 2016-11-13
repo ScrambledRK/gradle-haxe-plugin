@@ -7,12 +7,6 @@ import at.dotpoint.gradle.cross.transform.builder.lifecycle.LifeCycleTransformat
 import at.dotpoint.gradle.cross.transform.container.LifeCycleTransformationContainer;
 import at.dotpoint.gradle.cross.transform.model.lifecycle.ILifeCycleTransform;
 import at.dotpoint.gradle.cross.transform.repository.ITransformBuilderRepository;
-import at.dotpoint.gradle.haxe.sourceset.HaxeSourceSet;
-import at.dotpoint.gradle.haxe.sourceset.IHaxeSourceSet;
-import at.dotpoint.gradle.haxe.sourceset.IHaxeSourceSetInternal;
-import at.dotpoint.gradle.haxe.specification.HaxeBinarySpec;
-import at.dotpoint.gradle.haxe.specification.IHaxeBinarySpec;
-import at.dotpoint.gradle.haxe.specification.IHaxeBinarySpecInternal;
 import at.dotpoint.gradle.haxe.transform.java.JavaTransform;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -24,8 +18,6 @@ import org.gradle.internal.reflect.Instantiator;
 import org.gradle.internal.service.ServiceRegistry;
 import org.gradle.model.Mutate;
 import org.gradle.model.RuleSource;
-import org.gradle.platform.base.ComponentType;
-import org.gradle.platform.base.TypeBuilder;
 
 import javax.inject.Inject;
 /**
@@ -54,9 +46,6 @@ public class HaxePlugin implements Plugin<Project>
 	public void apply( final Project project )
 	{
 		project.getPluginManager().apply( CrossPlugin.class );
-
-		//JavaPluginConvention javaConvention = new JavaPluginConvention(project, instantiator);
-  		//project.getConvention().getPlugins().put("java", javaConvention);
 	}
 
 	// ---------------------------------------------------------- //
@@ -67,30 +56,6 @@ public class HaxePlugin implements Plugin<Project>
 	 */
 	static class HaxePluginRules extends RuleSource
 	{
-
-		/**
-		 * HaxeComponentSpec
-		 */
-		@ComponentType
-		void registerHaxeBinarySpec( TypeBuilder<IHaxeBinarySpec> builder )
-		{
-			builder.defaultImplementation( HaxeBinarySpec.class );
-			builder.internalView( IHaxeBinarySpecInternal.class );
-		}
-
-		// -------------------------------------------------- //
-		// -------------------------------------------------- //
-		// source transformation:
-
-		/**
-		 * LanguageSourceSet
-		 */
-		@ComponentType
-		void registerSourceSet( TypeBuilder<IHaxeSourceSet> builder )
-		{
-			builder.defaultImplementation( HaxeSourceSet.class );
-			builder.internalView( IHaxeSourceSetInternal.class );
-		}
 
 		// -------------------------------------------------- //
 		// -------------------------------------------------- //

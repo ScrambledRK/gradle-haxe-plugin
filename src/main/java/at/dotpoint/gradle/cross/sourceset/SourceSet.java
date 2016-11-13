@@ -14,7 +14,7 @@ import org.gradle.model.Managed;
  */
 @Managed
 //
-public class CrossSourceSet extends BaseLanguageSourceSet implements ISourceSetInternal
+public class SourceSet extends BaseLanguageSourceSet implements ISourceSetInternal
 {
 
     private IPlatform platform;
@@ -25,12 +25,12 @@ public class CrossSourceSet extends BaseLanguageSourceSet implements ISourceSetI
     // --------------------------------------------------- //
     // --------------------------------------------------- //
 
-    public CrossSourceSet()
+    public SourceSet()
     {
         this( null, null );
     }
 
-    public CrossSourceSet( IPlatform platform, PlatformRequirement platformRequirement )
+    public SourceSet( IPlatform platform, PlatformRequirement platformRequirement )
     {
         this.platform = platform;
         this.platformRequirement = platformRequirement;
