@@ -51,8 +51,8 @@ public abstract class ALifeCycleTransform
 
 		// -------- //
 
-		Task convertTask = this.createConvertTransformation( binarySpec, input );
-		Task compileTask = this.createCompileTransformation( binarySpec, input );
+		Task convertTask = this.createConvertTransformation( binarySpec );
+		Task compileTask = this.createCompileTransformation( binarySpec );
 
 		if( convertTask != null )
 			this.performLifeCycle( binarySpec, convertTask, CrossPlugin.NAME_CONVERT_SOURCE );
@@ -60,7 +60,7 @@ public abstract class ALifeCycleTransform
 		if( compileTask != null )
 			this.performLifeCycle( binarySpec, compileTask, CrossPlugin.NAME_COMPILE_SOURCE );
 
-		this.createTestComponentTasks( binarySpec, input );
+		this.createTestComponentTasks( binarySpec );
 
 		// -------- //
 
@@ -69,13 +69,13 @@ public abstract class ALifeCycleTransform
 
 	/**
 	 */
-	private void createTestComponentTasks( IApplicationBinarySpec binarySpec, ILifeCycleTransformData input )
+	private void createTestComponentTasks( IApplicationBinarySpec binarySpec )
 	{
 		IApplicationComponentSpec componentSpec = binarySpec.getApplication();
 
 		for( ITestComponentSpec testComponentSpec : componentSpec.getTests() )
 		{
-			Task testTask = this.createTestTransformation( binarySpec, testComponentSpec, input );
+			Task testTask = this.createTestTransformation( binarySpec, testComponentSpec );
 
 			if( testTask != null )
 				this.performLifeCycle( binarySpec, testTask, CrossPlugin.NAME_TEST_SOURCE );
@@ -84,18 +84,15 @@ public abstract class ALifeCycleTransform
 
 	/**
 	 */
-	abstract protected Task createConvertTransformation( IApplicationBinarySpec binarySpec,
-	                                                     ILifeCycleTransformData input );
+	abstract protected Task createConvertTransformation( IApplicationBinarySpec binarySpec );
 
 	/**
 	 */
-	abstract protected Task createCompileTransformation( IApplicationBinarySpec binarySpec,
-	                                                     ILifeCycleTransformData input );
+	abstract protected Task createCompileTransformation( IApplicationBinarySpec binarySpec );
 
 	/**
 	 */
-	abstract protected Task createTestTransformation( IApplicationBinarySpec binarySpec,
-	                                                  ITestComponentSpec testSpec, ILifeCycleTransformData input );
+	abstract protected Task createTestTransformation( IApplicationBinarySpec binarySpec, ITestComponentSpec testSpec );
 
 	// ---------------------------------------------------------------- //
 	// ---------------------------------------------------------------- //

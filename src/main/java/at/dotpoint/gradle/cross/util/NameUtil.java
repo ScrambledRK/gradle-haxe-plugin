@@ -1,10 +1,12 @@
 package at.dotpoint.gradle.cross.util;
 
-import at.dotpoint.gradle.cross.variant.model.IVariant;
+import at.dotpoint.gradle.cross.specification.IApplicationBinarySpec;
 import at.dotpoint.gradle.cross.variant.target.VariantCombination;
 import org.gradle.api.Named;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -23,25 +25,17 @@ public class NameUtil
 		return StringUtil.toCamelCase( names );
 	}
 
-	/**
-	 */
-	public static String generateTransformTaskName( String prefix, Named namedObject, VariantCombination<IVariant> targetVariation )
+	public static String getBinaryTaskName( IApplicationBinarySpec binarySpec, String prefix  )
 	{
-		return StringUtil.toCamelCase( prefix, getVariationName( targetVariation ), namedObject.getName() );
+		return binarySpec.getTasks().taskName( prefix );
 	}
 
-	/**
-	 */
-	public static String generateTransformTaskName( String prefix, VariantCombination<IVariant> targetVariation )
+	public static String getBinaryTaskName( IApplicationBinarySpec binarySpec, String prefix, String... postFix  )
 	{
-		return StringUtil.toCamelCase( prefix, getVariationName( targetVariation ) );
-	}
+		List<String> names = new ArrayList<>();
+			names.add( binarySpec.getTasks().taskName( prefix ) );
+			names.addAll( Arrays.asList( postFix ) );
 
-	/**
-
-	 */
-	public static String generateTransformTaskName( String prefix, Named namedObject )
-	{
-		return StringUtil.toCamelCase( prefix, namedObject.getName() );
+		return StringUtil.toCamelCase( names );
 	}
 }

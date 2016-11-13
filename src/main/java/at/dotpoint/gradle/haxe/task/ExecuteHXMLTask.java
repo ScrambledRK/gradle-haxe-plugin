@@ -1,9 +1,7 @@
 package at.dotpoint.gradle.haxe.task;
 
-import at.dotpoint.gradle.cross.util.StringUtil;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.tasks.TaskAction;
-import org.gradle.platform.base.BinarySpec;
 
 import java.io.File;
 import java.io.IOException;
@@ -32,15 +30,6 @@ public class ExecuteHXMLTask extends DefaultTask
 	public void setHxmlFile( File hxmlFile )
 	{
 		this.hxmlFile = hxmlFile;
-	}
-
-	// ********************************************************************************************** //
-	// ********************************************************************************************** //
-
-	//
-	public static String generateTaskName( BinarySpec binarySpec, String postFix )
-	{
-		return StringUtil.toCamelCase( binarySpec.getTasks().taskName( "executeHxml" ), postFix );
 	}
 
 	// ********************************************************************************************** //

@@ -76,7 +76,7 @@ public class LifeCycleTransformationBuilder
 				continue;
 
 			if( transform.canTransform( target, null ) )
-				return this.createAssignedTransform( target, ( (ILifeCycleTransform) transform ).createTransformData(), transform );
+				return this.createAssignedTransform( target, null, transform );
 		}
 
 		return null;

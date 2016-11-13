@@ -10,7 +10,7 @@ import at.dotpoint.gradle.cross.specification.ITestComponentSpec;
 import at.dotpoint.gradle.cross.transform.model.lifecycle.ALifeCycleTransform;
 import at.dotpoint.gradle.cross.transform.model.lifecycle.ILifeCycleTransformData;
 import at.dotpoint.gradle.cross.util.BinarySpecUtil;
-import at.dotpoint.gradle.cross.util.StringUtil;
+import at.dotpoint.gradle.cross.util.NameUtil;
 import at.dotpoint.gradle.cross.util.TaskUtil;
 import at.dotpoint.gradle.cross.variant.model.IVariant;
 import at.dotpoint.gradle.cross.variant.model.platform.IPlatform;
@@ -116,32 +116,37 @@ public class JavaTransform extends ALifeCycleTransform
 		return true;
 	}
 
-	// ---------------------------------------------------------------- //
-	// ---------------------------------------------------------------- //
+	// ************************************************************************************* //
+	// ************************************************************************************* //
 
 	/**
 	 */
 	@Override
-	protected Task createConvertTransformation( IApplicationBinarySpec binarySpec,
-	                                            ILifeCycleTransformData input )
+	protected Task createConvertTransformation( IApplicationBinarySpec binarySpec )
 	{
-		return this.createHXML( binarySpec, input, BinarySpecUtil.getSourceSetList( binarySpec ), "" );
+		List<ISourceSet> sourceSets = BinarySpecUtil.getSourceSetList( binarySpec );
+
+		if( sourceSets.isEmpty() )
+		{
+			System.out.println( binarySpec + " has no sourceSets" );
+			return null;
+		}
+
+		return this.createHXML( binarySpec, sourceSets, "" );
 	}
 
 	/**
 	 */
 	@Override
-	protected Task createCompileTransformation( IApplicationBinarySpec binarySpec,
-	                                            ILifeCycleTransformData input )
+	protected Task createCompileTransformation( IApplicationBinarySpec binarySpec )
 	{
-		return this.createGradle( binarySpec, input, "" );
+		return this.createGradle( binarySpec, "" );
 	}
 
 	/**
 	 */
 	@Override
-	protected Task createTestTransformation( IApplicationBinarySpec binarySpec,
-	                                         ITestComponentSpec testSpec, ILifeCycleTransformData input )
+	protected Task createTestTransformation( IApplicationBinarySpec binarySpec, ITestComponentSpec testSpec )
 	{
 		//String name = testSpec.getName();
 
@@ -153,25 +158,25 @@ public class JavaTransform extends ALifeCycleTransform
 		return null;
 	}
 
-	// ---------------------------------------------------------------- //
-	// ---------------------------------------------------------------- //
+	// ************************************************************************************* //
+	// ************************************************************************************* //
+	// HXML:
 
 	/**
 	 */
-	private Task createHXML( IApplicationBinarySpec binarySpec, ILifeCycleTransformData input,
-	                         List<ISourceSet> sourceSets, String taskName )
+	private Task createHXML( IApplicationBinarySpec binarySpec, List<ISourceSet> sourceSets, String taskName )
 	{
 		VariantCombination<IVariant> targetVariation = binarySpec.getTargetVariantCombination();
 
-		if( sourceSets.isEmpty() )
-			System.out.println( binarySpec + " has no sourceSets for " + taskName );
+		String generateTaskName = NameUtil.getBinaryTaskName( binarySpec, "generateHxml", taskName );
+		String executeTaskName  = NameUtil.getBinaryTaskName( binarySpec, "executeHxml",  taskName );
+		File generateOutputDir  = this.getOutputDirectory( binarySpec, taskName );
 
 		// ------------------------------------------- //
 		// hxml:
 
 		//
-		GenerateHXMLTask generateTask = TaskUtil.createTask( binarySpec, GenerateHXMLTask.class,
-				GenerateHXMLTask.generateTaskName( binarySpec, taskName ), it ->
+		GenerateHXMLTask generateTask = TaskUtil.createTask( binarySpec, GenerateHXMLTask.class, generateTaskName, it ->
 		{
 			it.setTargetVariantCombination( targetVariation );
 			it.setOptions( binarySpec.getOptions() );
@@ -179,15 +184,13 @@ public class JavaTransform extends ALifeCycleTransform
 			it.setSourceSets( sourceSets );
 			it.setDependencies( this.getArtifactFiles( binarySpec, sourceSets ) );
 
-			it.setOutputDir( new File( it.getProject().getBuildDir(),
-					binarySpec.getTasks().taskName( taskName ) ) );
+			it.setOutputDir( generateOutputDir );
 
 			this.getDependencyBuildTasks( sourceSets, targetVariation ).forEach( it::dependsOn );
 		} );
 
 		//
-		ExecuteHXMLTask executeTask = TaskUtil.createTask( binarySpec, ExecuteHXMLTask.class,
-				ExecuteHXMLTask.generateTaskName( binarySpec, taskName ), it ->
+		ExecuteHXMLTask executeTask = TaskUtil.createTask( binarySpec, ExecuteHXMLTask.class, executeTaskName, it ->
 		{
 			it.setHxmlFile( generateTask.getHxmlFile() );
 		} );
@@ -200,23 +203,31 @@ public class JavaTransform extends ALifeCycleTransform
 		return executeTask;
 	}
 
+	// ---------------------------------------------------------------- //
+	// ---------------------------------------------------------------- //
+
 	/**
 	 */
-	private Task createGradle( IApplicationBinarySpec binarySpec, ILifeCycleTransformData input, String name )
+	private Task createGradle( IApplicationBinarySpec binarySpec, String taskName )
 	{
+		String generateTaskName = NameUtil.getBinaryTaskName( binarySpec, "generateGradleProject", taskName );
+		String executeTaskName  = NameUtil.getBinaryTaskName( binarySpec, "executeGradleProject",  taskName );
+		File generateOutputDir  = this.getOutputDirectory( binarySpec, taskName );
+
+		// ------------------------------------------- //
+		// gradle:
+
 		//
-		GenerateGradleTask generateTask = TaskUtil.createTask( binarySpec, GenerateGradleTask.class,
-				StringUtil.toCamelCase( binarySpec.getTasks().taskName( "generateGradleProject" ), name ), it ->
+		GenerateGradleTask generateTask = TaskUtil.createTask( binarySpec, GenerateGradleTask.class, generateTaskName, it ->
 		{
-			it.setOutputDir( new File( it.getProject().getBuildDir(), binarySpec.getTasks().taskName( name ) ) );
+			it.setOutputDir( generateOutputDir );
 
 			it.getGradleFile();
 			it.getSettingsFile();
 		} );
 
 		//
-		ExecuteGradleTask executeTask = TaskUtil.createTask( binarySpec, ExecuteGradleTask.class,
-				StringUtil.toCamelCase( binarySpec.getTasks().taskName( "executeGradleProject" ), name ), it ->
+		ExecuteGradleTask executeTask = TaskUtil.createTask( binarySpec, ExecuteGradleTask.class, executeTaskName, it ->
 		{
 			it.setGradleFile( generateTask.getGradleFile() );
 		} );
@@ -228,8 +239,24 @@ public class JavaTransform extends ALifeCycleTransform
 		return executeTask;
 	}
 
-	// ---------------------------------------------------------------- //
-	// ---------------------------------------------------------------- //
+	// ************************************************************************************* //
+	// ************************************************************************************* //
+
+	//
+	private Project getProject( IApplicationBinarySpec binarySpec )
+	{
+		return this.projectFinder.findProject( binarySpec.getProjectPath() );
+	}
+
+	//
+	private File getOutputDirectory( IApplicationBinarySpec binarySpec, String name )
+	{
+		return new File( this.getProject( binarySpec ).getBuildDir(),
+						NameUtil.getBinaryTaskName( binarySpec, name ) );
+	}
+
+	// ************************************************************************************* //
+	// ************************************************************************************* //
 
 	/**
 	 */

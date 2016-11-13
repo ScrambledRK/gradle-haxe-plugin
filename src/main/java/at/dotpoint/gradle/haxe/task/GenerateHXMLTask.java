@@ -4,13 +4,11 @@ import at.dotpoint.gradle.cross.options.model.IOptions;
 import at.dotpoint.gradle.cross.options.setting.IOptionsSetting;
 import at.dotpoint.gradle.cross.sourceset.ISourceSet;
 import at.dotpoint.gradle.cross.task.ACrossSourceTask;
-import at.dotpoint.gradle.cross.util.StringUtil;
 import at.dotpoint.gradle.cross.variant.model.platform.IPlatform;
 import at.dotpoint.gradle.haxe.configuration.ConfigurationConstant;
 import org.apache.commons.io.FileUtils;
 import org.gradle.api.tasks.TaskAction;
 import org.gradle.language.base.LanguageSourceSet;
-import org.gradle.platform.base.BinarySpec;
 
 import java.io.File;
 import java.io.IOException;
@@ -133,15 +131,6 @@ public class GenerateHXMLTask extends ACrossSourceTask
 	public void setDependencies( Set<File> dependencies )
 	{
 		this.dependencies = dependencies;
-	}
-
-	// ********************************************************************************************** //
-	// ********************************************************************************************** //
-
-	//
-	public static String generateTaskName( BinarySpec binarySpec, String postFix )
-	{
-		return StringUtil.toCamelCase( binarySpec.getTasks().taskName( "generateHxml" ), postFix );
 	}
 
 	// ********************************************************************************************** //
