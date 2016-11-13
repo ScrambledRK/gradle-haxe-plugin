@@ -59,6 +59,7 @@ import javax.inject.Inject;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -262,7 +263,26 @@ public class CrossPlugin implements Plugin<Project>
 			Task lifeCycleTask = TaskUtil.findTaskByName( binarySpec,
 					NameUtil.getBinaryTaskName( binarySpec, lifeCycleTaskName ) );
 
-			dependencyTasks.forEach( lifeCycleTask::dependsOn ); // BUG: apply recursively to leaf-tasks in dependency hierarchy
+			this.setTaskDependencyRecursive( lifeCycleTask, dependencyTasks );
+
+
+		}
+
+		/**
+		 */
+		private void setTaskDependencyRecursive( Task target, List<Task> dependencyTasks )
+		{
+			Set<? extends Task> taskSet = target.getTaskDependencies().getDependencies( target );
+
+			if( taskSet == null || taskSet.size() == 0 )
+			{
+				dependencyTasks.forEach( target::dependsOn );
+			}
+			else
+			{
+				for( Task task : taskSet )
+					this.setTaskDependencyRecursive( task, dependencyTasks );
+			}
 		}
 
 		// -------------------------------------------------- //

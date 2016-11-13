@@ -265,8 +265,6 @@ public class JavaTransform extends ALifeCycleTransform
 		return dependencyArtifacts;
 	}
 
-
-
 	/**
 	 */
 	private List<Configuration> getArtifactDependencies( IApplicationBinarySpec binarySpec, ISourceSet sourceSet )
