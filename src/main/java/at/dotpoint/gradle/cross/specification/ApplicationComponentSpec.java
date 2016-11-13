@@ -12,6 +12,10 @@ import at.dotpoint.gradle.cross.variant.requirement.IVariantRequirement;
 import at.dotpoint.gradle.cross.variant.requirement.buildtype.IBuildTypeRequirement;
 import at.dotpoint.gradle.cross.variant.requirement.flavor.IFlavorRequirement;
 import at.dotpoint.gradle.cross.variant.requirement.platform.PlatformRequirement;
+import org.gradle.model.ModelMap;
+import org.gradle.model.internal.core.ModelMaps;
+import org.gradle.model.internal.core.MutableModelNode;
+import org.gradle.model.internal.type.ModelType;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -23,7 +27,11 @@ import java.util.List;
  */
 public class ApplicationComponentSpec extends GeneralComponentSpec implements IApplicationComponentSpecInternal
 {
-	 //
+	//
+	private static final ModelType<ITestComponentSpec> TEST_COMPONENT_SPEC_MODEL_TYPE = ModelType.of(ITestComponentSpec.class);
+	private final MutableModelNode tests;
+
+	//
     protected final ArrayList<PlatformRequirement> targetPlatformList;
     protected final ArrayList<IFlavorRequirement> targetFlavorList;
     protected final ArrayList<IBuildTypeRequirement> targetBuildTypeList;
@@ -50,7 +58,17 @@ public class ApplicationComponentSpec extends GeneralComponentSpec implements IA
 		this.platformNotationParser = PlatformNotationParser.getInstance();
 		this.flavorNotationParser = FlavorNotationParser.getInstance();
 		this.buildTypeNotationParser = BuildTypeNotationParser.getInstance();
+
+		this.tests = ModelMaps.addModelMapNode( getInfo().modelNode, TEST_COMPONENT_SPEC_MODEL_TYPE, "tests" );
 	}
+
+	// --------------------------------------------- //
+	// --------------------------------------------- //
+
+	@Override
+    public ModelMap<ITestComponentSpec> getTests() {
+        return ModelMaps.toView( this.tests, TEST_COMPONENT_SPEC_MODEL_TYPE );
+    }
 
 	// --------------------------------------------- //
 	// --------------------------------------------- //

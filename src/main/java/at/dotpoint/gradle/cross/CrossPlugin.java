@@ -95,6 +95,7 @@ public class CrossPlugin implements Plugin<Project>
 		project.getPluginManager().apply( LanguageBasePlugin.class );
 
 		project.getExtensions().getExtraProperties().set( "IApplicationComponent", IApplicationComponentSpec.class );
+		project.getExtensions().getExtraProperties().set( "ITestComponent", ITestComponentSpec.class );
 		project.getExtensions().getExtraProperties().set( "ISourceSet",   ISourceSet.class );
 		project.getExtensions().getExtraProperties().set( "IPlatform",    IPlatform.class );
 		project.getExtensions().getExtraProperties().set( "IFlavor",      IFlavor.class );
@@ -137,6 +138,16 @@ public class CrossPlugin implements Plugin<Project>
 		{
 			builder.defaultImplementation( ApplicationBinarySpec.class );
 			builder.internalView( IApplicationBinarySpecInternal.class );
+		}
+
+		/**
+		 * ITestComponentSpec (component of IApplicationComponentSpec)
+		 */
+		@ComponentType
+		void registerTestComponentSpec( TypeBuilder<ITestComponentSpec> builder )
+		{
+			builder.defaultImplementation( TestComponentSpec.class );
+			builder.internalView( ITestComponentSpecInternal.class );
 		}
 
 		/**

@@ -27,4 +27,5 @@ public interface IApplicationComponentSpecInternal extends IApplicationComponent
 
 	//
 	void setOptions( IOptionsRequirement configuration );
+
 }

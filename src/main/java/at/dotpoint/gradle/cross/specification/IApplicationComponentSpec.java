@@ -1,13 +1,8 @@
 package at.dotpoint.gradle.cross.specification;
 
 import at.dotpoint.gradle.cross.options.requirement.IOptionsRequirement;
-import at.dotpoint.gradle.cross.variant.requirement.IVariantRequirement;
-import at.dotpoint.gradle.cross.variant.requirement.buildtype.IBuildTypeRequirement;
-import at.dotpoint.gradle.cross.variant.requirement.flavor.IFlavorRequirement;
-import at.dotpoint.gradle.cross.variant.requirement.platform.PlatformRequirement;
+import org.gradle.model.ModelMap;
 import org.gradle.platform.base.ApplicationSpec;
-
-import java.util.List;
 
 /**
  *
@@ -31,5 +26,8 @@ public interface IApplicationComponentSpec extends IGeneralComponentSpec, Applic
 
 	//
 	IOptionsRequirement getOptions();
+
+	//
+	ModelMap<ITestComponentSpec> getTests();
 }
 

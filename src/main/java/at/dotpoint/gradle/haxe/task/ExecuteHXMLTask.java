@@ -80,22 +80,10 @@ public class ExecuteHXMLTask extends DefaultTask
 		File baseDir = this.getHxmlFile().getParentFile();
 		File buildDir = new File( baseDir, "build" );
 
-		this.moveFileTo( baseDir, buildDir, "cmd" );
-		this.moveFileTo( baseDir, buildDir, "hxjava_build.txt" );
-		this.moveFileTo( baseDir, buildDir, "manifest" );
-		this.moveFileTo( baseDir, buildDir, baseDir.getName() + ".jar" );
+		new File( baseDir, "cmd" ).delete();
+		new File( baseDir, "hxjava_build.txt" ).delete();
+		new File( baseDir, "manifest" ).delete();
+		new File( baseDir, baseDir.getName() + ".jar" ).delete();
 	}
 
-	/**
-	 * @throws IOException
-	 */
-	private void moveFileTo( File base, File target, String name ) throws IOException
-	{
-		target.mkdirs();
-
-		boolean success = new File( base, name ).renameTo( new File( target, name ) );
-
-		if( !success )
-			System.out.println( "could not move file: " + base + "/" + name + " to " + target );
-	}
 }

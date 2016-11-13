@@ -3,9 +3,12 @@ package at.dotpoint.gradle.cross.transform.model.lifecycle;
 import at.dotpoint.gradle.cross.CrossPlugin;
 import at.dotpoint.gradle.cross.specification.IApplicationBinarySpec;
 import at.dotpoint.gradle.cross.specification.IApplicationBinarySpecInternal;
+import at.dotpoint.gradle.cross.specification.IApplicationComponentSpec;
+import at.dotpoint.gradle.cross.specification.ITestComponentSpec;
 import at.dotpoint.gradle.cross.transform.model.ATaskTransform;
 import at.dotpoint.gradle.cross.util.TaskUtil;
 import org.gradle.api.Task;
+
 /**
  * Created by RK on 2016-08-27.
  */
@@ -50,7 +53,6 @@ public abstract class ALifeCycleTransform
 
 		Task convertTask = this.createConvertTransformation( binarySpec, input );
 		Task compileTask = this.createCompileTransformation( binarySpec, input );
-		Task testTask    = this.createTestTransformation( binarySpec, input );
 
 		if( convertTask != null )
 			this.performLifeCycle( binarySpec, convertTask, CrossPlugin.NAME_CONVERT_SOURCE );
@@ -58,12 +60,26 @@ public abstract class ALifeCycleTransform
 		if( compileTask != null )
 			this.performLifeCycle( binarySpec, compileTask, CrossPlugin.NAME_COMPILE_SOURCE );
 
-		if( testTask != null )
-			this.performLifeCycle( binarySpec, testTask,    CrossPlugin.NAME_TEST_SOURCE );
+		this.createTestComponentTasks( binarySpec, input );
 
 		// -------- //
 
 		return null;
+	}
+
+	/**
+	 */
+	private void createTestComponentTasks( IApplicationBinarySpec binarySpec, ILifeCycleTransformData input )
+	{
+		IApplicationComponentSpec componentSpec = binarySpec.getApplication();
+
+		for( ITestComponentSpec testComponentSpec : componentSpec.getTests() )
+		{
+			Task testTask = this.createTestTransformation( binarySpec, testComponentSpec, input );
+
+			if( testTask != null )
+				this.performLifeCycle( binarySpec, testTask, CrossPlugin.NAME_TEST_SOURCE );
+		}
 	}
 
 	/**
@@ -79,7 +95,7 @@ public abstract class ALifeCycleTransform
 	/**
 	 */
 	abstract protected Task createTestTransformation( IApplicationBinarySpec binarySpec,
-	                                                  ILifeCycleTransformData input );
+	                                                  ITestComponentSpec testSpec, ILifeCycleTransformData input );
 
 	// ---------------------------------------------------------------- //
 	// ---------------------------------------------------------------- //

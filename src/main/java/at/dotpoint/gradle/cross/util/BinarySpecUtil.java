@@ -3,6 +3,7 @@ package at.dotpoint.gradle.cross.util;
 import at.dotpoint.gradle.cross.sourceset.ISourceSet;
 import at.dotpoint.gradle.cross.specification.IApplicationBinarySpec;
 import org.gradle.language.base.LanguageSourceSet;
+import org.gradle.platform.base.SourceComponentSpec;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -13,8 +14,6 @@ import java.util.Iterator;
 public class BinarySpecUtil
 {
 	/**
-	 *
-	 * @param binarySpec
 	 */
 	public static ArrayList<ISourceSet> getSourceSetList( IApplicationBinarySpec binarySpec )
 	{
@@ -27,9 +26,17 @@ public class BinarySpecUtil
 	}
 
 	/**
-	 *
-	 * @param sourceSets
-	 * @param input
+	 */
+	public static ArrayList<ISourceSet> getSourceSetList( SourceComponentSpec testSpec )
+	{
+		ArrayList<ISourceSet> sourceSets = new ArrayList<>();
+
+		populateInputSourceSets( testSpec.getSources().iterator(), sourceSets );
+
+		return sourceSets;
+	}
+
+	/**
 	 */
 	private static void populateInputSourceSets( Iterator<LanguageSourceSet> input,
 	                                             ArrayList<ISourceSet> sourceSets )

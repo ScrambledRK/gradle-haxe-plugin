@@ -19,6 +19,9 @@ public class StringUtil
 
 		for( String value : params )
 		{
+			if( value == null || value.length() == 0 )
+				continue;
+
 			result = result == null ? value : result + value.substring( 0, 1 ).toUpperCase() + value.substring( 1 );
 		}
 
