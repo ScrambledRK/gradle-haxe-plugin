@@ -1,63 +1,50 @@
 package at.dotpoint.gradle.cross.transform.builder;
 
 import at.dotpoint.gradle.cross.specification.IApplicationBinarySpecInternal;
-import at.dotpoint.gradle.cross.transform.model.ITaskTransform;
+import at.dotpoint.gradle.cross.transform.model.ITaskTransformation;
 
 import java.util.ArrayList;
 
 /**
- *
- * @param <TTarget>
- * @param <TInput>
  */
-public abstract class ATransformationBuilder<TTarget,TInput> implements ITransformBuilder
+public abstract class ATransformationBuilder<TTarget> implements ITransformationBuilder
 {
 	/**
 	 *
 	 */
-	protected ArrayList<? extends ITaskTransform<TTarget,TInput>> transformList;
+	protected ArrayList<? extends ITaskTransformation<TTarget>> transformList;
 
 	/**
 	 *
 	 */
-	protected ArrayList<AssignedTransform<TTarget,TInput>> assignedTransforms;
+	protected ArrayList<AssignedTransform<TTarget>> assignedTransforms;
 
 	// ------------------------------------ //
 	// ------------------------------------ //
 
 	/**
 	 */
-	public ATransformationBuilder( ArrayList<? extends ITaskTransform<TTarget, TInput>> transformList )
+	public ATransformationBuilder( ArrayList<? extends ITaskTransformation<TTarget>> transformList )
 	{
 		this.assignedTransforms = new ArrayList<>();
 		this.transformList = transformList;
 	}
 
-	// ------------------------------------ //
-	// ------------------------------------ //
+	// ************************************************************************************* //
+	// ************************************************************************************* //
 
 	/**
 	 */
 	abstract public void createTransformationTasks( IApplicationBinarySpecInternal binarySpec );
 
-	/**
-	 */
-	protected AssignedTransform<TTarget,TInput> getAssignedTransform( TTarget target,
-	                                                                  TInput input )
-	{
-		AssignedTransform<TTarget,TInput> assignedTransform = this.getAssignedTransform( target );
-
-		if( assignedTransform != null && assignedTransform.input.equals( input ) )
-			return assignedTransform;
-
-		return null;
-	}
+	// ************************************************************************************* //
+	// ************************************************************************************* //
 
 	/**
 	 */
-	protected AssignedTransform<TTarget,TInput> getAssignedTransform( TTarget target )
+	protected AssignedTransform<TTarget> getAssignedTransform( TTarget target )
 	{
-		for( AssignedTransform<TTarget,TInput> transform : this.assignedTransforms )
+		for( AssignedTransform<TTarget> transform : this.assignedTransforms )
 		{
 			if( transform.target.equals( target )  )
 				return transform;
@@ -68,13 +55,12 @@ public abstract class ATransformationBuilder<TTarget,TInput> implements ITransfo
 
 	/**
 	 */
-	protected AssignedTransform<TTarget,TInput> assignTransformation( TTarget target,
-	                                                                  TInput input )
+	protected AssignedTransform<TTarget> assignTransformation( TTarget target )
 	{
-		for( ITaskTransform<TTarget,TInput> transform : this.transformList )
+		for( ITaskTransformation<TTarget> transform : this.transformList )
 		{
-			if( transform.canTransform( target, input ) )
-				return this.createAssignedTransform( target, input, transform );
+			if( transform.canTransform( target ) )
+				return this.createAssignedTransform( target, transform );
 		}
 
 		return null;
@@ -82,11 +68,10 @@ public abstract class ATransformationBuilder<TTarget,TInput> implements ITransfo
 
 	/**
 	 */
-	protected AssignedTransform<TTarget,TInput> createAssignedTransform( TTarget target,
-	                                                                     TInput input,
-	                                                                     ITaskTransform<TTarget,TInput> transform )
+	protected AssignedTransform<TTarget> createAssignedTransform( TTarget target,
+	                                                              ITaskTransformation<TTarget> transform )
 	{
-		AssignedTransform<TTarget,TInput> assignedTransform = new AssignedTransform<>( target, input, transform );
+		AssignedTransform<TTarget> assignedTransform = new AssignedTransform<>( target, transform );
 
 		// for what ever reason it might go wrong ...
 		boolean success = this.assignedTransforms.add( assignedTransform );
@@ -99,9 +84,9 @@ public abstract class ATransformationBuilder<TTarget,TInput> implements ITransfo
 
 	/**
 	 */
-	protected void performTaskCreation( AssignedTransform<TTarget,TInput> assigned )
+	protected void performTaskCreation( AssignedTransform<TTarget> assigned )
 	{
-		assigned.task = assigned.transform.createTransformTask( assigned.target, assigned.input );
+		assigned.task = assigned.transform.createTransformTask( assigned.target );
 	}
 
 }

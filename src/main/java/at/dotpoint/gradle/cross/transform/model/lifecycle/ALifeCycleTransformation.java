@@ -4,51 +4,33 @@ import at.dotpoint.gradle.cross.CrossPlugin;
 import at.dotpoint.gradle.cross.specification.IApplicationBinarySpec;
 import at.dotpoint.gradle.cross.specification.IApplicationComponentSpec;
 import at.dotpoint.gradle.cross.specification.ITestComponentSpec;
-import at.dotpoint.gradle.cross.transform.model.ATaskTransform;
+import at.dotpoint.gradle.cross.transform.model.ATaskTransformation;
 import at.dotpoint.gradle.cross.util.NameUtil;
 import at.dotpoint.gradle.cross.util.TaskUtil;
 import org.gradle.api.Task;
+import org.gradle.internal.service.ServiceRegistry;
 
 /**
  * Created by RK on 2016-08-27.
  */
-public abstract class ALifeCycleTransform
-		extends ATaskTransform<IApplicationBinarySpec, ILifeCycleTransformData>
-		implements ILifeCycleTransform
+public abstract class ALifeCycleTransformation extends ATaskTransformation<IApplicationBinarySpec>
+		implements ILifeCycleTransformation
 {
-
-	/**
-	 */
-	public abstract ILifeCycleTransformData createTransformData();
-
-	// ---------------------------------------------------------------- //
-	// ---------------------------------------------------------------- //
-
-	/**
-	 */
-	public boolean canTransform( IApplicationBinarySpec target )
+	//
+	public ALifeCycleTransformation( ServiceRegistry serviceRegistry )
 	{
-		return this.isValidTransformTarget( target );
+		super( serviceRegistry );
 	}
 
-	/**
-	 */
-	protected boolean isValidTransformInput( ILifeCycleTransformData input )
-	{
-		return true;
-	}
-
-	// ---------------------------------------------------------------- //
-	// ---------------------------------------------------------------- //
+	// ***************************************************************** //
+	// ***************************************************************** //
+	// create:
 
 	/**
 	 */
 	@Override
-	public Task createTransformTask( IApplicationBinarySpec binarySpec,
-	                                 ILifeCycleTransformData input )
+	public Task createTransformTask( IApplicationBinarySpec binarySpec )
 	{
-		this.setBuildResult( binarySpec );
-
 		Task convertTask = this.createConvertTransformation( binarySpec );
 		Task compileTask = this.createCompileTransformation( binarySpec );
 
@@ -80,9 +62,8 @@ public abstract class ALifeCycleTransform
 		}
 	}
 
-	/**
-	 */
-	abstract protected void setBuildResult( IApplicationBinarySpec binarySpec );
+	// ---------------------------------------------------------- //
+	// ---------------------------------------------------------- //
 
 	/**
 	 */
@@ -96,8 +77,27 @@ public abstract class ALifeCycleTransform
 	 */
 	abstract protected Task createTestTransformation( IApplicationBinarySpec binarySpec, ITestComponentSpec testSpec );
 
-	// ---------------------------------------------------------------- //
-	// ---------------------------------------------------------------- //
+	// ***************************************************************** //
+	// ***************************************************************** //
+	// update:
+
+	/**
+	 */
+	@Override
+	public void updateTransformTask( IApplicationBinarySpec binarySpec )
+	{
+		// find ISourceTask tasks
+		// apply dependencies and source sets
+
+		// source sets from library dependencies (via binary spec)
+		// artifacts from module dependencies (resolving directly)
+
+		// also do it for the test components (not just binary)
+	}
+
+	// ***************************************************************** //
+	// ***************************************************************** //
+	// general:
 
 	/**
 	 */

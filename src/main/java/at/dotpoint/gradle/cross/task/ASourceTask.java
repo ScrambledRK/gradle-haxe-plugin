@@ -1,17 +1,28 @@
 package at.dotpoint.gradle.cross.task;
 
 import at.dotpoint.gradle.cross.convention.ConventionUtil;
+import at.dotpoint.gradle.cross.sourceset.ISourceSet;
 import at.dotpoint.gradle.cross.variant.model.IVariant;
 import at.dotpoint.gradle.cross.variant.target.VariantCombination;
 import org.gradle.api.tasks.SourceTask;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Created by RK on 09.07.2016.
  */
-public class ACrossSourceTask extends SourceTask implements ICrossSourceTask
+public class ASourceTask extends SourceTask implements ISourceTask
 {
+
+	//
+	private Set<File> dependencies;
+
+	//
+	private List<ISourceSet> sourceSets;
 
 	//
 	private VariantCombination<IVariant> sourceVariantCombination;
@@ -22,15 +33,53 @@ public class ACrossSourceTask extends SourceTask implements ICrossSourceTask
 	//
 	private File outputDir;
 
-	// ------------------------------------------------------------------- //
-	// ------------------------------------------------------------------- //
+	// ***************************************************************** //
+	// ***************************************************************** //
 
 	/**
-	 *
 	 */
-	public ACrossSourceTask()
+	public List<ISourceSet> getSourceSets()
 	{
-		super();
+		if( this.sourceSets == null )
+			this.sourceSets = new ArrayList<>();
+
+		return this.sourceSets;
+	}
+
+	/**
+	 */
+	public void source( List<ISourceSet> sourceSets )
+	{
+		sourceSets.forEach( this::source );
+	}
+
+	public void source( ISourceSet sourceSet )
+	{
+		this.sourceSets.add( sourceSet );
+		this.getInputs().files( sourceSet.getSource().getSrcDirs() );
+	}
+
+	/**
+	 */
+	public Set<File> getDependencies()
+	{
+		if( this.dependencies == null )
+			this.dependencies = new HashSet<>();
+
+		return this.dependencies;
+	}
+
+	/**
+	 */
+	public void dependency( Set<File> dependencySet )
+	{
+		dependencySet.forEach( this::dependency );
+	}
+
+	public void dependency( File dependency )
+	{
+		this.dependencies.add( dependency );
+		this.getInputs().files( dependency );
 	}
 
 	// ------------------------------------------------------------------- //
@@ -82,8 +131,6 @@ public class ACrossSourceTask extends SourceTask implements ICrossSourceTask
 	// ------------------------------------------------------------------- //
 
 	/**
-	 *
-	 * @return
 	 */
 	public File getOutputDir()
 	{

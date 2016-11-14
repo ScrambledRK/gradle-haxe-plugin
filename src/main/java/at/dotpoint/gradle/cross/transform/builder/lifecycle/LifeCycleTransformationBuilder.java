@@ -5,9 +5,6 @@ import at.dotpoint.gradle.cross.specification.IApplicationBinarySpecInternal;
 import at.dotpoint.gradle.cross.transform.builder.ATransformationBuilder;
 import at.dotpoint.gradle.cross.transform.builder.AssignedTransform;
 import at.dotpoint.gradle.cross.transform.container.LifeCycleTransformationContainer;
-import at.dotpoint.gradle.cross.transform.model.ITaskTransform;
-import at.dotpoint.gradle.cross.transform.model.lifecycle.ILifeCycleTransform;
-import at.dotpoint.gradle.cross.transform.model.lifecycle.ILifeCycleTransformData;
 import com.google.common.collect.Lists;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
@@ -15,8 +12,7 @@ import org.gradle.api.logging.Logging;
 /**
  * Created by RK on 03.07.2016.
  */
-public class LifeCycleTransformationBuilder
-		extends ATransformationBuilder<IApplicationBinarySpec,ILifeCycleTransformData>
+public class LifeCycleTransformationBuilder extends ATransformationBuilder<IApplicationBinarySpec>
 {
 	//
 	private static final Logger LOGGER = Logging.getLogger(LifeCycleTransformationBuilder.class);
@@ -33,6 +29,7 @@ public class LifeCycleTransformationBuilder
 
 	// ------------------------------------------------- //
 	// ------------------------------------------------- //
+	// create:
 
 	/**
 	 */
@@ -45,7 +42,7 @@ public class LifeCycleTransformationBuilder
 
 		AssignedTransform assigned = this.getAssignedTransform( binarySpec );
 
-		if( assigned != null )  // this might actually happen due to subproject dependencies!
+		if( assigned != null )
 			throw new RuntimeException("LifeCycleTransformation already set for: " + binarySpec );
 
 		// --------------------- //
@@ -65,21 +62,17 @@ public class LifeCycleTransformationBuilder
 		this.performTaskCreation( result );
 	}
 
-	/**
-	 */
-	protected AssignedTransform<IApplicationBinarySpec,ILifeCycleTransformData> assignTransformation(
-			IApplicationBinarySpec target )
+	// ------------------------------------------------- //
+	// ------------------------------------------------- //
+	// update:
+
+	public void updateTransformationTasks( IApplicationBinarySpecInternal binarySpec )
 	{
-		for( ITaskTransform<IApplicationBinarySpec,ILifeCycleTransformData> transform : this.transformList )
-		{
-			if( !(transform instanceof ILifeCycleTransform) )
-				continue;
+		AssignedTransform assigned = this.getAssignedTransform( binarySpec );
 
-			if( transform.canTransform( target, null ) )
-				return this.createAssignedTransform( target, null, transform );
-		}
+		if( assigned == null )
+			throw new RuntimeException("LifeCycleTransformation never been created for: " + binarySpec );
 
-		return null;
+
 	}
-
 }

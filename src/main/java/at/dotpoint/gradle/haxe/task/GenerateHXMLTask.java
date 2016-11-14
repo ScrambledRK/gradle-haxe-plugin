@@ -3,28 +3,21 @@ package at.dotpoint.gradle.haxe.task;
 import at.dotpoint.gradle.cross.options.model.IOptions;
 import at.dotpoint.gradle.cross.options.setting.IOptionsSetting;
 import at.dotpoint.gradle.cross.sourceset.ISourceSet;
-import at.dotpoint.gradle.cross.task.ACrossSourceTask;
+import at.dotpoint.gradle.cross.task.ASourceTask;
 import at.dotpoint.gradle.cross.variant.model.platform.IPlatform;
 import at.dotpoint.gradle.haxe.configuration.ConfigurationConstant;
 import org.apache.commons.io.FileUtils;
 import org.gradle.api.tasks.TaskAction;
-import org.gradle.language.base.LanguageSourceSet;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 /**
  * Created by RK on 21.05.2016.
  */
-public class GenerateHXMLTask extends ACrossSourceTask
+public class GenerateHXMLTask extends ASourceTask
 {
-
-	//
-	private List<ISourceSet> sourceSets;
 
 	//
 	private IOptions options;
@@ -34,9 +27,6 @@ public class GenerateHXMLTask extends ACrossSourceTask
 
 	//
 	private String mainClassPath;
-
-	//
-	private Set<File> dependencies;
 
 	// ********************************************************************************************** //
 	// ********************************************************************************************** //
@@ -63,22 +53,7 @@ public class GenerateHXMLTask extends ACrossSourceTask
 		this.getOutputs().file( this.getHxmlFile() );
 	}
 
-	/**
-	 */
-	public void setSourceSets( List<ISourceSet> sourceSets )
-	{
-		this.sourceSets = sourceSets;
 
-		for( LanguageSourceSet set : this.sourceSets )
-			this.source( set.getSource() );
-
-		this.getInputs().files( this.source );
-	}
-
-	public List<ISourceSet> getSourceSets()
-	{
-		return this.sourceSets;
-	}
 
 	/**
 	 *
@@ -116,22 +91,7 @@ public class GenerateHXMLTask extends ACrossSourceTask
 		this.mainClassPath = mainClassPath;
 	}
 
-	/**
-	 *
-	 * @return
-	 */
-	public Set<File> getDependencies()
-	{
-		if( this.dependencies == null )
-			this.dependencies = new HashSet<>();
 
-		return this.dependencies;
-	}
-
-	public void setDependencies( Set<File> dependencies )
-	{
-		this.dependencies = dependencies;
-	}
 
 	// ********************************************************************************************** //
 	// ********************************************************************************************** //
@@ -202,12 +162,9 @@ public class GenerateHXMLTask extends ACrossSourceTask
 	{
 		ArrayList<String> list = new ArrayList<>();
 
-		if( this.sourceSets == null || this.sourceSets.size() == 0 )
-			return list;
-
 		// ------------- //
 
-		for( ISourceSet set : this.sourceSets )
+		for( ISourceSet set : this.getSourceSets() )
 		{
 			for( File it : set.getSource().getSrcDirs() )
 			{

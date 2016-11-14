@@ -1,33 +1,26 @@
 package at.dotpoint.gradle.cross.transform.builder;
 
-import at.dotpoint.gradle.cross.transform.model.ITaskTransform;
+import at.dotpoint.gradle.cross.transform.model.ITaskTransformation;
 import org.gradle.api.Task;
 
 /**
- *
- * @param <TTarget>
- * @param <TInput>
  */
-public class AssignedTransform<TTarget,TInput>
+public class AssignedTransform<TTarget>
 {
 	//
 	public TTarget target;
 
 	//
-	public TInput input;
-
-	//
-	public ITaskTransform<TTarget,TInput> transform;
+	public ITaskTransformation<TTarget> transform;
 
 	//
 	public Task task;
 
 	/**
 	 */
-	AssignedTransform( TTarget target, TInput input, ITaskTransform<TTarget,TInput> transform )
+	AssignedTransform( TTarget target, ITaskTransformation<TTarget> transform )
 	{
 		this.target = target;
-		this.input = input;
 		this.transform = transform;
 	}
 }

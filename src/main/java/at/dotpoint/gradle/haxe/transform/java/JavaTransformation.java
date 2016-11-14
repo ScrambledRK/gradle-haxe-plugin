@@ -1,12 +1,9 @@
 package at.dotpoint.gradle.haxe.transform.java;
 
-import at.dotpoint.gradle.cross.dependency.model.IDependencySpec;
-import at.dotpoint.gradle.cross.dependency.model.IModuleDependencySpec;
 import at.dotpoint.gradle.cross.sourceset.ISourceSet;
 import at.dotpoint.gradle.cross.specification.IApplicationBinarySpec;
 import at.dotpoint.gradle.cross.specification.ITestComponentSpec;
-import at.dotpoint.gradle.cross.transform.model.lifecycle.ALifeCycleTransform;
-import at.dotpoint.gradle.cross.transform.model.lifecycle.ILifeCycleTransformData;
+import at.dotpoint.gradle.cross.transform.model.lifecycle.ALifeCycleTransformation;
 import at.dotpoint.gradle.cross.util.BinarySpecUtil;
 import at.dotpoint.gradle.cross.util.NameUtil;
 import at.dotpoint.gradle.cross.util.TaskUtil;
@@ -20,55 +17,25 @@ import at.dotpoint.gradle.haxe.task.java.ExecuteJarTask;
 import at.dotpoint.gradle.haxe.task.java.GenerateGradleTask;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
-import org.gradle.api.artifacts.Configuration;
-import org.gradle.api.artifacts.ConfigurationContainer;
-import org.gradle.api.artifacts.Dependency;
-import org.gradle.api.artifacts.dsl.DependencyHandler;
-import org.gradle.api.artifacts.dsl.RepositoryHandler;
-import org.gradle.api.internal.artifacts.ArtifactDependencyResolver;
-import org.gradle.api.internal.artifacts.dsl.dependencies.ProjectFinder;
+import org.gradle.internal.service.ServiceRegistry;
 import org.gradle.language.base.LanguageSourceSet;
 
 import java.io.File;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
  * Created by RK on 27.02.16.
  */
-public class JavaTransform extends ALifeCycleTransform
+public class JavaTransformation extends ALifeCycleTransformation
 {
-
 	//
-	private ArtifactDependencyResolver artifactDependencyResolver;
-
-	//
-	private RepositoryHandler repositoryHandler;
-
-	//
-	private ProjectFinder projectFinder;
-
-	//
-	private DependencyHandler dependencyHandler;
-
-	//
-	public JavaTransform( ProjectFinder projectFinder, DependencyHandler dependencyHandler )
+	public JavaTransformation( ServiceRegistry serviceRegistry )
 	{
-		this.projectFinder = projectFinder;
-		this.dependencyHandler = dependencyHandler;
-	}
-
-	// ---------------------------------------------------------------- //
-	// ---------------------------------------------------------------- //
-
-	/**
-	 *
-	 * @return
-	 */
-	@Override
-	public ILifeCycleTransformData createTransformData()
-	{
-		return new JavaTransformData();
+		super( serviceRegistry );
 	}
 
 	// ---------------------------------------------------------------- //
@@ -78,7 +45,7 @@ public class JavaTransform extends ALifeCycleTransform
 	 * SourceSet to convert
 	 */
 	@Override
-	protected boolean isValidTransformTarget( IApplicationBinarySpec binarySpec )
+	public boolean canTransform( IApplicationBinarySpec binarySpec )
 	{
 		VariantCombination<IVariant> targetVariation = binarySpec.getTargetVariantCombination();
 
@@ -114,25 +81,19 @@ public class JavaTransform extends ALifeCycleTransform
 	// ************************************************************************************* //
 
 	/**
-	 */
-	@Override
-	protected void setBuildResult( IApplicationBinarySpec binarySpec )
-	{
-		binarySpec.getBuildResult().add( this.getBuildResultFile( binarySpec, "" ) );
-	}
-
-	/**
+	 * CONVERT
 	 */
 	@Override
 	protected Task createConvertTransformation( IApplicationBinarySpec binarySpec )
 	{
 		List<ISourceSet> sourceSets = BinarySpecUtil.getSourceSetList( binarySpec );
-		Set<File> dependencies = this.getArtifactFiles( binarySpec, sourceSets );
+		Set<File> dependencies = this.getModuleArtifacts( binarySpec, sourceSets );
 
 		return this.createHXML( binarySpec, sourceSets, dependencies, "" );
 	}
 
 	/**
+	 * COMPILE
 	 */
 	@Override
 	protected Task createCompileTransformation( IApplicationBinarySpec binarySpec )
@@ -141,6 +102,7 @@ public class JavaTransform extends ALifeCycleTransform
 	}
 
 	/**
+	 * TEST
 	 */
 	@Override
 	protected Task createTestTransformation( IApplicationBinarySpec binarySpec, ITestComponentSpec testSpec )
@@ -174,10 +136,10 @@ public class JavaTransform extends ALifeCycleTransform
 		Set<File> dependencies = new HashSet<>();
 
 		// test dependencies
-		dependencies.addAll( this.getArtifactFiles( binarySpec, BinarySpecUtil.getSourceSetList( testSpec ) ) );
+		dependencies.addAll( this.getModuleArtifacts( binarySpec, BinarySpecUtil.getSourceSetList( testSpec ) ) );
 
 		// binary dependencies
-		dependencies.addAll( this.getArtifactFiles( binarySpec, BinarySpecUtil.getSourceSetList( binarySpec ) ) );
+		dependencies.addAll( this.getModuleArtifacts( binarySpec, BinarySpecUtil.getSourceSetList( binarySpec ) ) );
 
 		// binary itself
 		dependencies.addAll( binarySpec.getBuildResult()
@@ -215,10 +177,8 @@ public class JavaTransform extends ALifeCycleTransform
 			it.setTargetVariantCombination( targetVariation );
 			it.setOptions( binarySpec.getOptions() );   // TODO: tests might not use these options ...
 
-			it.setSourceSets( sourceSets );
+			it.source( sourceSets );
 			it.setOutputDir( generateOutputDir );
-
-			it.setDependencies( dependencies );
 		} );
 
 		//
@@ -275,19 +235,6 @@ public class JavaTransform extends ALifeCycleTransform
 	// ************************************************************************************* //
 
 	//
-	private Project getProject( IApplicationBinarySpec binarySpec )
-	{
-		return this.projectFinder.findProject( binarySpec.getProjectPath() );
-	}
-
-	//
-	private File getOutputDirectory( IApplicationBinarySpec binarySpec, String name )
-	{
-		return new File( this.getProject( binarySpec ).getBuildDir(),
-						NameUtil.getBinaryTaskName( binarySpec, name ) );
-	}
-
-	//
 	private File getBuildResultFile( IApplicationBinarySpec binarySpec, String name )
 	{
 		File libraryDir = new File( this.getOutputDirectory( binarySpec, name ), "build/libs" );
@@ -306,49 +253,4 @@ public class JavaTransform extends ALifeCycleTransform
 
 		return name + "-" + version + ".jar";
 	}
-
-	// ************************************************************************************* //
-	// ************************************************************************************* //
-
-	/**
-	 */
-	private Set<File> getArtifactFiles( IApplicationBinarySpec binarySpec, List<ISourceSet> sourceSets )
-	{
-		Set<File> dependencyArtifacts = new HashSet<>();
-
-		for( ISourceSet set : sourceSets )
-		{
-			List<Configuration> artifacts = this.getArtifactDependencies( binarySpec, set );
-
-			for( Configuration configuration : artifacts )
-				dependencyArtifacts.addAll( configuration.resolve() );
-		}
-
-		return dependencyArtifacts;
-	}
-
-	/**
-	 */
-	private List<Configuration> getArtifactDependencies( IApplicationBinarySpec binarySpec, ISourceSet sourceSet )
-	{
-		Iterable<IDependencySpec> dependencies = sourceSet.getDependencies().getDependencies();
-		List<Configuration> configurationList = new ArrayList<>();
-
-		for( IDependencySpec dependencySpec : dependencies )
-		{
-			if( !(dependencySpec instanceof IModuleDependencySpec) )
-				continue;
-
-			Project project = this.projectFinder.findProject( binarySpec.getProjectPath() );
-			Dependency dependency = this.dependencyHandler.create( dependencySpec.getDisplayName() );
-
-			ConfigurationContainer configurationContainer = project.getConfigurations();
-			Configuration configuration = configurationContainer.detachedConfiguration( dependency );
-
-			configurationList.add( configuration );
-		}
-
-		return configurationList;
-	}
-
 }

@@ -4,7 +4,8 @@ import at.dotpoint.gradle.cross.specification.IApplicationBinarySpecInternal;
 /**
  * Created by RK on 2016-08-27.
  */
-public interface ITransformBuilder
+public interface ITransformationBuilder
 {
 	void createTransformationTasks( IApplicationBinarySpecInternal binarySpec );
+	void updateTransformationTasks( IApplicationBinarySpecInternal binarySpec );
 }
