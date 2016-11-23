@@ -7,12 +7,25 @@ import org.gradle.platform.base.SourceComponentSpec;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 /**
  * Created by RK on 2016-08-27.
  */
 public class BinarySpecUtil
 {
+	/**
+	 */
+	public static ArrayList<ISourceSet> getSourceSetList( List<IApplicationBinarySpec> binarySpecList )
+	{
+		ArrayList<ISourceSet> sourceSets = new ArrayList<>();
+
+		for( IApplicationBinarySpec binarySpec : binarySpecList )
+			sourceSets.addAll( BinarySpecUtil.getSourceSetList( binarySpec ) );
+
+		return sourceSets;
+	}
+
 	/**
 	 */
 	public static ArrayList<ISourceSet> getSourceSetList( IApplicationBinarySpec binarySpec )

@@ -25,11 +25,15 @@ public class NameUtil
 		return StringUtil.toCamelCase( names );
 	}
 
+	/**
+	 */
 	public static String getBinaryTaskName( IApplicationBinarySpec binarySpec, String prefix  )
 	{
 		return binarySpec.getTasks().taskName( prefix );
 	}
 
+	/**
+	 */
 	public static String getBinaryTaskName( IApplicationBinarySpec binarySpec, String prefix, String... postFix  )
 	{
 		List<String> names = new ArrayList<>();

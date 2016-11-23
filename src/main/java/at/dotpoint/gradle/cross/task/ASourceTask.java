@@ -4,7 +4,7 @@ import at.dotpoint.gradle.cross.convention.ConventionUtil;
 import at.dotpoint.gradle.cross.sourceset.ISourceSet;
 import at.dotpoint.gradle.cross.variant.model.IVariant;
 import at.dotpoint.gradle.cross.variant.target.VariantCombination;
-import org.gradle.api.tasks.SourceTask;
+import org.gradle.api.tasks.*;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -22,7 +22,7 @@ public class ASourceTask extends SourceTask implements ISourceTask
 	private Set<File> dependencies;
 
 	//
-	private List<ISourceSet> sourceSets;
+	private List<File> sourceSets;
 
 	//
 	private VariantCombination<IVariant> sourceVariantCombination;
@@ -37,8 +37,10 @@ public class ASourceTask extends SourceTask implements ISourceTask
 	// ***************************************************************** //
 
 	/**
+	 * library dependencies and application/binary sources
 	 */
-	public List<ISourceSet> getSourceSets()
+	//
+	public List<File> getSourceSets()
 	{
 		if( this.sourceSets == null )
 			this.sourceSets = new ArrayList<>();
@@ -47,6 +49,7 @@ public class ASourceTask extends SourceTask implements ISourceTask
 	}
 
 	/**
+	 * library dependencies and application/binary sources
 	 */
 	public void source( List<ISourceSet> sourceSets )
 	{
@@ -55,12 +58,17 @@ public class ASourceTask extends SourceTask implements ISourceTask
 
 	public void source( ISourceSet sourceSet )
 	{
-		this.sourceSets.add( sourceSet );
-		this.getInputs().files( sourceSet.getSource().getSrcDirs() );
+		for( File dir : sourceSet.getSource().getSrcDirs() )
+		{
+			this.getSourceSets().add( dir );
+			this.source( dir );
+		}
 	}
 
 	/**
+	 * module dependencies (artifacts)
 	 */
+	//
 	public Set<File> getDependencies()
 	{
 		if( this.dependencies == null )
@@ -70,6 +78,7 @@ public class ASourceTask extends SourceTask implements ISourceTask
 	}
 
 	/**
+	 * module dependencies (artifacts)
 	 */
 	public void dependency( Set<File> dependencySet )
 	{
@@ -78,8 +87,8 @@ public class ASourceTask extends SourceTask implements ISourceTask
 
 	public void dependency( File dependency )
 	{
-		this.dependencies.add( dependency );
-		this.getInputs().files( dependency );
+		this.getDependencies().add( dependency );
+		this.source( dependency );
 	}
 
 	// ------------------------------------------------------------------- //
@@ -101,7 +110,7 @@ public class ASourceTask extends SourceTask implements ISourceTask
 	public VariantCombination<IVariant> getSourceVariantCombination()
 	{
 		if( this.sourceVariantCombination == null )
-			this.setSourceVariantCombination( new VariantCombination<IVariant>() );
+			this.setSourceVariantCombination( new VariantCombination<>() );
 
 		return this.sourceVariantCombination;
 	}
@@ -122,7 +131,7 @@ public class ASourceTask extends SourceTask implements ISourceTask
 	public VariantCombination<IVariant> getTargetVariantCombination()
 	{
 		if( this.targetVariantCombination == null )
-			this.setTargetVariantCombination( new VariantCombination<IVariant>() );
+			this.setTargetVariantCombination( new VariantCombination<>() );
 
 		return this.targetVariantCombination;
 	}
@@ -132,6 +141,8 @@ public class ASourceTask extends SourceTask implements ISourceTask
 
 	/**
 	 */
+	@OutputDirectory
+	//
 	public File getOutputDir()
 	{
 		if( this.outputDir == null )

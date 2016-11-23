@@ -2,7 +2,6 @@ package at.dotpoint.gradle.haxe.task;
 
 import at.dotpoint.gradle.cross.options.model.IOptions;
 import at.dotpoint.gradle.cross.options.setting.IOptionsSetting;
-import at.dotpoint.gradle.cross.sourceset.ISourceSet;
 import at.dotpoint.gradle.cross.task.ASourceTask;
 import at.dotpoint.gradle.cross.variant.model.platform.IPlatform;
 import at.dotpoint.gradle.haxe.configuration.ConfigurationConstant;
@@ -148,6 +147,8 @@ public class GenerateHXMLTask extends ASourceTask
 
 		// -------------- //
 
+	    System.out.println( total );
+
 	    FileUtils.touch( hxmlFile );
 	    FileUtils.writeStringToFile( hxmlFile, total );
     }
@@ -164,15 +165,12 @@ public class GenerateHXMLTask extends ASourceTask
 
 		// ------------- //
 
-		for( ISourceSet set : this.getSourceSets() )
+		for( File dir : this.getSourceSets() )
 		{
-			for( File it : set.getSource().getSrcDirs() )
-			{
-				String value = it.getAbsolutePath();
+			String value = dir.getAbsolutePath();
 
-				if( !list.contains( value ) )
-					list.add( value );
-			}
+			if( !list.contains( value ) )
+				list.add( value );
 		}
 
 		// ------------- //

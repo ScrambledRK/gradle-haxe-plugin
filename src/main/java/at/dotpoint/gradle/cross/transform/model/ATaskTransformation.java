@@ -7,7 +7,6 @@ import at.dotpoint.gradle.cross.dependency.resolver.LibraryBinaryResolver;
 import at.dotpoint.gradle.cross.sourceset.ISourceSet;
 import at.dotpoint.gradle.cross.specification.IApplicationBinarySpec;
 import at.dotpoint.gradle.cross.util.NameUtil;
-import at.dotpoint.gradle.cross.util.TaskUtil;
 import at.dotpoint.gradle.cross.variant.model.IVariant;
 import at.dotpoint.gradle.cross.variant.target.VariantCombination;
 import org.gradle.api.Project;
@@ -27,7 +26,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Created by RK on 08.07.2016.
@@ -55,9 +53,9 @@ public abstract class ATaskTransformation<TTarget> implements ITaskTransformatio
 		this.projectFinder = serviceRegistry.get( ProjectFinder.class );
 
 		// external dependency - module
-		this.artifactDependencyResolver     = serviceRegistry.get( ArtifactDependencyResolver.class );
-		this.dependencyHandler              = serviceRegistry.get( DependencyHandler.class );
-		this.repositoryHandler              = serviceRegistry.get( RepositoryHandler.class );
+		this.artifactDependencyResolver = serviceRegistry.get( ArtifactDependencyResolver.class );
+		this.dependencyHandler = serviceRegistry.get( DependencyHandler.class );
+		this.repositoryHandler = serviceRegistry.get( RepositoryHandler.class );
 
 		// internal dependency - library
 		this.projectModelResolver = serviceRegistry.get( ProjectModelResolver.class );
@@ -94,7 +92,7 @@ public abstract class ATaskTransformation<TTarget> implements ITaskTransformatio
 	protected File getOutputDirectory( IApplicationBinarySpec binarySpec, String name )
 	{
 		return new File( this.getProject( binarySpec ).getBuildDir(),
-						NameUtil.getBinaryTaskName( binarySpec, name ) );
+				NameUtil.getBinaryTaskName( binarySpec, name ) );
 	}
 
 	// ***************************************************************** //
@@ -103,76 +101,25 @@ public abstract class ATaskTransformation<TTarget> implements ITaskTransformatio
 
 	/**
 	 */
-	protected void setLibraryTaskDependencies( IApplicationBinarySpec binarySpec, List<ISourceSet> sourceSets,
-	                                         String lifeCycleTaskName )
-	{
-		List<Task> dependencyTasks = this.getLibraryTaskDependencies( sourceSets,
-				binarySpec.getTargetVariantCombination() );
-
-		Task lifeCycleTask = TaskUtil.findTaskByName( binarySpec,
-				NameUtil.getBinaryTaskName( binarySpec, lifeCycleTaskName ) );
-
-		this.setTaskDependencyRecursive( lifeCycleTask, dependencyTasks );
-	}
-
-	/**
-	 */
-	private void setTaskDependencyRecursive( Task target, List<Task> dependencyTasks )
-	{
-		Set<? extends Task> taskSet = target.getTaskDependencies().getDependencies( target );
-
-		if( taskSet == null || taskSet.size() == 0 )
-		{
-			dependencyTasks.forEach( target::dependsOn );
-		}
-		else
-		{
-			for( Task task : taskSet )
-				this.setTaskDependencyRecursive( task, dependencyTasks );
-		}
-	}
-
-	// -------------------------------------------------- //
-	// -------------------------------------------------- //
-	// get
-
-	/**
-	 */
-	private List<Task> getLibraryTaskDependencies( List<ISourceSet> sourceSets,
-	                                               VariantCombination<IVariant> targetVariation )
-	{
-		List<Task> dependencyTasks = new ArrayList<>();
-
-		for( ISourceSet set : sourceSets )
-		{
-			List<IApplicationBinarySpec> libraries = this.getLibraryDependencies( set, targetVariation );
-
-			dependencyTasks.addAll( libraries.stream()
-					.map( IApplicationBinarySpec::getBuildTask )
-					.collect( Collectors.toList() ) );
-		}
-
-		return dependencyTasks;
-	}
-
-	/**
-	 */
-	private List<IApplicationBinarySpec> getLibraryDependencies( ISourceSet sourceSet,
-	                                                             VariantCombination<IVariant> targetVariation )
+	protected List<IApplicationBinarySpec> getLibraryDependencies( List<ISourceSet> sourceSets,
+	                                                               VariantCombination<IVariant> targetVariation )
 	{
 		List<IApplicationBinarySpec> dependencies = new ArrayList<>();
 
-		sourceSet.getDependencies().getDependencies().stream()
-				.filter( dependencySpec -> dependencySpec instanceof ILibraryDependencySpec )
-				.forEach( dependencySpec ->
-				{
-					ILibraryDependencySpec libraryDependencySpec = (ILibraryDependencySpec) dependencySpec;
-					IApplicationBinarySpec applicationBinarySpec = this.libraryBinaryResolver.resolveBinary(
-							libraryDependencySpec, targetVariation );
+		for( ISourceSet sourceSet : sourceSets )
+		{
+			sourceSet.getDependencies().getDependencies().stream()
+					.filter( dependencySpec -> dependencySpec instanceof ILibraryDependencySpec )
+					.forEach( dependencySpec ->
+					{
+						ILibraryDependencySpec libraryDependencySpec = (ILibraryDependencySpec) dependencySpec;
+						IApplicationBinarySpec applicationBinarySpec = this.libraryBinaryResolver.resolveBinary(
+								libraryDependencySpec, targetVariation );
 
-					if( applicationBinarySpec != null )
-						dependencies.add( applicationBinarySpec );
-				} );
+						if( applicationBinarySpec != null )
+							dependencies.add( applicationBinarySpec );
+					} );
+		}
 
 		return dependencies;
 	}
@@ -207,7 +154,7 @@ public abstract class ATaskTransformation<TTarget> implements ITaskTransformatio
 
 		for( IDependencySpec dependencySpec : dependencies )
 		{
-			if( !(dependencySpec instanceof IModuleDependencySpec ) )
+			if( !( dependencySpec instanceof IModuleDependencySpec ) )
 				continue;
 
 			Project project = this.projectFinder.findProject( binarySpec.getProjectPath() );

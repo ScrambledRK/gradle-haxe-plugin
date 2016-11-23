@@ -4,11 +4,82 @@ import org.gradle.api.Action;
 import org.gradle.api.Task;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.platform.base.BinarySpec;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 /**
  * Created by RK on 02.07.2016.
  */
 public class TaskUtil
 {
+	/**
+	 */
+	public static <TTask extends Task> List<TTask> getTaskDependencies( Task target, Class<TTask> type )
+	{
+		List<TTask> result = new ArrayList<>();
+
+		result.addAll( TaskUtil.getTaskDependencies( target ).stream()
+				.filter( task -> type.isAssignableFrom( task.getClass() ) )
+				.map( type::cast ).collect( Collectors.toList() )
+		);
+
+		return result;
+	}
+
+	/**
+	 */
+	public static <TTask extends Task> List<TTask> getTaskDependencies( Iterable<Task> container, Class<TTask> type )
+	{
+		List<TTask> result = new ArrayList<>();
+
+		result.addAll( TaskUtil.getTaskDependencies( container ).stream()
+				.filter( task -> type.isAssignableFrom( task.getClass() ) )
+				.map( type::cast ).collect( Collectors.toList() )
+		);
+
+		return result;
+	}
+
+	/**
+	 */
+	public static List<Task> getTaskDependencies( Iterable<Task> container )
+	{
+		List<Task> dependencies = new ArrayList<>();
+
+		for( Task task : container )
+			dependencies.addAll( TaskUtil.getTaskDependencies( task ) );
+
+		return dependencies;
+	}
+
+	/**
+	 */
+	public static List<Task> getTaskDependencies( Task task )
+	{
+		List<Task> dependencies = new ArrayList<>();
+
+		// ---------- //
+
+		Set<? extends Task> taskSet = task.getTaskDependencies().getDependencies( task );
+
+		for( Task dependency : taskSet )
+		{
+			dependencies.add( dependency );
+			dependencies.addAll( TaskUtil.getTaskDependencies( dependency ) );
+		}
+
+		// ---------- //
+
+		return dependencies;
+	}
+
+	// ***************************************************************** //
+	// ***************************************************************** //
+	// find by name:
+
 	/**
 	 */
 	public static Task findTaskByName( BinarySpec binarySpec, String name )
@@ -49,6 +120,10 @@ public class TaskUtil
 
 		return null;
 	}
+
+	// ***************************************************************** //
+	// ***************************************************************** //
+	// create:
 
 	/**
 	 */

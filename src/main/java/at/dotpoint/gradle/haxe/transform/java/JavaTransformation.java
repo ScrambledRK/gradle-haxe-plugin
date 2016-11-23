@@ -4,7 +4,6 @@ import at.dotpoint.gradle.cross.sourceset.ISourceSet;
 import at.dotpoint.gradle.cross.specification.IApplicationBinarySpec;
 import at.dotpoint.gradle.cross.specification.ITestComponentSpec;
 import at.dotpoint.gradle.cross.transform.model.lifecycle.ALifeCycleTransformation;
-import at.dotpoint.gradle.cross.util.BinarySpecUtil;
 import at.dotpoint.gradle.cross.util.NameUtil;
 import at.dotpoint.gradle.cross.util.TaskUtil;
 import at.dotpoint.gradle.cross.variant.model.IVariant;
@@ -21,11 +20,7 @@ import org.gradle.internal.service.ServiceRegistry;
 import org.gradle.language.base.LanguageSourceSet;
 
 import java.io.File;
-import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Created by RK on 27.02.16.
@@ -86,10 +81,7 @@ public class JavaTransformation extends ALifeCycleTransformation
 	@Override
 	protected Task createConvertTransformation( IApplicationBinarySpec binarySpec )
 	{
-		List<ISourceSet> sourceSets = BinarySpecUtil.getSourceSetList( binarySpec );
-		Set<File> dependencies = this.getModuleArtifacts( binarySpec, sourceSets );
-
-		return this.createHXML( binarySpec, sourceSets, dependencies, "" );
+		return this.createHXML( binarySpec, "" );
 	}
 
 	/**
@@ -109,13 +101,14 @@ public class JavaTransformation extends ALifeCycleTransformation
 	{
 		String name = testSpec.getName();
 
-		List<ISourceSet> sourceSets = BinarySpecUtil.getSourceSetList( testSpec );
-		Set<File> dependencies = this.getTestDependencies( binarySpec, testSpec );
-
-		Task convert = this.createHXML( binarySpec, sourceSets, dependencies, name );
+		Task convert = this.createHXML( binarySpec, name );
 		Task compile = this.createGradle( binarySpec, name );
 
-		Task execute = TaskUtil.createTask( binarySpec, ExecuteJarTask.class, "executeTest", it ->
+		// ------------------------------------------- //
+
+		String testTaskName  = NameUtil.getBinaryTaskName( binarySpec, "executeTest",  name );
+
+		Task execute = TaskUtil.createTask( binarySpec, ExecuteJarTask.class, testTaskName, it ->
 		{
 			it.setJarFile( this.getBuildResultFile( binarySpec, name ) );
 			it.setMain( testSpec.getMain() );
@@ -129,39 +122,14 @@ public class JavaTransformation extends ALifeCycleTransformation
 		return execute;
 	}
 
-	/**
-	 */
-	private Set<File> getTestDependencies( IApplicationBinarySpec binarySpec, ITestComponentSpec testSpec )
-	{
-		Set<File> dependencies = new HashSet<>();
-
-		// test dependencies
-		dependencies.addAll( this.getModuleArtifacts( binarySpec, BinarySpecUtil.getSourceSetList( testSpec ) ) );
-
-		// binary dependencies
-		dependencies.addAll( this.getModuleArtifacts( binarySpec, BinarySpecUtil.getSourceSetList( binarySpec ) ) );
-
-		// binary itself
-		dependencies.addAll( binarySpec.getBuildResult()
-				.stream().collect( Collectors.toList() ) );
-
-		return dependencies;
-	}
-
 	// ************************************************************************************* //
 	// ************************************************************************************* //
 	// HXML:
 
 	/**
 	 */
-	private Task createHXML( IApplicationBinarySpec binarySpec, List<ISourceSet> sourceSets, Set<File> dependencies,
-	                         String taskName )
+	private Task createHXML( IApplicationBinarySpec binarySpec, String taskName )
 	{
-		if( sourceSets.isEmpty() )
-			throw new RuntimeException( "cannot create HXML because sourceSet is empty" );
-
-		// ------------------------------------------- //
-
 		VariantCombination<IVariant> targetVariation = binarySpec.getTargetVariantCombination();
 
 		String generateTaskName = NameUtil.getBinaryTaskName( binarySpec, "generateHxml", taskName );
@@ -175,9 +143,8 @@ public class JavaTransformation extends ALifeCycleTransformation
 		GenerateHXMLTask generateTask = TaskUtil.createTask( binarySpec, GenerateHXMLTask.class, generateTaskName, it ->
 		{
 			it.setTargetVariantCombination( targetVariation );
-			it.setOptions( binarySpec.getOptions() );   // TODO: tests might not use these options ...
+			it.setOptions( binarySpec.getOptions() );   // TODO: tests might not use these options ... ?
 
-			it.source( sourceSets );
 			it.setOutputDir( generateOutputDir );
 		} );
 
@@ -243,6 +210,7 @@ public class JavaTransformation extends ALifeCycleTransformation
 		return new File( libraryDir, fileName );
 	}
 
+	//
 	private String getBuildResultName( IApplicationBinarySpec binarySpec )
 	{
 		Project project = this.getProject( binarySpec );

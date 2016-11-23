@@ -40,7 +40,7 @@ public class LifeCycleTransformationBuilder extends ATransformationBuilder<IAppl
 		// --------------------- //
 		// already assigned?
 
-		AssignedTransform assigned = this.getAssignedTransform( binarySpec );
+		AssignedTransform<IApplicationBinarySpec> assigned = this.getAssignedTransform( binarySpec );
 
 		if( assigned != null )
 			throw new RuntimeException("LifeCycleTransformation already set for: " + binarySpec );
@@ -48,7 +48,7 @@ public class LifeCycleTransformationBuilder extends ATransformationBuilder<IAppl
 		// --------------------- //
 		// can transform?
 
-		AssignedTransform result = this.assignTransformation( binarySpec );
+		AssignedTransform<IApplicationBinarySpec> result = this.assignTransformation( binarySpec );
 
 		if( result == null )
 		{
@@ -68,11 +68,11 @@ public class LifeCycleTransformationBuilder extends ATransformationBuilder<IAppl
 
 	public void updateTransformationTasks( IApplicationBinarySpecInternal binarySpec )
 	{
-		AssignedTransform assigned = this.getAssignedTransform( binarySpec );
+		AssignedTransform<IApplicationBinarySpec> assigned = this.getAssignedTransform( binarySpec );
 
 		if( assigned == null )
 			throw new RuntimeException("LifeCycleTransformation never been created for: " + binarySpec );
 
-
+		assigned.transform.updateTransformTask( binarySpec );
 	}
 }

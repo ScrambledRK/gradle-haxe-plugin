@@ -210,32 +210,6 @@ public class CrossPlugin implements Plugin<Project>
 			}
 		}
 
-		// -------------------------------------------------- //
-		// -------------------------------------------------- //
-		// set
-
-//		/**
-//		 */
-//		private void setCompileLibraryTaskDependencies( LibraryBinaryResolver libraryBinaryResolver,
-//				                                        IApplicationBinarySpec binarySpec )
-//		{
-//			List<ISourceSet> sourceSets = BinarySpecUtil.getSourceSetList( binarySpec );
-//			this.setLibraryTaskDependencies( libraryBinaryResolver, binarySpec, sourceSets, NAME_CONVERT_SOURCE );
-//		}
-//
-//		/**
-//		 */
-//		private void setTestLibraryTaskDependencies( LibraryBinaryResolver libraryBinaryResolver,
-//				                                     IApplicationBinarySpec binarySpec )
-//		{
-//			IApplicationComponentSpec componentSpec = binarySpec.getApplication();
-//
-//			for( ITestComponentSpec testComponentSpec : componentSpec.getTests() )
-//			{
-//				List<ISourceSet> sourceSets = BinarySpecUtil.getSourceSetList( testComponentSpec );
-//				this.setLibraryTaskDependencies( libraryBinaryResolver, binarySpec, sourceSets, NAME_TEST_SOURCE );
-//			}
-//		}
 	}
 
 
