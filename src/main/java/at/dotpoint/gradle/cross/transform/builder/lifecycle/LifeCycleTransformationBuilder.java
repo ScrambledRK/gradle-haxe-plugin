@@ -5,6 +5,8 @@ import at.dotpoint.gradle.cross.specification.IApplicationBinarySpecInternal;
 import at.dotpoint.gradle.cross.transform.builder.ATransformationBuilder;
 import at.dotpoint.gradle.cross.transform.builder.AssignedTransform;
 import at.dotpoint.gradle.cross.transform.container.LifeCycleTransformationContainer;
+import at.dotpoint.gradle.cross.transform.model.lifecycle.ILifeCycleTransformationDataInternal;
+import at.dotpoint.gradle.cross.transform.model.lifecycle.LifeCycleTransformationData;
 import com.google.common.collect.Lists;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
@@ -12,7 +14,7 @@ import org.gradle.api.logging.Logging;
 /**
  * Created by RK on 03.07.2016.
  */
-public class LifeCycleTransformationBuilder extends ATransformationBuilder<IApplicationBinarySpec>
+public class LifeCycleTransformationBuilder extends ATransformationBuilder<ILifeCycleTransformationDataInternal>
 {
 	//
 	private static final Logger LOGGER = Logging.getLogger(LifeCycleTransformationBuilder.class);
@@ -40,7 +42,7 @@ public class LifeCycleTransformationBuilder extends ATransformationBuilder<IAppl
 		// --------------------- //
 		// already assigned?
 
-		AssignedTransform<IApplicationBinarySpec> assigned = this.getAssignedTransform( binarySpec );
+		AssignedTransform<ILifeCycleTransformationDataInternal> assigned = this.getAssignedTransform( binarySpec );
 
 		if( assigned != null )
 			throw new RuntimeException("LifeCycleTransformation already set for: " + binarySpec );
@@ -48,7 +50,7 @@ public class LifeCycleTransformationBuilder extends ATransformationBuilder<IAppl
 		// --------------------- //
 		// can transform?
 
-		AssignedTransform<IApplicationBinarySpec> result = this.assignTransformation( binarySpec );
+		AssignedTransform<ILifeCycleTransformationDataInternal> result = this.assignTransformation( binarySpec );
 
 		if( result == null )
 		{
@@ -62,17 +64,23 @@ public class LifeCycleTransformationBuilder extends ATransformationBuilder<IAppl
 		this.performTaskCreation( result );
 	}
 
+	@Override
+	protected ILifeCycleTransformationDataInternal createTaskTransformationData( IApplicationBinarySpec binarySpec )
+	{
+		return new LifeCycleTransformationData( binarySpec );
+	}
+
 	// ------------------------------------------------- //
 	// ------------------------------------------------- //
 	// update:
 
 	public void updateTransformationTasks( IApplicationBinarySpecInternal binarySpec )
 	{
-		AssignedTransform<IApplicationBinarySpec> assigned = this.getAssignedTransform( binarySpec );
+		AssignedTransform<ILifeCycleTransformationDataInternal> assigned = this.getAssignedTransform( binarySpec );
 
 		if( assigned == null )
 			throw new RuntimeException("LifeCycleTransformation never been created for: " + binarySpec );
 
-		assigned.transform.updateTransformTask( binarySpec );
+		assigned.transform.updateTransformTask( assigned.target );
 	}
 }

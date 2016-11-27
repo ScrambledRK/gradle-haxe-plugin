@@ -1,13 +1,15 @@
 package at.dotpoint.gradle.cross.transform.builder;
 
+import at.dotpoint.gradle.cross.specification.IApplicationBinarySpec;
 import at.dotpoint.gradle.cross.specification.IApplicationBinarySpecInternal;
 import at.dotpoint.gradle.cross.transform.model.ITaskTransformation;
+import at.dotpoint.gradle.cross.transform.model.ITaskTransformationData;
 
 import java.util.ArrayList;
 
 /**
  */
-public abstract class ATransformationBuilder<TTarget> implements ITransformationBuilder
+public abstract class ATransformationBuilder<TTarget extends ITaskTransformationData> implements ITransformationBuilder
 {
 	/**
 	 *
@@ -37,16 +39,18 @@ public abstract class ATransformationBuilder<TTarget> implements ITransformation
 	 */
 	abstract public void createTransformationTasks( IApplicationBinarySpecInternal binarySpec );
 
+	abstract protected TTarget createTaskTransformationData( IApplicationBinarySpec binarySpec );
+
 	// ************************************************************************************* //
 	// ************************************************************************************* //
 
 	/**
 	 */
-	protected AssignedTransform<TTarget> getAssignedTransform( TTarget target )
+	protected AssignedTransform<TTarget> getAssignedTransform( IApplicationBinarySpec binarySpec )
 	{
 		for( AssignedTransform<TTarget> transform : this.assignedTransforms )
 		{
-			if( transform.target.equals( target )  )
+			if( transform.target.getBinarySpec().equals( binarySpec )  )
 				return transform;
 		}
 
@@ -55,12 +59,12 @@ public abstract class ATransformationBuilder<TTarget> implements ITransformation
 
 	/**
 	 */
-	protected AssignedTransform<TTarget> assignTransformation( TTarget target )
+	protected AssignedTransform<TTarget> assignTransformation( IApplicationBinarySpec binarySpec )
 	{
 		for( ITaskTransformation<TTarget> transform : this.transformList )
 		{
-			if( transform.canTransform( target ) )
-				return this.createAssignedTransform( target, transform );
+			if( transform.canTransform( binarySpec ) )
+				return this.createAssignedTransform( binarySpec, transform );
 		}
 
 		return null;
@@ -68,9 +72,10 @@ public abstract class ATransformationBuilder<TTarget> implements ITransformation
 
 	/**
 	 */
-	protected AssignedTransform<TTarget> createAssignedTransform( TTarget target,
+	protected AssignedTransform<TTarget> createAssignedTransform( IApplicationBinarySpec binarySpec,
 	                                                              ITaskTransformation<TTarget> transform )
 	{
+		TTarget target = this.createTaskTransformationData( binarySpec );
 		AssignedTransform<TTarget> assignedTransform = new AssignedTransform<>( target, transform );
 
 		// for what ever reason it might go wrong ...
@@ -86,7 +91,7 @@ public abstract class ATransformationBuilder<TTarget> implements ITransformation
 	 */
 	protected void performTaskCreation( AssignedTransform<TTarget> assigned )
 	{
-		assigned.task = assigned.transform.createTransformTask( assigned.target );
+		assigned.transform.createTransformTask( assigned.target );
 	}
 
 }

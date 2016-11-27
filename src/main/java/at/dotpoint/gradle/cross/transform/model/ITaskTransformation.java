@@ -1,20 +1,21 @@
 package at.dotpoint.gradle.cross.transform.model;
 
-import org.gradle.api.Task;
+import at.dotpoint.gradle.cross.specification.IApplicationBinarySpec;
+
 /**
  * Created by RK on 08.07.2016.
  */
-public interface ITaskTransformation<TTarget>
+public interface ITaskTransformation<TTarget extends ITaskTransformationData>
 {
 	/**
 	 *
 	 */
-	boolean canTransform( TTarget target );
+	boolean canTransform( IApplicationBinarySpec target );
 
 	/**
 	 *
 	 */
-	Task createTransformTask( TTarget target );
+	void createTransformTask( TTarget target );
 
 	/**
 	 *

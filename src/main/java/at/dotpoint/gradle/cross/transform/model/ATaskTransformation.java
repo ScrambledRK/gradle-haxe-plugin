@@ -10,7 +10,6 @@ import at.dotpoint.gradle.cross.util.NameUtil;
 import at.dotpoint.gradle.cross.variant.model.IVariant;
 import at.dotpoint.gradle.cross.variant.target.VariantCombination;
 import org.gradle.api.Project;
-import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.artifacts.Dependency;
@@ -30,7 +29,7 @@ import java.util.Set;
 /**
  * Created by RK on 08.07.2016.
  */
-public abstract class ATaskTransformation<TTarget> implements ITaskTransformation<TTarget>
+public abstract class ATaskTransformation<TTarget extends ITaskTransformationData> implements ITaskTransformation<TTarget>
 {
 	// general
 	private ProjectFinder projectFinder;
@@ -68,11 +67,11 @@ public abstract class ATaskTransformation<TTarget> implements ITaskTransformatio
 
 	/**
 	 */
-	abstract public boolean canTransform( TTarget target );
+	abstract public boolean canTransform( IApplicationBinarySpec binarySpec );
 
 	/**
 	 */
-	abstract public Task createTransformTask( TTarget target );
+	abstract public void createTransformTask( TTarget target );
 
 	/**
 	 */

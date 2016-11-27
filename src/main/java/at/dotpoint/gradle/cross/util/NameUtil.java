@@ -1,6 +1,7 @@
 package at.dotpoint.gradle.cross.util;
 
 import at.dotpoint.gradle.cross.specification.IApplicationBinarySpec;
+import at.dotpoint.gradle.cross.specification.ITestComponentSpec;
 import at.dotpoint.gradle.cross.variant.target.VariantCombination;
 import org.gradle.api.Named;
 
@@ -23,6 +24,13 @@ public class NameUtil
 				.collect( Collectors.toCollection( ArrayList::new ) );
 
 		return StringUtil.toCamelCase( names );
+	}
+
+	/**
+	 */
+	public static String getBinaryTaskName( IApplicationBinarySpec binarySpec, ITestComponentSpec testSpec )
+	{
+		return NameUtil.getBinaryTaskName( binarySpec, "test", testSpec.getName() );
 	}
 
 	/**

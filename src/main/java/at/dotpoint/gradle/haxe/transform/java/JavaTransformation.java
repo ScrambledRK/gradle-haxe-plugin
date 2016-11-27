@@ -4,6 +4,7 @@ import at.dotpoint.gradle.cross.sourceset.ISourceSet;
 import at.dotpoint.gradle.cross.specification.IApplicationBinarySpec;
 import at.dotpoint.gradle.cross.specification.ITestComponentSpec;
 import at.dotpoint.gradle.cross.transform.model.lifecycle.ALifeCycleTransformation;
+import at.dotpoint.gradle.cross.transform.model.lifecycle.ILifeCycleTransformationData;
 import at.dotpoint.gradle.cross.util.NameUtil;
 import at.dotpoint.gradle.cross.util.TaskUtil;
 import at.dotpoint.gradle.cross.variant.model.IVariant;
@@ -20,7 +21,7 @@ import org.gradle.internal.service.ServiceRegistry;
 import org.gradle.language.base.LanguageSourceSet;
 
 import java.io.File;
-import java.util.Iterator;
+import java.util.*;
 
 /**
  * Created by RK on 27.02.16.
@@ -79,30 +80,31 @@ public class JavaTransformation extends ALifeCycleTransformation
 	 * CONVERT
 	 */
 	@Override
-	protected Task createConvertTransformation( IApplicationBinarySpec binarySpec )
+	protected List<Task> createConvertTransformation( ILifeCycleTransformationData target )
 	{
-		return this.createHXML( binarySpec, "" );
+		return this.createHXML( target.getBinarySpec(), "" );
 	}
 
 	/**
 	 * COMPILE
 	 */
 	@Override
-	protected Task createCompileTransformation( IApplicationBinarySpec binarySpec )
+	protected List<Task> createCompileTransformation( ILifeCycleTransformationData target )
 	{
-		return this.createGradle( binarySpec, "" );
+		return this.createGradle( target.getBinarySpec(), "" );
 	}
 
 	/**
 	 * TEST
 	 */
 	@Override
-	protected Task createTestTransformation( IApplicationBinarySpec binarySpec, ITestComponentSpec testSpec )
+	protected List<Task> createTestTransformation( ILifeCycleTransformationData target, ITestComponentSpec testSpec )
 	{
+		IApplicationBinarySpec binarySpec = target.getBinarySpec();
 		String name = testSpec.getName();
 
-		Task convert = this.createHXML( binarySpec, name );
-		Task compile = this.createGradle( binarySpec, name );
+		List<Task> convert = this.createHXML( binarySpec, name );
+		List<Task> compile = this.createGradle( binarySpec, name );
 
 		// ------------------------------------------- //
 
@@ -114,12 +116,18 @@ public class JavaTransformation extends ALifeCycleTransformation
 			it.setMain( testSpec.getMain() );
 		} );
 
-		compile.dependsOn( convert );
+		compile.get( compile.size() - 1 ).dependsOn( convert.get( convert.size() - 1 ) );
 		execute.dependsOn( compile );
 
 		// ------------------------------------------- //
 
-		return execute;
+		List<Task> result = new ArrayList<>();
+
+		result.addAll( convert );
+		result.addAll( compile );
+		result.add( execute );
+
+		return result;
 	}
 
 	// ************************************************************************************* //
@@ -128,7 +136,7 @@ public class JavaTransformation extends ALifeCycleTransformation
 
 	/**
 	 */
-	private Task createHXML( IApplicationBinarySpec binarySpec, String taskName )
+	private List<Task> createHXML( IApplicationBinarySpec binarySpec, String taskName )
 	{
 		VariantCombination<IVariant> targetVariation = binarySpec.getTargetVariantCombination();
 
@@ -159,7 +167,7 @@ public class JavaTransformation extends ALifeCycleTransformation
 
 		// ------------------------------------------- //
 
-		return executeTask;
+		return Arrays.asList( generateTask, executeTask );
 	}
 
 	// ---------------------------------------------------------------- //
@@ -167,7 +175,7 @@ public class JavaTransformation extends ALifeCycleTransformation
 
 	/**
 	 */
-	private Task createGradle( IApplicationBinarySpec binarySpec, String taskName )
+	private List<Task> createGradle( IApplicationBinarySpec binarySpec, String taskName )
 	{
 		String generateTaskName = NameUtil.getBinaryTaskName( binarySpec, "generateGradleProject", taskName );
 		String executeTaskName  = NameUtil.getBinaryTaskName( binarySpec, "executeGradleProject",  taskName );
@@ -191,11 +199,12 @@ public class JavaTransformation extends ALifeCycleTransformation
 			it.setGradleFile( generateTask.getGradleFile() );
 		} );
 
-		// ------------------------------------------- //
-
+		//
 		executeTask.dependsOn( generateTask );
 
-		return executeTask;
+		// ------------------------------------------- //
+
+		return Arrays.asList( generateTask, executeTask );
 	}
 
 	// ************************************************************************************* //
