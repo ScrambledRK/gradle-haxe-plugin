@@ -73,7 +73,11 @@ public abstract class ALifeCycleTransformation extends ATaskTransformation<ILife
 		// --------------- //
 
 		target.setTasks( lifeCycleName, tasks );
-		this.performLifeCycle( target.getBinarySpec(), tasks, lifeCycleName );
+
+		IApplicationBinarySpec binarySpec = target.getBinarySpec();
+		String binaryTaskName = NameUtil.getBinaryTaskName( binarySpec, lifeCycleName );
+
+		this.performLifeCycle( binarySpec, tasks, binaryTaskName );
 	}
 
 	/**
@@ -81,30 +85,38 @@ public abstract class ALifeCycleTransformation extends ATaskTransformation<ILife
 	private void createTransformTask( ILifeCycleTransformationDataInternal target, ITestComponentSpec testSpec )
 	{
 		List<Task> tasks = this.createTestTransformation( target, testSpec );
+		target.setTasks( testSpec.getName(), tasks );
 
 		// --------------- //
 
-		target.setTasks( testSpec.getName(), tasks );
-		this.performLifeCycle( target.getBinarySpec(), tasks, CrossPlugin.NAME_TEST_SOURCE );
+		IApplicationBinarySpec binarySpec = target.getBinarySpec();
+		String binaryTaskName = NameUtil.getBinaryTaskName( binarySpec, CrossPlugin.NAME_TEST_SOURCE );
+
+		this.performLifeCycle( binarySpec, tasks, binaryTaskName );
 	}
+
+	// ---------------------------------------------------------- //
+	// ---------------------------------------------------------- //
 
 	//
 	// TODO: lifecycle task transformation task list order for lifecycle dependency sucks ...
 	//
-	private void performLifeCycle( IApplicationBinarySpec binarySpec, List<Task> tasks, String lifeCycleName )
+	private void performLifeCycle( IApplicationBinarySpec binarySpec, List<Task> tasks, String binaryTaskName )
 	{
 		if( tasks != null && !tasks.isEmpty() )
-			this.performLifeCycle( binarySpec, tasks.get( tasks.size() - 1 ), lifeCycleName );
+			this.performLifeCycle( binarySpec, tasks.get( tasks.size() - 1 ), binaryTaskName );
+		else
+			System.out.println("what the fuck is going on!?: " + binaryTaskName + " for " + binarySpec );
 	}
 
 	/**
 	 */
-	private void performLifeCycle( IApplicationBinarySpec binarySpec, Task task, String lifeCycleName )
+	private void performLifeCycle( IApplicationBinarySpec binarySpec, Task task, String binaryTaskName )
 	{
-		Task lifeCycleTask = TaskUtil.findTaskByName( binarySpec, NameUtil.getBinaryTaskName( binarySpec, lifeCycleName ) );
+		Task lifeCycleTask = TaskUtil.findTaskByName( binarySpec, binaryTaskName );
 
 		if( lifeCycleTask == null )
-			throw new RuntimeException( "lifeCycleTask '" + lifeCycleName + "' not found for: " + binarySpec );
+			throw new RuntimeException( "lifeCycleTask '" + binaryTaskName + "' not found for: " + binarySpec );
 
 		lifeCycleTask.dependsOn( task );
 	}

@@ -1,32 +1,27 @@
 package at.dotpoint.gradle.haxe.transform.java;
 
-import at.dotpoint.gradle.cross.sourceset.ISourceSet;
 import at.dotpoint.gradle.cross.specification.IApplicationBinarySpec;
 import at.dotpoint.gradle.cross.specification.ITestComponentSpec;
-import at.dotpoint.gradle.cross.transform.model.lifecycle.ALifeCycleTransformation;
-import at.dotpoint.gradle.cross.transform.model.lifecycle.ILifeCycleTransformationData;
 import at.dotpoint.gradle.cross.util.NameUtil;
 import at.dotpoint.gradle.cross.util.TaskUtil;
 import at.dotpoint.gradle.cross.variant.model.IVariant;
 import at.dotpoint.gradle.cross.variant.model.platform.IPlatform;
 import at.dotpoint.gradle.cross.variant.target.VariantCombination;
-import at.dotpoint.gradle.haxe.task.ExecuteHXMLTask;
-import at.dotpoint.gradle.haxe.task.GenerateHXMLTask;
-import at.dotpoint.gradle.haxe.task.java.ExecuteGradleTask;
 import at.dotpoint.gradle.haxe.task.java.ExecuteJarTask;
-import at.dotpoint.gradle.haxe.task.java.GenerateGradleTask;
+import at.dotpoint.gradle.haxe.task.java.HaxeJavaTask;
+import at.dotpoint.gradle.haxe.transform.AHaxeTransformation;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.internal.service.ServiceRegistry;
-import org.gradle.language.base.LanguageSourceSet;
 
 import java.io.File;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Created by RK on 27.02.16.
  */
-public class JavaTransformation extends ALifeCycleTransformation
+public class JavaTransformation extends AHaxeTransformation
 {
 	//
 	public JavaTransformation( ServiceRegistry serviceRegistry )
@@ -38,177 +33,48 @@ public class JavaTransformation extends ALifeCycleTransformation
 	// ---------------------------------------------------------------- //
 
 	/**
-	 * SourceSet to convert
 	 */
 	@Override
-	public boolean canTransform( IApplicationBinarySpec binarySpec )
+	protected boolean isValidTargetVariation( VariantCombination<IVariant> targetVariation )
 	{
-		VariantCombination<IVariant> targetVariation = binarySpec.getTargetVariantCombination();
-
-		if( targetVariation.getVariant( IPlatform.class ).getName() != "java" )
-			return false;
-
-		if( !this.isValidSourceSets( binarySpec.getSources().iterator() ) )
-			return false;
-
-		return this.isValidSourceSets( binarySpec.getApplication().getSources().iterator() );
-
-	}
-
-	/**
-	 */
-	private boolean isValidSourceSets( Iterator<LanguageSourceSet> sourceSets )
-	{
-		while( sourceSets.hasNext() )
-		{
-			LanguageSourceSet sourceSet = sourceSets.next();
-
-			if( !(sourceSet instanceof ISourceSet) )
-				return false;
-
-			if( !"haxe".equals( ((ISourceSet)sourceSet).getSourcePlatform().getName() ) )
-				return false;
-		}
-
-		return true;
+		return "java".equals( targetVariation.getVariant( IPlatform.class ).getName() );
 	}
 
 	// ************************************************************************************* //
 	// ************************************************************************************* //
 
 	/**
-	 * CONVERT
+	 * Convert
 	 */
-	@Override
-	protected List<Task> createConvertTransformation( ILifeCycleTransformationData target )
+	protected List<Task> createConvertTransformation( IApplicationBinarySpec binarySpec, String name )
 	{
-		return this.createHXML( target.getBinarySpec(), "" );
+		return Collections.singletonList( this.createHaxeTask( binarySpec, HaxeJavaTask.class, name ) );
 	}
 
 	/**
-	 * COMPILE
+	 * Compile
 	 */
-	@Override
-	protected List<Task> createCompileTransformation( ILifeCycleTransformationData target )
+	protected List<Task> createCompileTransformation( IApplicationBinarySpec binarySpec, String name )
 	{
-		return this.createGradle( target.getBinarySpec(), "" );
+		return null;
 	}
 
+	// ************************************************************************************* //
+	// ************************************************************************************* //
+
 	/**
-	 * TEST
 	 */
 	@Override
-	protected List<Task> createTestTransformation( ILifeCycleTransformationData target, ITestComponentSpec testSpec )
+	protected Task createTestTask( IApplicationBinarySpec binarySpec, ITestComponentSpec testSpec )
 	{
-		IApplicationBinarySpec binarySpec = target.getBinarySpec();
-		String name = testSpec.getName();
+		String taskName = NameUtil.getBinaryTaskName( binarySpec, "test", testSpec.getName() );
 
-		List<Task> convert = this.createHXML( binarySpec, name );
-		List<Task> compile = this.createGradle( binarySpec, name );
-
-		// ------------------------------------------- //
-
-		String testTaskName  = NameUtil.getBinaryTaskName( binarySpec, "executeTest",  name );
-
-		Task execute = TaskUtil.createTask( binarySpec, ExecuteJarTask.class, testTaskName, it ->
+		return TaskUtil.createTask( binarySpec, ExecuteJarTask.class, taskName, it ->
 		{
-			it.setJarFile( this.getBuildResultFile( binarySpec, name ) );
+			it.setJarFile( this.getBuildResultFile( binarySpec, testSpec.getName() ) );
 			it.setMain( testSpec.getMain() );
 		} );
-
-		compile.get( compile.size() - 1 ).dependsOn( convert.get( convert.size() - 1 ) );
-		execute.dependsOn( compile );
-
-		// ------------------------------------------- //
-
-		List<Task> result = new ArrayList<>();
-
-		result.addAll( convert );
-		result.addAll( compile );
-		result.add( execute );
-
-		return result;
 	}
-
-	// ************************************************************************************* //
-	// ************************************************************************************* //
-	// HXML:
-
-	/**
-	 */
-	private List<Task> createHXML( IApplicationBinarySpec binarySpec, String taskName )
-	{
-		VariantCombination<IVariant> targetVariation = binarySpec.getTargetVariantCombination();
-
-		String generateTaskName = NameUtil.getBinaryTaskName( binarySpec, "generateHxml", taskName );
-		String executeTaskName  = NameUtil.getBinaryTaskName( binarySpec, "executeHxml",  taskName );
-		File generateOutputDir  = this.getOutputDirectory( binarySpec, taskName );
-
-		// ------------------------------------------- //
-		// hxml:
-
-		//
-		GenerateHXMLTask generateTask = TaskUtil.createTask( binarySpec, GenerateHXMLTask.class, generateTaskName, it ->
-		{
-			it.setTargetVariantCombination( targetVariation );
-			it.setOptions( binarySpec.getOptions() );   // TODO: tests might not use these options ... ?
-
-			it.setOutputDir( generateOutputDir );
-		} );
-
-		//
-		ExecuteHXMLTask executeTask = TaskUtil.createTask( binarySpec, ExecuteHXMLTask.class, executeTaskName, it ->
-		{
-			it.setHxmlFile( generateTask.getHxmlFile() );
-		} );
-
-		//
-		executeTask.dependsOn( generateTask );
-
-		// ------------------------------------------- //
-
-		return Arrays.asList( generateTask, executeTask );
-	}
-
-	// ---------------------------------------------------------------- //
-	// ---------------------------------------------------------------- //
-
-	/**
-	 */
-	private List<Task> createGradle( IApplicationBinarySpec binarySpec, String taskName )
-	{
-		String generateTaskName = NameUtil.getBinaryTaskName( binarySpec, "generateGradleProject", taskName );
-		String executeTaskName  = NameUtil.getBinaryTaskName( binarySpec, "executeGradleProject",  taskName );
-		File generateOutputDir  = this.getOutputDirectory( binarySpec, taskName );
-
-		// ------------------------------------------- //
-		// gradle:
-
-		//
-		GenerateGradleTask generateTask = TaskUtil.createTask( binarySpec, GenerateGradleTask.class, generateTaskName, it ->
-		{
-			it.setOutputDir( generateOutputDir );
-
-			it.getGradleFile();
-			it.getSettingsFile();
-		} );
-
-		//
-		ExecuteGradleTask executeTask = TaskUtil.createTask( binarySpec, ExecuteGradleTask.class, executeTaskName, it ->
-		{
-			it.setGradleFile( generateTask.getGradleFile() );
-		} );
-
-		//
-		executeTask.dependsOn( generateTask );
-
-		// ------------------------------------------- //
-
-		return Arrays.asList( generateTask, executeTask );
-	}
-
-	// ************************************************************************************* //
-	// ************************************************************************************* //
 
 	//
 	private File getBuildResultFile( IApplicationBinarySpec binarySpec, String name )

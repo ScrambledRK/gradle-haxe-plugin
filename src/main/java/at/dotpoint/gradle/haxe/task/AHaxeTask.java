@@ -3,26 +3,21 @@ package at.dotpoint.gradle.haxe.task;
 import at.dotpoint.gradle.cross.options.model.IOptions;
 import at.dotpoint.gradle.cross.options.setting.IOptionsSetting;
 import at.dotpoint.gradle.cross.task.ASourceTask;
-import at.dotpoint.gradle.cross.variant.model.platform.IPlatform;
 import at.dotpoint.gradle.haxe.configuration.ConfigurationConstant;
-import org.apache.commons.io.FileUtils;
 import org.gradle.api.tasks.TaskAction;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by RK on 21.05.2016.
  */
-public class GenerateHXMLTask extends ASourceTask
+public abstract class AHaxeTask extends ASourceTask
 {
 
 	//
 	private IOptions options;
-
-    //
-	private File hxmlFile;
 
 	//
 	private String mainClassPath;
@@ -31,32 +26,6 @@ public class GenerateHXMLTask extends ASourceTask
 	// ********************************************************************************************** //
 
 	/**
-	 *
-	 * @return
-	 */
-	public File getHxmlFile()
-	{
-		if( this.hxmlFile == null )
-			this.setHxmlFile( new File( this.getOutputDir(), "build.hxml" ) );
-
-		return this.hxmlFile;
-	}
-
-	/**
-	 *
-	 * @param hxmlFile
-	 */
-	public void setHxmlFile( File hxmlFile )
-	{
-		this.hxmlFile = hxmlFile;
-		this.getOutputs().file( this.getHxmlFile() );
-	}
-
-
-
-	/**
-	 *
-	 * @return
 	 */
 	public IOptions getOptions()
 	{
@@ -69,8 +38,6 @@ public class GenerateHXMLTask extends ASourceTask
 	}
 
 	/**
-	 *
-	 * @return
 	 */
 	String getMainClassPath()
 	{
@@ -90,8 +57,6 @@ public class GenerateHXMLTask extends ASourceTask
 		this.mainClassPath = mainClassPath;
 	}
 
-
-
 	// ********************************************************************************************** //
 	// ********************************************************************************************** //
 
@@ -99,59 +64,40 @@ public class GenerateHXMLTask extends ASourceTask
 	 *
 	 */
     @TaskAction
-    public void generateHXML() throws IOException
+    public void executeCommand()
     {
-		// -------------- //
-	    // classpath:
+	    List<String> options = this.generateCommand();
 
-	    String classpath = "";
-
-        for( String value : this.getClassPaths() )
-	        classpath += "\n" + "-cp " + value;
+	    System.out.println( options.toString() );
 
 	    // -------------- //
-	    // dependencies:
 
-	    String dependencies = "";
+	    this.getProject().exec( it ->
+        {
+            String haxePath = System.getenv("HAXEPATH");
 
-        for( String value : this.getCompileDependencies() )
-	        dependencies += "\n" + value;
+            if( System.getProperty("os.name").toLowerCase().contains( "win" ) )
+                haxePath += "haxe.exe";
 
-	    // -------------- //
-	    // options:
+            // ----------- //
 
-	    String options = "";
-
-        for( String value : this.getCompileOptions() )
-	        options += "\n" + value;
-
-		// -------------- //
-		// total:
-
-		String total = "##";
-
-		total += "\n## generated via gradle task:";
-		total += "\n## " + this.getName();
-
-		total += "\n\n## classpath:";
-		total += classpath;
-
-	    total += "\n\n## dependencies:";
-        total += dependencies;
-
-		total += "\n\n## options:";
-		total += options;
-
-		total += "\n\n## output:";
-		total += this.getOutput();
-
-		// -------------- //
-
-	    System.out.println( total );
-
-	    FileUtils.touch( hxmlFile );
-	    FileUtils.writeStringToFile( hxmlFile, total );
+            it.setExecutable( haxePath );
+            it.setArgs(options );
+        } );
     }
+
+	//
+	protected List<String> generateCommand()
+	{
+		List<String> total = new ArrayList<>( );
+
+		total.addAll( this.getClassPathCommandOptions() );
+		total.addAll( this.getNativeDependencyCommandOptions() );
+		total.addAll( this.getHaxeCommandOptions() );
+		total.add( this.getOutputCommandOption() );
+
+		return total;
+	}
 
 	// ------------------------------------------------------------ //
 	// ------------------------------------------------------------ //
@@ -159,7 +105,7 @@ public class GenerateHXMLTask extends ASourceTask
 
 	/**
 	 */
-	private ArrayList<String> getClassPaths()
+	protected ArrayList<String> getClassPathCommandOptions()
 	{
 		ArrayList<String> list = new ArrayList<>();
 
@@ -167,7 +113,7 @@ public class GenerateHXMLTask extends ASourceTask
 
 		for( File dir : this.getSourceSets() )
 		{
-			String value = dir.getAbsolutePath();
+			String value = "-cp \"" + dir.getAbsolutePath() + "\"";
 
 			if( !list.contains( value ) )
 				list.add( value );
@@ -184,7 +130,7 @@ public class GenerateHXMLTask extends ASourceTask
 
 	/**
 	 */
-	private ArrayList<String> getCompileDependencies()
+	protected ArrayList<String> getNativeDependencyCommandOptions()
 	{
 		ArrayList<String> list = new ArrayList<>();
 
@@ -205,17 +151,7 @@ public class GenerateHXMLTask extends ASourceTask
 
 	/**
 	 */
-	private String getNativeDependencyOption( File artifact )
-	{
-		//
-		switch( this.getTargetVariantCombination().getVariant( IPlatform.class ).getName() )
-		{
-			case "java": 	return "-java-lib " + artifact.getAbsolutePath();
-
-			default:
-				return null;
-		}
-	}
+	abstract protected String getNativeDependencyOption( File artifact );
 
 	// ------------------------------------------------------------ //
 	// ------------------------------------------------------------ //
@@ -223,7 +159,7 @@ public class GenerateHXMLTask extends ASourceTask
 
 	/**
 	 */
-	private ArrayList<String> getCompileOptions()
+	private ArrayList<String> getHaxeCommandOptions()
 	{
 		ArrayList<String> list = new ArrayList<>();
 
@@ -234,7 +170,7 @@ public class GenerateHXMLTask extends ASourceTask
 
 		for( IOptionsSetting setting : this.options )
 		{
-			String value = this.getHxmlConfigValue( setting );
+			String value = this.getHaxeConfigurationValue( setting );
 
 			if( value != null && !list.contains( value ) )
 				list.add( value );
@@ -247,7 +183,7 @@ public class GenerateHXMLTask extends ASourceTask
 
 	/**
 	 */
-	private String getHxmlConfigValue( IOptionsSetting configurationSetting )
+	private String getHaxeConfigurationValue( IOptionsSetting configurationSetting )
 	{
 		switch( configurationSetting.getName() )
 		{
@@ -256,6 +192,8 @@ public class GenerateHXMLTask extends ASourceTask
 
 			case ConfigurationConstant.KEY_MAIN:
 				return "-main " + configurationSetting.getValue();
+
+			// TODO: macro - needs to be quoted for CMD
 
 			default:
 				return null;
@@ -268,19 +206,6 @@ public class GenerateHXMLTask extends ASourceTask
 
 	/**
 	 */
-	private String getOutput()
-	{
-		String outputPath = this.getOutputDir().getAbsolutePath(); // new File( this.getOutputDir(), project.name ).path;
-
-		//
-		switch( this.getTargetVariantCombination().getVariant( IPlatform.class ).getName() )
-		{
-			case "java": 	return "\n-java " + outputPath;
-			case "flash": 	return "\n-as3 " + outputPath;
-
-			default:
-				return "";
-		}
-	}
+	abstract protected String getOutputCommandOption();
 
 }

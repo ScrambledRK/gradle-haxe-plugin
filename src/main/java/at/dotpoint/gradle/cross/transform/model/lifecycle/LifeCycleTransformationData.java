@@ -42,7 +42,12 @@ public class LifeCycleTransformationData extends TaskTransformationData implemen
 	@Override
 	public List<Task> getTasks( String name )
 	{
-		return Collections.unmodifiableList( this.taskListMap.get( name ) );
+		List<Task> list = this.taskListMap.get( name );
+
+		if( list == null )
+			list = new ArrayList<>();
+
+		return Collections.unmodifiableList( list );
 	}
 
 	@Override

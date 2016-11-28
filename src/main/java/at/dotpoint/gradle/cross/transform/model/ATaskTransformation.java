@@ -88,10 +88,10 @@ public abstract class ATaskTransformation<TTarget extends ITaskTransformationDat
 	}
 
 	//
-	protected File getOutputDirectory( IApplicationBinarySpec binarySpec, String name )
+	protected File getOutputDirectory( IApplicationBinarySpec binarySpec, String prefix )
 	{
 		return new File( this.getProject( binarySpec ).getBuildDir(),
-				NameUtil.getBinaryTaskName( binarySpec, name ) );
+				NameUtil.getBinaryTaskName( binarySpec, prefix ) );
 	}
 
 	// ***************************************************************** //
