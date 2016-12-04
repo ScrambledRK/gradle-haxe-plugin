@@ -17,4 +17,10 @@ public class Options extends ArrayList<IOptionsSetting> implements IOptions
 
 		return null;
 	}
+
+	@Override
+	public Options clone()
+	{
+		return (Options) super.clone();
+	}
 }

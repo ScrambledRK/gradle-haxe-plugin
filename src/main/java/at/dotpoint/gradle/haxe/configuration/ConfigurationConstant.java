@@ -7,4 +7,5 @@ public class ConfigurationConstant
 {
 	public static final String KEY_HXML = "hxml";
 	public static final String KEY_MAIN = "main";
+	public static final String KEY_MACRO = "macro";
 }

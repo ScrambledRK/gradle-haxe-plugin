@@ -242,6 +242,18 @@ public class CrossPlugin implements Plugin<Project>
 
 		// -------------------------------------------------- //
 		// -------------------------------------------------- //
+
+//		@Mutate
+//		void generateTestComponentSpecs( @Each IApplicationComponentSpec applicationComponentSpec )
+//		{
+//			for( ITestComponentSpec testSpec : applicationComponentSpec.getTests() )
+//			{
+//
+//			}
+//		}
+
+		// -------------------------------------------------- //
+		// -------------------------------------------------- //
 		// generate binaries:
 
 		/**

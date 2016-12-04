@@ -1,5 +1,7 @@
 package at.dotpoint.gradle.haxe.transform;
 
+import at.dotpoint.gradle.cross.options.model.IOptions;
+import at.dotpoint.gradle.cross.options.setting.OptionsSetting;
 import at.dotpoint.gradle.cross.sourceset.ISourceSet;
 import at.dotpoint.gradle.cross.specification.IApplicationBinarySpec;
 import at.dotpoint.gradle.cross.specification.ITestComponentSpec;
@@ -73,8 +75,8 @@ abstract public class AHaxeTransformation extends ALifeCycleTransformation
 	@Override
 	protected List<Task> createConvertTransformation( ILifeCycleTransformationData target )
 	{
-		return this.createConvertTransformation( target.getBinarySpec(),
-				NameUtil.getBinaryTaskName( target.getBinarySpec(), "convert" ) );
+		return this.createConvertTransformation( target.getBinarySpec(), target.getBinarySpec().getOptions(),
+				"convert", "binary" );
 	}
 
 	/**
@@ -83,8 +85,8 @@ abstract public class AHaxeTransformation extends ALifeCycleTransformation
 	@Override
 	protected List<Task> createCompileTransformation( ILifeCycleTransformationData target )
 	{
-		return this.createCompileTransformation( target.getBinarySpec(),
-				NameUtil.getBinaryTaskName( target.getBinarySpec(), "compile" ) );
+		return this.createCompileTransformation( target.getBinarySpec(),  target.getBinarySpec().getOptions(),
+				"compile", "binary" );
 	}
 
 	/**
@@ -96,18 +98,29 @@ abstract public class AHaxeTransformation extends ALifeCycleTransformation
 		IApplicationBinarySpec binarySpec = target.getBinarySpec();
 		String name = testSpec.getName();
 
-		List<Task> convert = this.createConvertTransformation( binarySpec, name );
-		List<Task> compile = this.createCompileTransformation( binarySpec, name );
+		IOptions options = binarySpec.getOptions().clone();
+		options.add( new OptionsSetting( "main", testSpec.getMain() ) );
+
+		List<Task> convert = this.createConvertTransformation( binarySpec, options, "convert", name );
+		List<Task> compile = this.createCompileTransformation( binarySpec, options, "compile", name );
 
 		// ------------------------------------------- //
 
 		Task execute = this.createTestTask( binarySpec, testSpec );
 
-		if( convert != null && !convert.isEmpty() && compile != null && !compile.isEmpty() )
-			compile.get( compile.size() - 1 ).dependsOn( convert.get( convert.size() - 1 ) );
+		if( compile != null )
+		{
+			if( convert != null )
+			{
+				compile.get( compile.size() - 1 ).dependsOn( convert.get( convert.size() - 1 ) );
+			}
 
-		if( compile != null && !compile.isEmpty() )
-			execute.dependsOn( compile );
+			execute.dependsOn( compile.get( compile.size() - 1 ) );
+		}
+		else if( convert != null )
+		{
+			execute.dependsOn( convert.get( convert.size() - 1 ) );
+		}
 
 		// ------------------------------------------- //
 
@@ -128,10 +141,12 @@ abstract public class AHaxeTransformation extends ALifeCycleTransformation
 	// ---------------------------------------------------------------- //
 
 	//
-	abstract protected List<Task> createConvertTransformation( IApplicationBinarySpec binarySpec, String name );
+	abstract protected List<Task> createConvertTransformation( IApplicationBinarySpec binarySpec, IOptions options,
+	                                                           String prefix, String postfix );
 
 	//
-	abstract protected List<Task> createCompileTransformation( IApplicationBinarySpec binarySpec, String name );
+	abstract protected List<Task> createCompileTransformation( IApplicationBinarySpec binarySpec, IOptions options,
+	                                                           String prefix, String postfix );
 
 	//
 	protected abstract Task createTestTask( IApplicationBinarySpec binarySpec, ITestComponentSpec testSpec );
@@ -142,17 +157,17 @@ abstract public class AHaxeTransformation extends ALifeCycleTransformation
 
 	/**
 	 */
-	protected AHaxeTask createHaxeTask( IApplicationBinarySpec binarySpec,
-	                                    Class<? extends AHaxeTask> type, String postFix )
+	protected AHaxeTask createHaxeTask( IApplicationBinarySpec binarySpec, Class<? extends AHaxeTask> type,
+	                                    IOptions options, String prefix, String postfix )
 	{
-		String name = NameUtil.getBinaryTaskName( binarySpec, "haxe", postFix );
-		File output = this.getOutputDirectory( binarySpec, "haxe" );
+		String name = NameUtil.getBinaryTaskName( binarySpec, prefix, postfix );
+		File output = this.getOutputDirectory( binarySpec, prefix, postfix );
 
 		//
 		return TaskUtil.createTask( binarySpec, type, name, it ->
 		{
 			it.setTargetVariantCombination( binarySpec.getTargetVariantCombination() );
-			it.setOptions( binarySpec.getOptions() );
+			it.setOptions( options );
 			it.setOutputDir( output );
 		} );
 	}

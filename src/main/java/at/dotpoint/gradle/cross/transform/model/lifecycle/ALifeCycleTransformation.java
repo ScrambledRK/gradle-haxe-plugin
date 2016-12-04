@@ -104,9 +104,14 @@ public abstract class ALifeCycleTransformation extends ATaskTransformation<ILife
 	private void performLifeCycle( IApplicationBinarySpec binarySpec, List<Task> tasks, String binaryTaskName )
 	{
 		if( tasks != null && !tasks.isEmpty() )
-			this.performLifeCycle( binarySpec, tasks.get( tasks.size() - 1 ), binaryTaskName );
-		else
-			System.out.println("what the fuck is going on!?: " + binaryTaskName + " for " + binarySpec );
+		{
+			Task task = tasks.get( tasks.size() - 1 );
+
+			if( task == null )
+				throw new RuntimeException( "task  '" + binaryTaskName + "' not found for: " + binarySpec );
+
+			this.performLifeCycle( binarySpec, task, binaryTaskName );
+		}
 	}
 
 	/**

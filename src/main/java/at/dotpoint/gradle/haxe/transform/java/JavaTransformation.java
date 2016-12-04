@@ -1,5 +1,6 @@
 package at.dotpoint.gradle.haxe.transform.java;
 
+import at.dotpoint.gradle.cross.options.model.IOptions;
 import at.dotpoint.gradle.cross.specification.IApplicationBinarySpec;
 import at.dotpoint.gradle.cross.specification.ITestComponentSpec;
 import at.dotpoint.gradle.cross.util.NameUtil;
@@ -7,10 +8,10 @@ import at.dotpoint.gradle.cross.util.TaskUtil;
 import at.dotpoint.gradle.cross.variant.model.IVariant;
 import at.dotpoint.gradle.cross.variant.model.platform.IPlatform;
 import at.dotpoint.gradle.cross.variant.target.VariantCombination;
+import at.dotpoint.gradle.haxe.task.AHaxeTask;
 import at.dotpoint.gradle.haxe.task.java.ExecuteJarTask;
 import at.dotpoint.gradle.haxe.task.java.HaxeJavaTask;
 import at.dotpoint.gradle.haxe.transform.AHaxeTransformation;
-import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.internal.service.ServiceRegistry;
 
@@ -46,15 +47,20 @@ public class JavaTransformation extends AHaxeTransformation
 	/**
 	 * Convert
 	 */
-	protected List<Task> createConvertTransformation( IApplicationBinarySpec binarySpec, String name )
+	protected List<Task> createConvertTransformation( IApplicationBinarySpec binarySpec, IOptions options,
+	                                                  String prefix, String postfix )
 	{
-		return Collections.singletonList( this.createHaxeTask( binarySpec, HaxeJavaTask.class, name ) );
+		AHaxeTask task = this.createHaxeTask( binarySpec, HaxeJavaTask.class,
+				options, prefix, postfix );
+
+		return Collections.singletonList( task );
 	}
 
 	/**
 	 * Compile
 	 */
-	protected List<Task> createCompileTransformation( IApplicationBinarySpec binarySpec, String name )
+	protected List<Task> createCompileTransformation( IApplicationBinarySpec binarySpec, IOptions options,
+	                                                  String prefix, String postfix )
 	{
 		return null;
 	}
@@ -71,29 +77,18 @@ public class JavaTransformation extends AHaxeTransformation
 
 		return TaskUtil.createTask( binarySpec, ExecuteJarTask.class, taskName, it ->
 		{
-			it.setJarFile( this.getBuildResultFile( binarySpec, testSpec.getName() ) );
+			it.setJarFile( this.getBuildResultFile( binarySpec, testSpec, "convert", testSpec.getName() ) );
 			it.setMain( testSpec.getMain() );
 		} );
 	}
 
 	//
-	private File getBuildResultFile( IApplicationBinarySpec binarySpec, String name )
+	private File getBuildResultFile( IApplicationBinarySpec binarySpec, ITestComponentSpec testSpec,
+	                                 String prefix, String postFix )
 	{
-		File libraryDir = new File( this.getOutputDirectory( binarySpec, name ), "build/libs" );
-		String fileName = this.getBuildResultName( binarySpec );
+		File libraryDir = this.getOutputDirectory( binarySpec, prefix, postFix );
+		String fileName = testSpec.getMain().substring( testSpec.getMain().lastIndexOf( '.' ) + 1 ) + ".jar";
 
 		return new File( libraryDir, fileName );
-	}
-
-	//
-	private String getBuildResultName( IApplicationBinarySpec binarySpec )
-	{
-		Project project = this.getProject( binarySpec );
-
-		String version = project.getVersion().toString();
-		String name = project.getName();
-
-
-		return name + "-" + version + ".jar";
 	}
 }

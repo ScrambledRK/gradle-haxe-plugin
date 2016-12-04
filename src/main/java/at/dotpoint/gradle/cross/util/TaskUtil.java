@@ -2,7 +2,6 @@ package at.dotpoint.gradle.cross.util;
 
 import org.gradle.api.Action;
 import org.gradle.api.Task;
-import org.gradle.api.tasks.TaskContainer;
 import org.gradle.platform.base.BinarySpec;
 
 import java.util.ArrayList;
@@ -130,6 +129,9 @@ public class TaskUtil
 	public static <TTask extends Task> TTask createTask( BinarySpec binarySpec, Class<TTask> type,
 	                                                     String name, Action<? super TTask> config )
 	{
+		if( TaskUtil.findTaskByName( binarySpec, name ) != null )
+			throw new RuntimeException( "cannot create task, because a task with name: " + name + " already exists" );
+
 		if( config == null )
 		{
 			config = tTask -> {
@@ -139,22 +141,6 @@ public class TaskUtil
 
 		binarySpec.getTasks().create( name, type, config::execute );
 		return TaskUtil.findTaskByName( binarySpec, name, type );
-	}
-
-	/**
-	 */
-	public static <TTask extends Task> TTask createTask( TaskContainer taskContainer, Class<TTask> type,
-	                                                     String name, Action<? super TTask> config )
-	{
-		if( config == null )
-		{
-			config = tTask -> {
-				//;
-			};
-		}
-
-		taskContainer.create( name, type, config::execute );
-		return TaskUtil.findTaskByName( taskContainer, name, type );
 	}
 
 }

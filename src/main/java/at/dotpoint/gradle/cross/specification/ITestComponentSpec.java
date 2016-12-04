@@ -1,6 +1,6 @@
 package at.dotpoint.gradle.cross.specification;
 
-import at.dotpoint.gradle.cross.options.requirement.IOptionsRequirement;
+import at.dotpoint.gradle.cross.options.model.IOptions;
 import org.gradle.platform.base.SourceComponentSpec;
 
 /**
@@ -9,9 +9,8 @@ import org.gradle.platform.base.SourceComponentSpec;
 public interface ITestComponentSpec extends SourceComponentSpec
 {
 	//
-	IOptionsRequirement getOptions();
+	IOptions getOptions();
 
 	//
 	String getMain();
-	void setMain( String main );
 }

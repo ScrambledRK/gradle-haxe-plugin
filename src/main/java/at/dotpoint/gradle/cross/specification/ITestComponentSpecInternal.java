@@ -1,6 +1,6 @@
 package at.dotpoint.gradle.cross.specification;
 
-import at.dotpoint.gradle.cross.options.requirement.IOptionsRequirement;
+import at.dotpoint.gradle.cross.options.model.IOptions;
 
 /**
  * Created by RK on 2016-11-13.
@@ -8,5 +8,8 @@ import at.dotpoint.gradle.cross.options.requirement.IOptionsRequirement;
 public interface ITestComponentSpecInternal extends ITestComponentSpec
 {
 	//
-	void setOptions( IOptionsRequirement configuration );
+	void setOptions( IOptions configuration );
+
+	//
+	void setMain( String main );
 }

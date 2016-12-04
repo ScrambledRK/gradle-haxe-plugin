@@ -8,6 +8,7 @@ import org.gradle.api.tasks.TaskAction;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -46,10 +47,10 @@ public abstract class AHaxeTask extends ASourceTask
 			IOptionsSetting setting = this.options.getSettingByName( ConfigurationConstant.KEY_MAIN );
 
 			if( setting != null && setting.getValue() instanceof String )
-				this.setMainClassPath( mainClassPath );
+				this.setMainClassPath( (String) setting.getValue() );
 		}
 
-		return mainClassPath;
+		return this.mainClassPath;
 	}
 
 	void setMainClassPath( String mainClassPath )
@@ -67,8 +68,14 @@ public abstract class AHaxeTask extends ASourceTask
     public void executeCommand()
     {
 	    List<String> options = this.generateCommand();
+	    List<String> command = new ArrayList<>();
 
-	    System.out.println( options.toString() );
+	    for( String opt : options )
+	        command.addAll( Arrays.asList( opt.split( " " ) ) );
+
+	    System.out.println("-----------------------");
+	    System.out.println(  command.toString() );
+	    System.out.println("-----------------------");
 
 	    // -------------- //
 
@@ -82,7 +89,7 @@ public abstract class AHaxeTask extends ASourceTask
             // ----------- //
 
             it.setExecutable( haxePath );
-            it.setArgs(options );
+            it.setArgs( command );
         } );
     }
 
@@ -95,6 +102,9 @@ public abstract class AHaxeTask extends ASourceTask
 		total.addAll( this.getNativeDependencyCommandOptions() );
 		total.addAll( this.getHaxeCommandOptions() );
 		total.add( this.getOutputCommandOption() );
+
+		if( this.getMainClassPath() != null )
+			total.add( "-main " + this.getMainClassPath() );
 
 		return total;
 	}
@@ -113,7 +123,7 @@ public abstract class AHaxeTask extends ASourceTask
 
 		for( File dir : this.getSourceSets() )
 		{
-			String value = "-cp \"" + dir.getAbsolutePath() + "\"";
+			String value = "-cp " + dir.getAbsolutePath();
 
 			if( !list.contains( value ) )
 				list.add( value );
@@ -190,10 +200,8 @@ public abstract class AHaxeTask extends ASourceTask
 			case ConfigurationConstant.KEY_HXML:
 				return (String)configurationSetting.getValue();
 
-			case ConfigurationConstant.KEY_MAIN:
-				return "-main " + configurationSetting.getValue();
-
-			// TODO: macro - needs to be quoted for CMD
+			case ConfigurationConstant.KEY_MACRO:
+				return "--macro \"" + configurationSetting.getValue().toString().replace( '"', '\'' ) + "\"";
 
 			default:
 				return null;

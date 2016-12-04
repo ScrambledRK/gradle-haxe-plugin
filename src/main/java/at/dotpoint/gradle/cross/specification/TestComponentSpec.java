@@ -1,7 +1,7 @@
 package at.dotpoint.gradle.cross.specification;
 
-import at.dotpoint.gradle.cross.options.requirement.IOptionsRequirement;
-import at.dotpoint.gradle.cross.options.requirement.OptionsRequirement;
+import at.dotpoint.gradle.cross.options.model.IOptions;
+import at.dotpoint.gradle.cross.options.model.Options;
 import org.gradle.language.base.LanguageSourceSet;
 import org.gradle.model.ModelMap;
 import org.gradle.model.internal.core.ModelMaps;
@@ -19,7 +19,7 @@ public class TestComponentSpec extends DefaultComponentSpec implements ITestComp
 	private final MutableModelNode sources;
 
 	//
-	protected IOptionsRequirement configuration;
+	protected IOptions configuration;
 	protected String main;
 
 	// ------------------------------------------------------------------ //
@@ -37,13 +37,19 @@ public class TestComponentSpec extends DefaultComponentSpec implements ITestComp
 	 *
 	 * @return
 	 */
-	public IOptionsRequirement getOptions()
+	public IOptions getOptions()
 	{
 		if( this.configuration == null )
-			this.configuration = new OptionsRequirement();
+			this.configuration = new Options();
 
 		return this.configuration;
 	}
+
+	@Override
+	public void setOptions( IOptions configuration )
+		{
+			this.configuration = configuration;
+		}
 
 	@Override
 	public String getMain()
@@ -54,12 +60,6 @@ public class TestComponentSpec extends DefaultComponentSpec implements ITestComp
 	public void setMain( String main )
 	{
 		this.main = main;
-	}
-
-	@Override
-	public void setOptions( IOptionsRequirement configuration )
-	{
-		this.configuration = configuration;
 	}
 
 	/**

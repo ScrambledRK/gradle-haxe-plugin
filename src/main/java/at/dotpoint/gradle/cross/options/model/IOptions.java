@@ -10,5 +10,9 @@ import java.util.RandomAccess;
  */
 public interface IOptions extends List<IOptionsSetting>, RandomAccess, Cloneable
 {
+	//
 	IOptionsSetting getSettingByName( String name );
+
+	//
+	Options clone();
 }

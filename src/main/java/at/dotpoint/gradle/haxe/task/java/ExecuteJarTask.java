@@ -48,6 +48,8 @@ public class ExecuteJarTask extends DefaultTask
     @TaskAction
     public void executeJar()
     {
+	    System.out.println( Arrays.asList( "-jar", ExecuteJarTask.this.getJarFile().getAbsolutePath(), this.getMain() ) );
+
 	    this.getProject().exec( it ->
 	    {
 		    String javaPath = System.getenv("JAVA_HOME");
