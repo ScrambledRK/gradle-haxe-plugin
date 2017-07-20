@@ -40,7 +40,7 @@ public abstract class AHaxeTask extends ASourceTask
 
 	/**
 	 */
-	String getMainClassPath()
+	protected String getMainClassPath()
 	{
 		if( this.mainClassPath == null && this.options != null )
 		{
@@ -53,7 +53,7 @@ public abstract class AHaxeTask extends ASourceTask
 		return this.mainClassPath;
 	}
 
-	void setMainClassPath( String mainClassPath )
+	protected void setMainClassPath( String mainClassPath )
 	{
 		this.mainClassPath = mainClassPath;
 	}
@@ -74,7 +74,7 @@ public abstract class AHaxeTask extends ASourceTask
 	        command.addAll( Arrays.asList( opt.split( " " ) ) );
 
 	    System.out.println("-----------------------");
-	    System.out.println(  command.toString() );
+	    System.out.println(  command.toString().replaceAll( ",", "" ) );
 	    System.out.println("-----------------------");
 
 	    // -------------- //
@@ -84,7 +84,12 @@ public abstract class AHaxeTask extends ASourceTask
             String haxePath = System.getenv("HAXEPATH");
 
             if( System.getProperty("os.name").toLowerCase().contains( "win" ) )
-                haxePath += "haxe.exe";
+            {
+				if( !haxePath.endsWith( "/" ) || !haxePath.endsWith( "\\" ) )
+					haxePath += "/";
+					
+	            haxePath += "haxe.exe";
+            }
 
             // ----------- //
 

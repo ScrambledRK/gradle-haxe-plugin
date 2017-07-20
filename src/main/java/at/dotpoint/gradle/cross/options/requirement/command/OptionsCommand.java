@@ -40,4 +40,18 @@ public class OptionsCommand implements IOptionsCommand
 	{
 		return this.setting;
 	}
+	
+	// --------------------- //
+	// --------------------- //
+	
+	
+	@Override
+	public String toString()
+	{
+		final StringBuffer sb = new StringBuffer( "OptionsCommand{" );
+		sb.append( "type=" ).append( type );
+		sb.append( ", setting=" ).append( setting );
+		sb.append( '}' );
+		return sb.toString();
+	}
 }

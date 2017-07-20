@@ -6,7 +6,7 @@ package at.dotpoint.gradle.cross.options.requirement.command;
  */
 public enum OptionsCommandType
 {
-	SET,
 	ADD,
+	SET,
 	REMOVE
 }

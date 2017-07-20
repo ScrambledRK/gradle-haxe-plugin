@@ -6,6 +6,8 @@ import at.dotpoint.gradle.cross.transform.builder.lifecycle.LifeCycleTransformat
 import at.dotpoint.gradle.cross.transform.container.LifeCycleTransformationContainer;
 import at.dotpoint.gradle.cross.transform.repository.ITransformBuilderRepository;
 import at.dotpoint.gradle.haxe.transform.java.JavaTransformation;
+import at.dotpoint.gradle.haxe.transform.javascript.JavascriptTransformation;
+import at.dotpoint.gradle.haxe.transform.neko.NekoTransformation;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.internal.file.FileResolver;
@@ -69,6 +71,8 @@ public class HaxePlugin implements Plugin<Project>
 			LifeCycleTransformationContainer container = new LifeCycleTransformationContainer();
 
 			container.add( new JavaTransformation( serviceRegistry ) );
+			container.add( new NekoTransformation( serviceRegistry ) );
+			container.add( new JavascriptTransformation( serviceRegistry ) );
 
 			return new LifeCycleTransformationBuilder( container );
 		}

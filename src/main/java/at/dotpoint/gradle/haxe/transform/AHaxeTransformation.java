@@ -115,11 +115,13 @@ abstract public class AHaxeTransformation extends ALifeCycleTransformation
 				compile.get( compile.size() - 1 ).dependsOn( convert.get( convert.size() - 1 ) );
 			}
 
-			execute.dependsOn( compile.get( compile.size() - 1 ) );
+			if( execute != null )
+				execute.dependsOn( compile.get( compile.size() - 1 ) );
 		}
 		else if( convert != null )
 		{
-			execute.dependsOn( convert.get( convert.size() - 1 ) );
+			if( execute != null )
+				execute.dependsOn( convert.get( convert.size() - 1 ) );
 		}
 
 		// ------------------------------------------- //
@@ -132,7 +134,8 @@ abstract public class AHaxeTransformation extends ALifeCycleTransformation
 		if( compile != null )
 			result.addAll( compile );
 
-		result.add( execute );
+		if( execute != null )
+			result.add( execute );
 
 		return result;
 	}

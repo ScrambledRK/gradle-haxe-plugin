@@ -1,22 +1,26 @@
 package at.dotpoint.gradle.cross.options.builder;
 
-import at.dotpoint.gradle.cross.convention.ConventionUtil;
 import at.dotpoint.gradle.cross.options.model.IOptions;
 import at.dotpoint.gradle.cross.options.model.Options;
 import at.dotpoint.gradle.cross.options.requirement.IOptionsRequirementInternal;
 import at.dotpoint.gradle.cross.options.requirement.command.IOptionsCommand;
+import at.dotpoint.gradle.cross.options.setting.IOptionsSetting;
 import at.dotpoint.gradle.cross.options.setting.OptionsSetting;
-import at.dotpoint.gradle.cross.variant.model.IVariant;
-import at.dotpoint.gradle.cross.variant.target.VariantCombination;
+import org.gradle.api.logging.Logger;
+import org.gradle.api.logging.Logging;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Comparator;
 
 /**
  * Created by RK on 16.05.2016.
  */
 public class OptionsBuilder implements IOptionsBuilder
 {
+	//
+	private static final Logger LOGGER = Logging.getLogger(OptionsBuilder.class);
+	
 	//
 	private final File buildDir;
 
@@ -35,35 +39,66 @@ public class OptionsBuilder implements IOptionsBuilder
 	public IOptions build( Iterable<IOptionsRequirementInternal> requirements )
 	{
 		IOptions configuration = new Options();
-
+		ArrayList<IOptionsCommand> commands = new ArrayList<>();
+		
+		//
 		for( IOptionsRequirementInternal requirement : requirements )
+			commands.addAll( requirement.getConfigurationCommands() );
+		
+		//
+		commands.sort( Comparator.comparing( IOptionsCommand::getType ) );
+		
+		for( IOptionsCommand command : commands )
 		{
-			ArrayList<IOptionsCommand> commands = requirement.getConfigurationCommands();
-
-			for( IOptionsCommand command : commands )
+			switch( command.getType() )
 			{
-				String name = command.getSetting().getName();
-				Object value = command.getSetting().getValue();
-
-				//if( value instanceof String )
-				//	value = ((String)value).replaceAll("/\@\{(\w+\.\w+)\}/"){ m, k -> this.getStringVariable( variantCombination, k ) }
-
-				configuration.add( new OptionsSetting( name, value ) );
+				case ADD:
+					this.addConfiguration( command, configuration );
+					break;
+					
+				case REMOVE:
+					this.removeConfiguration( command, configuration );
+					break;
+					
+				case SET:
+				{
+					this.removeConfiguration( command, configuration );
+					this.addConfiguration( command, configuration );
+					break;
+				}
 			}
+			
 		}
 
 		return configuration;
 	}
 
-
-
-	/**
-	 */
-	private String getStringVariable( VariantCombination<IVariant> variantCombination, String variable )
+	//
+	private void addConfiguration( IOptionsCommand command, IOptions configuration )
 	{
-		if( variable == "variation.buildDir" )
-			return ConventionUtil.getVariationBuildDir( this.buildDir, variantCombination ).getPath();
-
-		return variable;
+		String name = command.getSetting().getName();
+		Object value = command.getSetting().getValue();
+		
+		configuration.add( new OptionsSetting( name, value ) );
+	}
+	
+	//
+	private void removeConfiguration( IOptionsCommand command, IOptions configuration )
+	{
+		IOptionsSetting setting = this.getConfiguration( command, configuration );
+		
+		while( setting != null )
+		{
+			LOGGER.info( "removing: " + setting );
+			
+			configuration.remove( setting );
+			setting = this.getConfiguration( command, configuration );
+		}
+	}
+	
+	//
+	private IOptionsSetting getConfiguration( IOptionsCommand command, IOptions configuration )
+	{
+		return configuration.getSettingByName( command.getSetting().getName() );
 	}
 }

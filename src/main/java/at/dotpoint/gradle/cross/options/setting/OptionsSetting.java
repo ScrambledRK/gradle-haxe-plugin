@@ -44,4 +44,18 @@ public class OptionsSetting implements IOptionsSetting
 	{
 		return this.value;
 	}
+	
+	// --------------------- //
+	// --------------------- //
+	
+	
+	@Override
+	public String toString()
+	{
+		final StringBuffer sb = new StringBuffer( "OptionsSetting{" );
+		sb.append( "name='" ).append( name ).append( '\'' );
+		sb.append( ", value=" ).append( value );
+		sb.append( '}' );
+		return sb.toString();
+	}
 }

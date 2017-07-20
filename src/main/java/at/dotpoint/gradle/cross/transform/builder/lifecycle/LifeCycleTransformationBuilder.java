@@ -37,7 +37,7 @@ public class LifeCycleTransformationBuilder extends ATransformationBuilder<ILife
 	 */
 	public void createTransformationTasks( IApplicationBinarySpecInternal binarySpec )
 	{
-		//println "createTransformationTasks. " + binarySpec;
+		LOGGER.info( "createTransformationTasks. " + binarySpec );
 
 		// --------------------- //
 		// already assigned?
