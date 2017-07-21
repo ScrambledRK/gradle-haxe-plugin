@@ -19,7 +19,6 @@ import org.gradle.model.internal.type.ModelType;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -115,7 +114,6 @@ public class ApplicationComponentSpec extends GeneralComponentSpec implements IA
 
 	/**
 	 *
-	 * @return
 	 */
 	public IOptionsRequirement getOptions()
 	{
@@ -136,22 +134,19 @@ public class ApplicationComponentSpec extends GeneralComponentSpec implements IA
 
 	/**
 	 *
-	 * @param platformRequirements
 	 */
 	@Override
 	public void platform( Iterable<Object> platformRequirements )
 	{
-		Iterator<Object> iterator = platformRequirements.iterator();
-
-		while( iterator.hasNext() )
-			this.platform( iterator.next() );
+		for( Object platformRequirement : platformRequirements )
+			this.platform( platformRequirement );
 	}
 
 	@Override
 	public void platform( Object[] platformRequirements )
 	{
-		for (int i = 0; i < platformRequirements.length; i++)
-			this.platform( platformRequirements[i] );
+		for( Object platformRequirement : platformRequirements )
+			this.platform( platformRequirement );
 	}
 
 	@Override
@@ -165,22 +160,19 @@ public class ApplicationComponentSpec extends GeneralComponentSpec implements IA
 
 	/**
 	 *
-	 * @param flavorRequirements
 	 */
 	@Override
 	public void flavor( Iterable<Object> flavorRequirements )
 	{
-		Iterator<Object> iterator = flavorRequirements.iterator();
-
-		while( iterator.hasNext() )
-			this.flavor( iterator.next() );
+		for( Object flavorRequirement : flavorRequirements )
+			this.flavor( flavorRequirement );
 	}
 
 	@Override
 	public void flavor( Object[] flavorRequirements )
 	{
-		for (int i = 0; i < flavorRequirements.length; i++)
-			this.flavor( flavorRequirements[i] );
+		for( Object flavorRequirement : flavorRequirements )
+			this.flavor( flavorRequirement );
 	}
 
 	@Override
@@ -194,22 +186,19 @@ public class ApplicationComponentSpec extends GeneralComponentSpec implements IA
 
 	/**
 	 *
-	 * @param buildTypeRequirements
 	 */
 	@Override
 	public void buildType( Iterable<Object> buildTypeRequirements )
 	{
-		Iterator<Object> iterator = buildTypeRequirements.iterator();
-
-		while( iterator.hasNext() )
-			this.buildType( iterator.next() );
+		for( Object buildTypeRequirement : buildTypeRequirements )
+			this.buildType( buildTypeRequirement );
 	}
 
 	@Override
 	public void buildType( Object[] buildTypeRequirements )
 	{
-		for (int i = 0; i < buildTypeRequirements.length; i++)
-			this.buildType( buildTypeRequirements[i] );
+		for( Object buildTypeRequirement : buildTypeRequirements )
+			this.buildType( buildTypeRequirement );
 	}
 
 	@Override

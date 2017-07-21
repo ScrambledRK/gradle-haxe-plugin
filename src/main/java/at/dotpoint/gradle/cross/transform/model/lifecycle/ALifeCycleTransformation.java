@@ -10,6 +10,8 @@ import at.dotpoint.gradle.cross.util.BinarySpecUtil;
 import at.dotpoint.gradle.cross.util.NameUtil;
 import at.dotpoint.gradle.cross.util.TaskUtil;
 import org.gradle.api.Task;
+import org.gradle.api.logging.Logger;
+import org.gradle.api.logging.Logging;
 import org.gradle.internal.service.ServiceRegistry;
 
 import java.io.File;
@@ -22,6 +24,9 @@ import java.util.Set;
 public abstract class ALifeCycleTransformation extends ATaskTransformation<ILifeCycleTransformationDataInternal>
 		implements ILifeCycleTransformation
 {
+	//
+	private static final Logger LOGGER = Logging.getLogger(ILifeCycleTransformation.class);
+	
 	//
 	public ALifeCycleTransformation( ServiceRegistry serviceRegistry )
 	{
@@ -204,15 +209,17 @@ public abstract class ALifeCycleTransformation extends ATaskTransformation<ILife
 
 		for( ISourceTask task : tasks )
 		{
-			System.out.println( "----" );
-			System.out.println( task );
-			System.out.println( sourceSetList );
-			System.out.println( artifacts );
-			System.out.println( libraries );
+			LOGGER.info( "-task: {}", task );
+			LOGGER.info( "-sourceSetList: {}", sourceSetList );
+			LOGGER.info( "-artifacts: {}", artifacts );
+			LOGGER.info( "-libraries: {}", libraries );
 
 			task.source( sourceSetList );
 			task.dependency( artifacts );
 
+			if( task.getSourceDirectories().isEmpty() )
+				LOGGER.warn( "source directory list is empty, task {} will not execute", task );
+			
 			for( IApplicationBinarySpec library : libraries )
 			{
 				task.source( BinarySpecUtil.getSourceSetList( library ) );

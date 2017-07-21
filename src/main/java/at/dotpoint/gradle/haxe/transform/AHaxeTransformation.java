@@ -98,6 +98,9 @@ abstract public class AHaxeTransformation extends ALifeCycleTransformation
 		IApplicationBinarySpec binarySpec = target.getBinarySpec();
 		String name = testSpec.getName();
 
+		//
+		// TODO: should override existing main, reusing the OptionBuilder
+		//
 		IOptions options = binarySpec.getOptions().clone();
 		options.add( new OptionsSetting( "main", testSpec.getMain() ) );
 

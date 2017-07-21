@@ -4,6 +4,8 @@ import at.dotpoint.gradle.cross.options.model.IOptions;
 import at.dotpoint.gradle.cross.options.setting.IOptionsSetting;
 import at.dotpoint.gradle.cross.task.ASourceTask;
 import at.dotpoint.gradle.haxe.configuration.ConfigurationConstant;
+import org.gradle.api.logging.Logger;
+import org.gradle.api.logging.Logging;
 import org.gradle.api.tasks.TaskAction;
 
 import java.io.File;
@@ -17,6 +19,9 @@ import java.util.List;
 public abstract class AHaxeTask extends ASourceTask
 {
 
+	//
+	private static final Logger LOGGER = Logging.getLogger(AHaxeTask.class);
+	
 	//
 	private IOptions options;
 
@@ -126,8 +131,11 @@ public abstract class AHaxeTask extends ASourceTask
 
 		// ------------- //
 
-		for( File dir : this.getSourceSets() )
+		for( File dir : this.getSourceDirectories() )
 		{
+			if( !dir.exists() || !dir.isDirectory() )
+				continue;
+			
 			String value = "-cp " + dir.getAbsolutePath();
 
 			if( !list.contains( value ) )
@@ -135,6 +143,9 @@ public abstract class AHaxeTask extends ASourceTask
 		}
 
 		// ------------- //
+		
+		if( list.isEmpty() )
+			LOGGER.warn( "classpath list is empty, no source directories to compile" );
 
 		return list;
 	}

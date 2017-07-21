@@ -9,7 +9,7 @@ import org.gradle.api.Named;
 public interface IVariant extends Named {
 
 	/**
-	 * Returns a human consumable name for this platform.
+	 * Returns a human consumable name for this sourcePlatform.
 	 */
 	String getDisplayName();
 

@@ -2,7 +2,9 @@ package at.dotpoint.gradle.cross.variant.model.platform;
 
 import at.dotpoint.gradle.cross.variant.model.IVariant;
 import org.gradle.internal.HasInternalProtocol;
-import org.gradle.model.Managed;
+
+import java.io.File;
+import java.util.List;
 
 /**
  *
@@ -11,7 +13,10 @@ import org.gradle.model.Managed;
 //
 public interface IPlatform extends org.gradle.platform.base.Platform, IVariant
 {
-
+	List<String> getDirectories();
+	
+	File getMainSourceDirectory();
+	File getUnitSourceDirectory();
 }
 
 

@@ -3,8 +3,10 @@ package at.dotpoint.gradle.cross.task;
 import at.dotpoint.gradle.cross.convention.ConventionUtil;
 import at.dotpoint.gradle.cross.sourceset.ISourceSet;
 import at.dotpoint.gradle.cross.variant.model.IVariant;
+import at.dotpoint.gradle.cross.variant.model.platform.IPlatform;
 import at.dotpoint.gradle.cross.variant.target.VariantCombination;
-import org.gradle.api.tasks.*;
+import org.gradle.api.tasks.OutputDirectory;
+import org.gradle.api.tasks.SourceTask;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -22,7 +24,7 @@ public class ASourceTask extends SourceTask implements ISourceTask
 	private Set<File> dependencies;
 
 	//
-	private List<File> sourceSets;
+	private List<File> sourceDirectories;
 
 	//
 	private VariantCombination<IVariant> sourceVariantCombination;
@@ -40,12 +42,12 @@ public class ASourceTask extends SourceTask implements ISourceTask
 	 * library dependencies and application/binary sources
 	 */
 	//
-	public List<File> getSourceSets()
+	public List<File> getSourceDirectories()
 	{
-		if( this.sourceSets == null )
-			this.sourceSets = new ArrayList<>();
+		if( this.sourceDirectories == null )
+			this.sourceDirectories = new ArrayList<>();
 
-		return this.sourceSets;
+		return this.sourceDirectories;
 	}
 
 	/**
@@ -58,9 +60,16 @@ public class ASourceTask extends SourceTask implements ISourceTask
 
 	public void source( ISourceSet sourceSet )
 	{
+		IPlatform taskTargetPlatform = this.getTargetVariantCombination().getVariant( IPlatform.class );
+		IPlatform sourceTargetPlatform = sourceSet.getTargetPlatform();
+
+		if( sourceTargetPlatform != null && sourceTargetPlatform.getName() != taskTargetPlatform.getName() )
+			return;
+		
+		//
 		for( File dir : sourceSet.getSource().getSrcDirs() )
 		{
-			this.getSourceSets().add( dir );
+			this.getSourceDirectories().add( dir );
 			this.source( dir );
 		}
 	}

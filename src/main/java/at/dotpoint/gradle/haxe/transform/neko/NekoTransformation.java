@@ -40,7 +40,7 @@ public class NekoTransformation extends AHaxeTransformation
 	{
 		return "neko".equals( targetVariation.getVariant( IPlatform.class ).getName() );
 	}
-
+	
 	// ************************************************************************************* //
 	// ************************************************************************************* //
 

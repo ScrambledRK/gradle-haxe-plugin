@@ -57,7 +57,7 @@ class StringConverter implements NotationConverter<String, PlatformRequirement>
     @Override
     public void describe( DiagnosticsVisitor diagnosticsVisitor )
     {
-	    diagnosticsVisitor.candidate("name of a platform").example("TODO");
+	    diagnosticsVisitor.candidate("name of a sourcePlatform").example("TODO");
     }
 }
 

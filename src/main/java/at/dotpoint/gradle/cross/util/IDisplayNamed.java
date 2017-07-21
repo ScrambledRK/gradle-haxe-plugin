@@ -9,7 +9,7 @@ public interface IDisplayNamed extends Named
 {
 
 	/**
-	 * Returns a human consumable name for this platform.
+	 * Returns a human consumable name for this sourcePlatform.
 	 *
 	 */
 	String getDisplayName();

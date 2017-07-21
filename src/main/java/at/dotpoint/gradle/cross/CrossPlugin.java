@@ -19,6 +19,7 @@ import at.dotpoint.gradle.cross.variant.container.buildtype.IBuildTypeContainer;
 import at.dotpoint.gradle.cross.variant.container.flavor.FlavorContainer;
 import at.dotpoint.gradle.cross.variant.container.flavor.IFlavorContainer;
 import at.dotpoint.gradle.cross.variant.container.platform.IPlatformContainer;
+import at.dotpoint.gradle.cross.variant.container.platform.PlatformContainer;
 import at.dotpoint.gradle.cross.variant.factory.buildtype.BuildTypeFactory;
 import at.dotpoint.gradle.cross.variant.factory.flavor.FlavorFactory;
 import at.dotpoint.gradle.cross.variant.factory.platform.PlatformFactory;
@@ -229,28 +230,28 @@ public class CrossPlugin implements Plugin<Project>
 		void assignSourceSetPlatforms( @Each ISourceSet sourceSet, IVariantResolverRepository variantResolver )
 		{
 			ISourceSetInternal languageSourceSet = (ISourceSetInternal) sourceSet;
-			PlatformRequirement platformRequirement = languageSourceSet.getPlatformRequirement();
 			
-			if( platformRequirement != null && languageSourceSet.getSourcePlatform() == null )
+			PlatformRequirement sourceRequirement = languageSourceSet.getSourcePlatformRequirement();
+			PlatformRequirement targetRequirement = languageSourceSet.getTargetPlatformRequirement();
+			
+			//
+			if( sourceRequirement != null && languageSourceSet.getSourcePlatform() == null )
 			{
-				IPlatform platform = variantResolver.resolve( IPlatform.class, platformRequirement );
+				IPlatform platform = variantResolver.resolve( IPlatform.class, sourceRequirement );
 				
 				if( platform != null )
 					languageSourceSet.setSourcePlatform( platform );
 			}
+			
+			//
+			if( targetRequirement != null && languageSourceSet.getTargetPlatform() == null )
+			{
+				IPlatform platform = variantResolver.resolve( IPlatform.class, targetRequirement );
+				
+				if( platform != null )
+					languageSourceSet.setTargetPlatform( platform );
+			}
 		}
-		
-		// -------------------------------------------------- //
-		// -------------------------------------------------- //
-
-//		@Mutate
-//		void generateTestComponentSpecs( @Each IApplicationComponentSpec applicationComponentSpec )
-//		{
-//			for( ITestComponentSpec testSpec : applicationComponentSpec.getTests() )
-//			{
-//
-//			}
-//		}
 		
 		// -------------------------------------------------- //
 		// -------------------------------------------------- //
@@ -393,7 +394,6 @@ public class CrossPlugin implements Plugin<Project>
 		
 		// -------------------------------------------------- //
 		// -------------------------------------------------- //
-		// Variant:Flavor
 		
 		/**
 		 * IFlavorContainer
@@ -403,21 +403,11 @@ public class CrossPlugin implements Plugin<Project>
 		@Model
 		IFlavorContainer flavorContainer( Instantiator instantiator )
 		{
-			return new FlavorContainer( instantiator );
-		}
-		
-		/**
-		 * Flavor Factories
-		 */
-		@Mutate
-		void registerFlavorFactories( IFlavorContainer flavorContainer )
-		{
+			FlavorContainer flavorContainer = new FlavorContainer( instantiator );
 			flavorContainer.registerFactory( IFlavor.class, new FlavorFactory() );
+			
+			return flavorContainer;
 		}
-		
-		// -------------------------------------------------- //
-		// -------------------------------------------------- //
-		// Variant:BuildType
 		
 		/**
 		 * IBuildTypeContainer
@@ -427,21 +417,11 @@ public class CrossPlugin implements Plugin<Project>
 		@Model
 		IBuildTypeContainer buildTypeContainer( Instantiator instantiator )
 		{
-			return new BuildTypeContainer( instantiator );
-		}
-		
-		/**
-		 * IBuildType Factories
-		 */
-		@Mutate
-		void registerBuildTypeFactories( IBuildTypeContainer buildTypeContainer )
-		{
+			BuildTypeContainer buildTypeContainer = new BuildTypeContainer( instantiator );
 			buildTypeContainer.registerFactory( IBuildType.class, new BuildTypeFactory() );
+			
+			return buildTypeContainer;
 		}
-		
-		// -------------------------------------------------- //
-		// -------------------------------------------------- //
-		// Variant:Platform (almost gradle-native)
 		
 		/**
 		 * IBuildTypeContainer
@@ -451,16 +431,10 @@ public class CrossPlugin implements Plugin<Project>
 		@Model
 		IPlatformContainer platformContainer( Instantiator instantiator )
 		{
-			return new at.dotpoint.gradle.cross.variant.container.platform.PlatformContainer( instantiator );
-		}
-		
-		/**
-		 * Platform Factories
-		 */
-		@Mutate
-		void registerPlatformFactories( IPlatformContainer platformContainer )
-		{
+			PlatformContainer platformContainer = new PlatformContainer( instantiator );
 			platformContainer.registerFactory( IPlatform.class, new PlatformFactory() );
+			
+			return platformContainer;
 		}
 		
 	}

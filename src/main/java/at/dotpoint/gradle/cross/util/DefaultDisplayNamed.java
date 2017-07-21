@@ -10,7 +10,7 @@ public class DefaultDisplayNamed extends DefaultNamed implements IDisplayNamed
 	}
 
 	/**
-	 * Returns a human consumable name for this platform.
+	 * Returns a human consumable name for this sourcePlatform.
 	 *
 	 */
 	@Override

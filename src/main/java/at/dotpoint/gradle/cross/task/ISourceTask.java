@@ -16,7 +16,7 @@ public interface ISourceTask extends Task, IVariationsSourceInternal, IVariation
 {
 	/**
 	 */
-	List<File> getSourceSets();
+	List<File> getSourceDirectories();
 
 	/**
 	 */
