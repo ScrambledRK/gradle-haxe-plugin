@@ -87,7 +87,7 @@ public class NekoTransformation extends AHaxeTransformation
 	                                 String prefix, String postFix )
 	{
 		File libraryDir = this.getOutputDirectory( binarySpec, prefix, postFix );
-		String fileName = libraryDir.getName() + ".n";
+		String fileName = testSpec.getMain().substring( testSpec.getMain().lastIndexOf( '.' ) + 1 ) + ".n";
 
 		return new File( libraryDir, fileName );
 	}

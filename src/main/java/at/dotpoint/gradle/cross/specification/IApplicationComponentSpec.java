@@ -3,11 +3,12 @@ package at.dotpoint.gradle.cross.specification;
 import at.dotpoint.gradle.cross.options.requirement.IOptionsRequirement;
 import org.gradle.model.ModelMap;
 import org.gradle.platform.base.ApplicationSpec;
+import org.gradle.platform.base.VariantComponentSpec;
 
 /**
  *
  */
-public interface IApplicationComponentSpec extends IGeneralComponentSpec, ApplicationSpec
+public interface IApplicationComponentSpec extends IGeneralComponentSpec, ApplicationSpec, VariantComponentSpec
 {
 	//
 	void platform( Object platformRequirements );

@@ -1,5 +1,7 @@
 package at.dotpoint.gradle.cross.specification;
 
+import at.dotpoint.gradle.cross.dependency.container.CrossDependencySpecContainer;
+import at.dotpoint.gradle.cross.dependency.container.IDependencySpecContainer;
 import at.dotpoint.gradle.cross.options.requirement.IOptionsRequirement;
 import at.dotpoint.gradle.cross.options.requirement.OptionsRequirement;
 import at.dotpoint.gradle.cross.variant.parser.buildtype.BuildTypeNotationParser;
@@ -16,6 +18,7 @@ import org.gradle.model.ModelMap;
 import org.gradle.model.internal.core.ModelMaps;
 import org.gradle.model.internal.core.MutableModelNode;
 import org.gradle.model.internal.type.ModelType;
+import org.gradle.platform.base.component.BaseComponentSpec;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -24,11 +27,12 @@ import java.util.List;
 /**
  * Created by RK on 19.03.16.
  */
-public class ApplicationComponentSpec extends GeneralComponentSpec implements IApplicationComponentSpecInternal
+public class ApplicationComponentSpec extends BaseComponentSpec implements IApplicationComponentSpecInternal
 {
 	//
-	private static final ModelType<ITestComponentSpec> TEST_COMPONENT_SPEC_MODEL_TYPE = ModelType.of(ITestComponentSpec.class);
 	private final MutableModelNode tests;
+	private static final ModelType<ITestComponentSpec> TEST_COMPONENT_SPEC_MODEL_TYPE =
+			ModelType.of(ITestComponentSpec.class);
 
 	//
     protected final ArrayList<PlatformRequirement> targetPlatformList;
@@ -42,6 +46,7 @@ public class ApplicationComponentSpec extends GeneralComponentSpec implements IA
 
 	//
 	protected IOptionsRequirement configuration;
+	private IDependencySpecContainer dependencies;
 
 	// --------------------------------------------- //
 	// --------------------------------------------- //
@@ -58,7 +63,8 @@ public class ApplicationComponentSpec extends GeneralComponentSpec implements IA
 		this.flavorNotationParser = FlavorNotationParser.getInstance();
 		this.buildTypeNotationParser = BuildTypeNotationParser.getInstance();
 
-		this.tests = ModelMaps.addModelMapNode( getInfo().modelNode, TEST_COMPONENT_SPEC_MODEL_TYPE, "tests" );
+		this.tests = ModelMaps.addModelMapNode( getInfo().modelNode,
+				TEST_COMPONENT_SPEC_MODEL_TYPE, "tests" );
 	}
 
 	// --------------------------------------------- //
@@ -69,6 +75,15 @@ public class ApplicationComponentSpec extends GeneralComponentSpec implements IA
         return ModelMaps.toView( this.tests, TEST_COMPONENT_SPEC_MODEL_TYPE );
     }
 
+	@Override
+	public IDependencySpecContainer getDependencies()
+	{
+		if( this.dependencies == null )
+			this.dependencies = new CrossDependencySpecContainer();
+		
+		return dependencies;
+	}
+ 
 	// --------------------------------------------- //
 	// --------------------------------------------- //
 

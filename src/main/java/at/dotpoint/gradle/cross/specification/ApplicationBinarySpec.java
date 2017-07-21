@@ -29,9 +29,6 @@ public class ApplicationBinarySpec extends BaseBinarySpec implements IApplicatio
 	private IOptions configuration;
 	private List<File> buildResult;
 
-	private IApplicationBinarySpec testBinarySpecTarget;
-	private IApplicationBinarySpec testBinarySpecSource;
-
 	// ------------------------------------------------------------------ //
 	// ------------------------------------------------------------------ //
 

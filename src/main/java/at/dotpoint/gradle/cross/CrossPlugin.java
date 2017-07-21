@@ -8,7 +8,6 @@ import at.dotpoint.gradle.cross.sourceset.ISourceSetInternal;
 import at.dotpoint.gradle.cross.sourceset.SourceSet;
 import at.dotpoint.gradle.cross.specification.ApplicationBinarySpec;
 import at.dotpoint.gradle.cross.specification.*;
-import at.dotpoint.gradle.cross.specification.GeneralComponentSpec;
 import at.dotpoint.gradle.cross.transform.builder.ITransformationBuilder;
 import at.dotpoint.gradle.cross.transform.repository.ITransformBuilderRepository;
 import at.dotpoint.gradle.cross.transform.repository.TransformBuilderRepository;
@@ -111,15 +110,7 @@ public class CrossPlugin implements Plugin<Project>
 	 */
 	static class ComponentRules extends RuleSource
 	{
-		/**
-		 * IGeneralComponentSpec
-		 */
-		@ComponentType
-		void registerGeneralComponentSpec( TypeBuilder<IGeneralComponentSpec> builder )
-		{
-			builder.defaultImplementation( GeneralComponentSpec.class );
-			builder.internalView( IGeneralComponentSpecInternal.class );
-		}
+		
 		
 		/**
 		 * IApplicationComponentSpec

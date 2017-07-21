@@ -3,6 +3,8 @@ package at.dotpoint.gradle.haxe;
 import at.dotpoint.gradle.cross.CrossPlugin;
 import at.dotpoint.gradle.cross.sourceset.ISourceSet;
 import at.dotpoint.gradle.cross.specification.IApplicationComponentSpec;
+import at.dotpoint.gradle.cross.specification.IGeneralComponentSpec;
+import at.dotpoint.gradle.cross.specification.ITestComponentSpec;
 import at.dotpoint.gradle.cross.transform.builder.ITransformationBuilder;
 import at.dotpoint.gradle.cross.transform.builder.lifecycle.LifeCycleTransformationBuilder;
 import at.dotpoint.gradle.cross.transform.container.LifeCycleTransformationContainer;
@@ -117,6 +119,9 @@ public class HaxePlugin implements Plugin<Project>
 		}
 		
 		//
+		// TODO: should prob. go into platform factory, because platforms later created cause issues!
+		// e.g. haxe through sourcePlatform
+		//
 		private void generatePlatformDirectories( IPlatformContainer platformContainer,
 		                                          FileResolver fileResolver )
 		{
@@ -173,32 +178,45 @@ public class HaxePlugin implements Plugin<Project>
 		
 		//
 		@Mutate
-		void generateSourceSets( @Each IApplicationComponentSpec applicationComponentSpec,
+		void generateSourceSets( @Each IGeneralComponentSpec componentSpec,
 		                         IPlatformContainer platformContainer )
 		{
-			LOGGER.info( "generateSourceSets: {}", applicationComponentSpec );
+			LOGGER.info( "generateSourceSets: {}", componentSpec );
+			
+			for( IPlatform platform : platformContainer )
+				LOGGER.info( "-platform {}", platform );
 			
 			//
 			for( IPlatform platform : platformContainer )
 			{
-				applicationComponentSpec.getSources().create( platform.getName(), ISourceSet.class, sourceSet ->
+				File sourceDirectory = ( componentSpec instanceof ITestComponentSpec ) ?
+						platform.getUnitSourceDirectory() : platform.getMainSourceDirectory();
+				
+				//
+				if( sourceDirectory == null )
+					continue;
+				
+				componentSpec.getSources().create( platform.getName(), ISourceSet.class, sourceSet ->
 				{
-					LOGGER.info( "-create SourceSet for {}", platform );
-					
-					//
-					for( String srcName : platform.getDirectories() )
-					{
-						File sourceDirectory = new File( platform.getMainSourceDirectory(), srcName );
-						sourceSet.getSource().srcDirs( sourceDirectory );
-					}
-					
-					//
-					sourceSet.getSource().include( "**/*.hx" );
-					
-					sourceSet.sourcePlatform( "haxe" );
-					sourceSet.targetPlatform( platform.getName() );
+					this.populateSourceSet( platform, sourceSet, sourceDirectory );
 				} );
 			}
+		}
+		
+		//
+		private void populateSourceSet( IPlatform platform, ISourceSet sourceSet, File sourceDirectory )
+		{
+			LOGGER.info( "-create SourceSet {} for {} in dir: {}", sourceSet, platform, sourceDirectory );
+			
+			//
+			for( String srcName : platform.getDirectories() )
+				sourceSet.getSource().srcDirs( new File( sourceDirectory, srcName ) );
+			
+			//
+			sourceSet.getSource().include( "**/*.hx" );
+			
+			sourceSet.sourcePlatform( "haxe" );
+			sourceSet.targetPlatform( platform.getName() );
 		}
 	}
 }
