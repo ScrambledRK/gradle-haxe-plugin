@@ -1,6 +1,6 @@
 # gradle-haxe-plugin
 Gradle Plugin to build Haxe Multi-Platform Projects; trying to follow the "intented way" (looking up the source for C, Java and Javascript  Plugins and Gradle documentation)
-
+---
 runtime:
 * platform specific configuration possible 
 * debug, production and custom configuration possible
